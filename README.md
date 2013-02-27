@@ -2,7 +2,8 @@
 
 `toml-test` is a higher-order program that tests other 
 [TOML](https://github.com/mojombo/toml)
-parsers. Tests are divided into two groups: invalid TOML data and valid TOML 
+parsers. The goal is to make it comprehensive.
+Tests are divided into two groups: invalid TOML data and valid TOML 
 data. Parsers that reject invalid TOML data pass invalid TOML tests. Parsers 
 that accept valid TOML data and output precisely what is expected pass valid 
 tests. The output format is JSON, described below.
