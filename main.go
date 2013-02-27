@@ -37,14 +37,13 @@ func init() {
 }
 
 func usage() {
-	log.Printf("Usage: %s parser-cmd [ test-name ... ]\n\n",
+	log.Printf("Usage: %s parser-cmd [ test-name ... ]\n",
 		path.Base(os.Args[0]))
-	log.Println(
-		`parser-cmd should be a program that accepts TOML data on stdin until EOF,
-and outputs the corresponding JSON encoding on stdout.
-
-Date times should be represented as JSON strings, in their full ISO8601 Zulu
-form.
+	log.Println(`
+parser-cmd should be a program that accepts TOML data on stdin until EOF,
+and outputs the corresponding JSON encoding on stdout. Please see 'README.md' 
+for details on how to satisfy the interface expected by 'toml-test' with your 
+own parser.
 
 The 'testdir' directory should have two sub-directories: 'invalid' and 'valid'.
 
