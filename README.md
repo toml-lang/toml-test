@@ -24,8 +24,7 @@ cd
 export GOPATH=$HOME/go # if it isn't already set
 go get github.com/BurntSushi/toml-test # install test suite
 go get github.com/BurntSushi/toml/toml-test-go # install my parser
-cd go/src/github.com/BurntSushi/toml-test
-~/go/bin/toml-test ~/go/bin/toml-test-go # run tests on my parser
+gotmp/bin/toml-test gotmp/bin/toml-test-go # run tests on my parser
 # Outputs: 42 passed, 0 failed
 ```
 
