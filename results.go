@@ -10,10 +10,10 @@ import (
 
 type result struct {
 	testName string
-	err error
-	valid bool
-	failure string
-	key string
+	err      error
+	valid    bool
+	failure  string
+	key      string
 }
 
 func (r result) errorf(format string, v ...interface{}) result {
@@ -66,7 +66,7 @@ func (r result) jsonPath() string {
 func runInvalidTest(name string) result {
 	r := result{
 		testName: name,
-		valid: false,
+		valid:    false,
 	}
 
 	_, stderr, err := runParser(r.path())
@@ -82,7 +82,7 @@ func runInvalidTest(name string) result {
 func runValidTest(name string) result {
 	r := result{
 		testName: name,
-		valid: true,
+		valid:    true,
 	}
 
 	jsonExpected, err := loadJson(r.jsonPath())
