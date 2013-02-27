@@ -125,7 +125,11 @@ func runParser(tomlFile string) (*bytes.Buffer, *bytes.Buffer, error) {
 	c.Stderr = stderr
 
 	if err := c.Run(); err != nil {
-		return nil, stderr, nil
+		// Errors are only good if they are exit errors.
+		if _, ok := err.(*exec.ExitError); ok {
+			return nil, stderr, nil
+		}
+		return nil, nil, err
 	}
 	return stdout, nil, nil
 }
