@@ -164,6 +164,6 @@ assumptions we need to make.
 If you have an implementation, send a pull request adding to this list. Please 
 note the commit SHA1 or version tag that your parser supports in your `README`.
 
-* Go (@BurntSushi) - https://github.com/BurntSushi/toml/tree/master/toml-test-go
-* Ruby (@cespare) - https://gist.github.com/cespare/5052442
+* Go w/ Reflection (@BurntSushi) - https://github.com/BurntSushi/toml/tree/master/toml-test-go
+* Ruby (@jm, @cespare) - https://gist.github.com/cespare/5052442
 
