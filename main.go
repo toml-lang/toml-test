@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go/build"
 	"io/ioutil"
 	"log"
 	"os"
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	flagTestdir = "tests"
+	flagTestdir = ""
 	flagShowAll = false
 )
 
@@ -23,6 +24,23 @@ var (
 
 func init() {
 	log.SetFlags(0)
+
+	// If no test directory was specified, let's look for it automatically.
+	// Assumes `toml-test` was installed with the Go tool.
+	if len(flagTestdir) == 0 {
+		imp := path.Join("github.com", "BurntSushi", "toml-test", "tests")
+		for _, dir := range build.Default.SrcDirs() {
+			if readable(path.Join(dir, imp)) {
+				flagTestdir = path.Join(dir, imp)
+				break
+			}
+		}
+	}
+
+	// Nada, just use 'tests'.
+	if len(flagTestdir) == 0 {
+		flagTestdir = "tests"
+	}
 
 	flag.StringVar(&flagTestdir, "testdir", flagTestdir,
 		"The path to the test directory.")
