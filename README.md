@@ -85,13 +85,17 @@ The following are taken as ground truths by `toml-test`:
 
 * All tests classified as `invalid` **are** invalid.
 * All tests classified as `valid` **are** valid.
-* All expected outputs in `valid/*.json` are exactly correct.
+* All expected outputs in `valid/\*.json` are exactly correct.
 * The Go standard library package `encoding/json` decodes JSON correctly.
 
 Of particular note is that **no TOML parser** is taken as ground truth. This
 means that most changes to the spec will only require an update of the tests
 in `toml-test`. (Bigger changes may require an adjustment of how two things
 are considered equal. Particularly if a new type of data is added.)
+
+## Adding tests
+
+The tes
 
 ## Why JSON?
 
