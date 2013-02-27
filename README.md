@@ -7,8 +7,77 @@ data. Parsers that reject invalid TOML data pass invalid TOML tests. Parsers
 that accept valid TOML data and output precisely what is expected pass valid 
 tests. The output format is JSON, described below.
 
-Compatible with toml commit
+Compatible with TOML commit
 [3f4224ecdc](https://github.com/mojombo/toml/commit/3f4224ecdc4a65fdd28b4fb70d46f4c0bd3700aa).
+
+## Interface of a parser
+
+For your parser to be compatible with `toml-test`, it **must** satisfy the 
+interface expected.
+
+Your parser **must** accept TOML data on `stdin` until EOF.
+
+If the TOML data is invalid, your parser **must** return with a non-zero
+exit code indicating an error.
+
+If the TOML data is valid, Your parser **must** output a JSON encoding of that 
+data on `stdout` and return with a zero exit code indicating success.
+
+The rest of this section is dedicated to describing that JSON encoding.
+
+### JSON encoding
+
+* TOML hashes map to JSON objects.
+* TOML values map to a special JSON object of the form
+  `{"type": "{TTYPE}", "value": {TVALUE}}`
+
+In the above, `TTYPE` may be one of:
+
+* string
+* integer
+* float
+* datetime
+* bool
+* array
+
+and `TVALUE` is always a JSON string, except when `TTYPE` is `array` in which
+`TVALUE` is a JSON array containing TOML values.
+
+Empty hashes map to empty JSON objects (i.e., `{}`) and empty arrays map to
+empty JSON arrays (i.e., `[]`).
+
+### Example JSON encoding
+
+Here is the TOML data:
+
+```toml
+best-day-ever = 1987-07-05T17:45:00Z
+
+[numtheory]
+boring = false
+perfection = [6, 28, 496]
+```
+
+And the JSON encoding expected by `toml-test` is:
+
+```json
+{
+  "best-day-ever": {"type": "datetime", "value": "1987-07-05T17:45:00Z"},
+  "numtheory": {
+    "boring": {"type": "bool", "value": "false"},
+    "perfection": {
+      "type": "array",
+      "value": [
+        {"type": "integer", "value": "6"},
+        {"type": "integer", "value": "28"},
+        {"type": "integer", "value": "496"}
+      ]
+    }
+  }
+}
+```
+
+Note that the only JSON values ever used are objects, arrays and strings.
 
 ## Assumptions of Truth
 
