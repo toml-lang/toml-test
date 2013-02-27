@@ -9,8 +9,8 @@ The bare bones are working. Polishing, documentation and tests forthcoming.
 
 The following are taken as ground truths by `toml-test`:
 
-* All tests classified as `invalid` *are* invalid.
-* All tests classified as `valid` *are* valid.
+* All tests classified as `invalid` **are** invalid.
+* All tests classified as `valid` **are** valid.
 
 ## Why JSON?
 
