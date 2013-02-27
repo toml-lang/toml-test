@@ -1,0 +1,11 @@
+{
+    "the-void": { "type": "array", "value": [
+        {"type": "array", "value": [
+            {"type": "array", "value": [
+                {"type": "array", "value": [
+                    {"type": "array", "value": []}
+                ]}
+            ]}
+        ]}
+    ]}
+}
