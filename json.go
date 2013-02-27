@@ -1,5 +1,9 @@
 package main
 
+import (
+	"strconv"
+)
+
 // compareJson consumes the recursive structure of both `expected` and `test`
 // simultaneously. If anything is unequal, the result has failed and
 // comparison stops.
@@ -7,11 +11,12 @@ package main
 // N.B. `reflect.DeepEqual` could work here, but it won't tell us how the
 // two structures are different.
 func (r result) cmpJson(expected, test interface{}) result {
-	switch e := expected.(type) {
-	case map[string]interface{}:
-		return r.cmpMaps(e, test)
+	e, ok := expected.(map[string]interface{})
+	if !ok {
+		return r.failedf("Key '%s' in expected output should be a map, but "+
+			"it's a %T.", r.key, expected)
 	}
-	return r
+	return r.cmpMaps(e, test)
 }
 
 func (r result) cmpMaps(
@@ -110,12 +115,39 @@ func (r result) cmpValues(e, t map[string]interface{}) result {
 		return r.cmpArray(e["value"], t["value"])
 	}
 
+	// Floats need special attention too. Not every language can
+	// represent the same floats, and sometimes the string version of
+	// a float can be wonky with extra zeroes and what not.
+	if etype == "float" {
+		return r.cmpFloat(e["value"].(string), t["value"].(string))
+	}
+
 	// Otherwise, we can do simple string equality.
 	if e["value"] != t["value"] {
 		return r.failedf("Values for key '%s' don't match. Expected a "+
 			"value of '%s' but got '%s'.", r.key, e["value"], t["value"])
 	}
 
+	return r
+}
+
+func (r result) cmpFloat(e, t string) result {
+	ef, err := strconv.ParseFloat(e, 64)
+	if err != nil {
+		return r.failedf("BUG in test case. Could not read '%s' as a float "+
+			"value for key '%s'.", e, r.key)
+	}
+
+	tf, err := strconv.ParseFloat(t, 64)
+	if err != nil {
+		return r.failedf("Malformed parser output. Could not read '%s' as "+
+			"a float value for key '%s'.", t, r.key)
+	}
+
+	if ef != tf {
+		return r.failedf("Values for key '%s' don't match. Expected a "+
+			"value of '%v' but got '%v'.", r.key, ef, tf)
+	}
 	return r
 }
 
