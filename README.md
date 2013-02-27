@@ -27,8 +27,8 @@ The rest of this section is dedicated to describing that JSON encoding.
 
 ### JSON encoding
 
-* TOML hashes map to JSON objects.
-* TOML values map to a special JSON object of the form
+* TOML hashes correspond to JSON objects.
+* TOML values correspond to a special JSON object of the form
   `{"type": "{TTYPE}", "value": {TVALUE}}`
 
 In the above, `TTYPE` may be one of:
