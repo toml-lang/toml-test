@@ -67,8 +67,8 @@ In the above, `TTYPE` may be one of:
 and `TVALUE` is always a JSON string, except when `TTYPE` is `array` in which
 `TVALUE` is a JSON array containing TOML values.
 
-Empty hashes map to empty JSON objects (i.e., `{}`) and empty arrays map to
-empty JSON arrays (i.e., `[]`).
+Empty hashes correspond to empty JSON objects (i.e., `{}`) and empty arrays 
+correspond to empty JSON arrays (i.e., `[]`).
 
 
 ### Example JSON encoding
