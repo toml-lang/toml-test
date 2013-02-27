@@ -111,7 +111,7 @@ The following are taken as ground truths by `toml-test`:
 
 * All tests classified as `invalid` **are** invalid.
 * All tests classified as `valid` **are** valid.
-* All expected outputs in `valid/\*.json` are exactly correct.
+* All expected outputs in `valid/test-name.json` are exactly correct.
 * The Go standard library package `encoding/json` decodes JSON correctly.
 
 Of particular note is that **no TOML parser** is taken as ground truth. This
