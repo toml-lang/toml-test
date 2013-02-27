@@ -1,4 +1,4 @@
-# A comprehensive language agnostic test suite for TOML parsers
+# A language agnostic test suite for TOML parsers
 
 `toml-test` is a higher-order program that tests other 
 [TOML](https://github.com/mojombo/toml)
