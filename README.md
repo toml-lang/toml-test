@@ -10,6 +10,29 @@ tests. The output format is JSON, described below.
 Compatible with TOML commit
 [3f4224ecdc](https://github.com/mojombo/toml/commit/3f4224ecdc4a65fdd28b4fb70d46f4c0bd3700aa).
 
+Dependencies: [Go](http://golang.org).
+
+
+## Try it out
+
+All you need is to have [Go](http://golang.org) installed. Then simply
+use:
+
+```bash
+cd
+export GOPATH=$HOME/go # if it isn't already set
+go get github.com/BurntSushi/toml-test # install test suite
+go get github.com/BurntSushi/toml/toml-test-go # install my parser
+cd go/src/github.com/BurntSushi/toml-test
+~/go/bin/toml-test ~/go/bin/toml-test-go # run tests on my parser
+# Outputs: 42 passed, 0 failed
+```
+
+To test your parser, you will have to satisfy the interface expected by 
+`toml-test` described below. Then just execute `toml-test your-parser` in the
+`toml-test` directory to run your parser against all tests.
+
+
 ## Interface of a parser
 
 For your parser to be compatible with `toml-test`, it **must** satisfy the 
@@ -24,6 +47,7 @@ If the TOML data is valid, Your parser **must** output a JSON encoding of that
 data on `stdout` and return with a zero exit code indicating success.
 
 The rest of this section is dedicated to describing that JSON encoding.
+
 
 ### JSON encoding
 
@@ -45,6 +69,7 @@ and `TVALUE` is always a JSON string, except when `TTYPE` is `array` in which
 
 Empty hashes map to empty JSON objects (i.e., `{}`) and empty arrays map to
 empty JSON arrays (i.e., `[]`).
+
 
 ### Example JSON encoding
 
@@ -79,6 +104,7 @@ And the JSON encoding expected by `toml-test` is:
 
 Note that the only JSON values ever used are objects, arrays and strings.
 
+
 ## Assumptions of Truth
 
 The following are taken as ground truths by `toml-test`:
@@ -93,9 +119,25 @@ means that most changes to the spec will only require an update of the tests
 in `toml-test`. (Bigger changes may require an adjustment of how two things
 are considered equal. Particularly if a new type of data is added.)
 
+
 ## Adding tests
 
-The tes
+`toml-test` was designed so that tests can be easily added and removed. As 
+mentioned above, tests are split into two groups: invalid and valid tests. 
+
+Invalid tests **only check if a parser rejects invalid TOML data**. Therefore, 
+all invalid tests should try to **test one thing and one thing only**. Invalid 
+tests should be named after the fault it is trying to expose.
+
+Valid tests check that a parser accepts valid TOML data **and** that the parser 
+has the correct representation of the TOML data. Therefore, valid tests need a 
+JSON encoding in addition to the TOML data. The tests should be small enough 
+that writing the JSON encoding by hand will not give you brain damage.
+
+A valid test without a corresponding `.json` file will automatically fail.
+
+If you have tests that you'd like to add, please submit a pull request.
+
 
 ## Why JSON?
 
@@ -115,6 +157,7 @@ YAML may be closer in correspondence with TOML, but I don't believe we should
 rely on that correspondence. Making things explicit with JSON means that 
 writing tests is a little more cumbersome, but it also reduces the number of 
 assumptions we need to make.
+
 
 ## Parsers that satisfy the `toml-test` interface
 
