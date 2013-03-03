@@ -9,7 +9,7 @@ that accept valid TOML data and output precisely what is expected pass valid
 tests. The output format is JSON, described below.
 
 Compatible with TOML commit
-[3f4224ecdc](https://github.com/mojombo/toml/commit/3f4224ecdc4a65fdd28b4fb70d46f4c0bd3700aa).
+[00682c6](https://github.com/mojombo/toml/commit/00682c6877466d4031b4f01c5a2182b557227690)
 
 Dependencies: [Go](http://golang.org).
 

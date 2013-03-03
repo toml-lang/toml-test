@@ -1,5 +1,3 @@
-# Dammit. JSON won't let us test null characters. Ideas?
-# null = "This string has a \0 null character." 
 tabs = "This string has a \t tab character."
 newlines = "This string has a \n new line character."
 carriages = "This string has a \r carriage return character."
