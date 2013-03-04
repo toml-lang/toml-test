@@ -71,6 +71,12 @@ func runInvalidTest(name string) result {
 
 	_, stderr, err := runParser(r.path())
 	if err != nil {
+		// Errors here are OK if it's just an exit error.
+		if _, ok := err.(*exec.ExitError); ok {
+			return r
+		}
+
+		// Otherwise, something has gone horribly wrong.
 		return r.errorf(err.Error())
 	}
 	if stderr != nil { // test has passed!
@@ -91,14 +97,22 @@ func runValidTest(name string) result {
 	}
 
 	stdout, stderr, err := runParser(r.path())
+
 	if err != nil {
+		if _, ok := err.(*exec.ExitError); ok {
+			switch {
+			case stderr != nil && stderr.Len() > 0:
+				return r.failedf(stderr.String())
+			case stdout != nil && stdout.Len() > 0:
+				return r.failedf(stdout.String())
+			}
+		}
 		return r.errorf(err.Error())
 	}
-	if stderr != nil { // test has failed :-(
-		return r.failedf(stderr.String())
-	}
+
 	if stdout == nil {
-		panic("BUG: stdout and stderr are both nil.")
+		return r.errorf("Parser does not satisfy interface. stdout is empty, " +
+			"but the process exited successfully.")
 	}
 
 	var jsonTest interface{}
@@ -125,11 +139,7 @@ func runParser(tomlFile string) (*bytes.Buffer, *bytes.Buffer, error) {
 	c.Stderr = stderr
 
 	if err := c.Run(); err != nil {
-		// Errors are only good if they are exit errors.
-		if _, ok := err.(*exec.ExitError); ok {
-			return nil, stderr, nil
-		}
-		return nil, nil, err
+		return stdout, stderr, err
 	}
 	return stdout, nil, nil
 }
