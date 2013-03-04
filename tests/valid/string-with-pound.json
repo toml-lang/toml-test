@@ -1,6 +1,6 @@
 {
     "pound": {"type": "string", "value": "We see no # comments here."},
-    "pound-comment": {
+    "poundcomment": {
         "type": "string",
         "value": "But there are # some comments here."
     }
