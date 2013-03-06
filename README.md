@@ -43,7 +43,7 @@ Your parser **must** accept TOML data on `stdin` until EOF.
 If the TOML data is invalid, your parser **must** return with a non-zero
 exit code indicating an error.
 
-If the TOML data is valid, Your parser **must** output a JSON encoding of that 
+If the TOML data is valid, your parser **must** output a JSON encoding of that 
 data on `stdout` and return with a zero exit code indicating success.
 
 The rest of this section is dedicated to describing that JSON encoding.
