@@ -166,6 +166,8 @@ note the commit SHA1 or version tag that your parser supports in your `README`.
 
 * Go w/ Reflection (@BurntSushi) - https://github.com/BurntSushi/toml/tree/master/toml-test-go
 * Ruby (@jm, @cespare) - https://gist.github.com/cespare/5052442
+* Python (@marksteve) - https://github.com/marksteve/toml-ply
+* Python (@uiri) - https://github.com/uiri/toml
 
 N.B. Your parser doesn't need to pass all tests to be on this list. Although,
 perhaps such a list should exist.
