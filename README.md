@@ -8,8 +8,10 @@ data. Parsers that reject invalid TOML data pass invalid TOML tests. Parsers
 that accept valid TOML data and output precisely what is expected pass valid 
 tests. The output format is JSON, described below.
 
-Compatible with TOML commit
-[00682c6](https://github.com/mojombo/toml/commit/00682c6877466d4031b4f01c5a2182b557227690)
+Version: v0.1.0 (in sync with TOML)
+
+Compatible with TOML version
+[v0.1.0](https://github.com/mojombo/toml/blob/master/versions/toml-v0.1.0.md)
 
 Dependencies: [Go](http://golang.org).
 
@@ -25,7 +27,7 @@ export GOPATH=$HOME/go # if it isn't already set
 go get github.com/BurntSushi/toml-test # install test suite
 go get github.com/BurntSushi/toml/toml-test-go # install my parser
 gotmp/bin/toml-test gotmp/bin/toml-test-go # run tests on my parser
-# Outputs: 50 passed, 0 failed
+# Outputs: 56 passed, 0 failed
 ```
 
 To test your parser, you will have to satisfy the interface expected by 
