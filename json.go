@@ -11,12 +11,16 @@ import (
 // N.B. `reflect.DeepEqual` could work here, but it won't tell us how the
 // two structures are different.
 func (r result) cmpJson(expected, test interface{}) result {
-	e, ok := expected.(map[string]interface{})
-	if !ok {
-		return r.failedf("Key '%s' in expected output should be a map, but "+
-			"it's a %T.", r.key, expected)
+	switch e := expected.(type) {
+	case map[string]interface{}:
+		return r.cmpMaps(e, test)
+	case []interface{}:
+		return r.cmpArray(e, test)
+	default:
+		return r.failedf("Key '%s' in expected output should be a map or a "+
+			"list of maps, but it's a %T.", r.key, expected)
 	}
-	return r.cmpMaps(e, test)
+	panic("unreachable")
 }
 
 func (r result) cmpMaps(
