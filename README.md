@@ -8,10 +8,10 @@ data. Parsers that reject invalid TOML data pass invalid TOML tests. Parsers
 that accept valid TOML data and output precisely what is expected pass valid 
 tests. The output format is JSON, described below.
 
-Version: v0.1.0 (in sync with TOML)
+Version: v0.2.0 (in sync with TOML)
 
 Compatible with TOML version
-[v0.1.0](https://github.com/mojombo/toml/blob/master/versions/toml-v0.1.0.md)
+[v0.2.0](https://github.com/mojombo/toml/blob/master/versions/toml-v0.2.0.md)
 
 Dependencies: [Go](http://golang.org).
 
