@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+function normalize {
+    python -c 'import json, sys; print json.dumps(json.load(open(sys.argv[1])), sort_keys=True);' $1
+}
+
+for tomlfile in $(ls tests/valid/*.toml); do
+    jsonfile="$(dirname $tomlfile)/$(basename $tomlfile .toml).json"
+    echo $(dirname $tomlfile)/$(basename $tomlfile .toml)
+    diff -u --label $jsonfile <(normalize $jsonfile) --label "output" <(normalize <(cat $tomlfile | $1)) || true;
+done
