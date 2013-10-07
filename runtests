@@ -7,6 +7,5 @@ function normalize {
 
 for tomlfile in $(ls tests/valid/*.toml); do
     jsonfile="$(dirname $tomlfile)/$(basename $tomlfile .toml).json"
-    echo $(dirname $tomlfile)/$(basename $tomlfile .toml)
-    diff -u --label $jsonfile <(normalize $jsonfile) --label "output" <(normalize <(cat $tomlfile | $1)) || true;
+    diff -u --label $jsonfile <(normalize $jsonfile) --label "got" <(normalize <(cat $tomlfile | $1)) || true;
 done
