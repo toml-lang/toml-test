@@ -1,4 +1,6 @@
 #!/bin/bash
+# usage: ./runtests path/to/toml-test/interface/compatible/parser
+
 set -e
 
 function normalize {
