@@ -1,7 +1,11 @@
 #!/bin/bash
-# usage: ./runtests path/to/toml-test/interface/compatible/parser
 
 set -e
+
+if [ ! -x "$1" ]; then
+    echo usage: ./runtests path/to/toml-test/interface/compatible/parser
+    exit 1
+fi
 
 function normalize {
     python -c 'import json, sys; print json.dumps(json.load(open(sys.argv[1])), sort_keys=True);' $1
