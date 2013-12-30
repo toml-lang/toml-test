@@ -1,12 +1,18 @@
-# A language agnostic test suite for TOML parsers
+# A language agnostic test suite for TOML encoders and decoders
 
 `toml-test` is a higher-order program that tests other 
 [TOML](https://github.com/mojombo/toml)
-parsers. The goal is to make it comprehensive.
+decoders or encoders. The goal is to make it comprehensive.
 Tests are divided into two groups: invalid TOML data and valid TOML 
-data. Parsers that reject invalid TOML data pass invalid TOML tests. Parsers 
+data. Decoders that reject invalid TOML data pass invalid TOML tests. Deocoders 
 that accept valid TOML data and output precisely what is expected pass valid 
 tests. The output format is JSON, described below.
+
+Both decoders and encoders share valid tests, except an encoder accepts JSON 
+and outputs TOML. The TOML representations are read with a blessed decoder and 
+compared. Note though that encoders have their own set of invalid tests in the 
+invalid-encoder directory. The JSON given to a TOML encoder is in the same 
+format as the JSON that a TOML decoder should output.
 
 Version: v0.2.0 (in sync with TOML)
 
@@ -25,35 +31,54 @@ use:
 cd
 export GOPATH=$HOME/go # if it isn't already set
 go get github.com/BurntSushi/toml-test # install test suite
-go get github.com/BurntSushi/toml/toml-test-go # install my parser
-gotmp/bin/toml-test gotmp/bin/toml-test-go # run tests on my parser
-# Outputs: 56 passed, 0 failed
+go get github.com/BurntSushi/toml/toml-test-go # e.g., install my parser
+gotmp/bin/toml-test gotmp/bin/toml-test-go # e.g., run tests on my parser
+# Outputs: 63 passed, 0 failed
 ```
 
-To test your parser, you will have to satisfy the interface expected by 
-`toml-test` described below. Then just execute `toml-test your-parser` in the
-`toml-test` directory to run your parser against all tests.
+To test your decoder, you will have to satisfy the interface expected by 
+`toml-test` described below. Then just execute `toml-test your-decoder` in the
+`toml-test` directory to run your decoder against all tests.
+
+To test your encoder, the instructions are the same. Accept the input/output
+is reversed, and you'll need to run `toml-test -encoder your-encoder`.
 
 
-## Interface of a parser
+## Interface of a decoder
 
-For your parser to be compatible with `toml-test`, it **must** satisfy the 
+For your decoder to be compatible with `toml-test`, it **must** satisfy the 
 interface expected.
 
-Your parser **must** accept TOML data on `stdin` until EOF.
+Your decoder **must** accept TOML data on `stdin` until EOF.
 
-If the TOML data is invalid, your parser **must** return with a non-zero
+If the TOML data is invalid, your decoder **must** return with a non-zero
 exit code indicating an error.
 
-If the TOML data is valid, your parser **must** output a JSON encoding of that 
+If the TOML data is valid, your decoder **must** output a JSON encoding of that 
 data on `stdout` and return with a zero exit code indicating success.
 
-The rest of this section is dedicated to describing that JSON encoding.
+
+## Interface of an encoder
+
+For your encoder to be compatible with `toml-test`, it **must** satisfy the 
+interface expected.
+
+Your encoder **must** accept JSON data on `stdin` until EOF.
+
+If the JSON data cannot be converted to a valid TOML representation, your 
+encoder **must** return with a non-zero exit code indicating an error.
+
+If the JSON data can be converted to a valid TOML representation, your encoder 
+**must** output a TOML encoding of that data on `stdout` and return with a zero 
+exit code indicating success.
 
 
 ### JSON encoding
 
-* TOML hashes correspond to JSON objects.
+The following JSON encoding applies equally to both encoders and decoders.
+
+* TOML tables correspond to JSON objects.
+* TOML table arrays correspond to JSON arrays.
 * TOML values correspond to a special JSON object of the form
   `{"type": "{TTYPE}", "value": {TVALUE}}`
 
@@ -115,11 +140,17 @@ The following are taken as ground truths by `toml-test`:
 * All tests classified as `valid` **are** valid.
 * All expected outputs in `valid/test-name.json` are exactly correct.
 * The Go standard library package `encoding/json` decodes JSON correctly.
+* When testing encoders, the TOML decoder at
+  [BurntSushi/toml](https://github.com/BurntSushi/toml) is assumed to be 
+  correct. (Note that this assumption is not made when testing decoders!)
 
-Of particular note is that **no TOML parser** is taken as ground truth. This
-means that most changes to the spec will only require an update of the tests
-in `toml-test`. (Bigger changes may require an adjustment of how two things
-are considered equal. Particularly if a new type of data is added.)
+Of particular note is that **no TOML decoder** is taken as ground truth when 
+testing decoders. This means that most changes to the spec will only require an 
+update of the tests in `toml-test`. (Bigger changes may require an adjustment 
+of how two things are considered equal. Particularly if a new type of data is 
+added.) Obviously, this advantage does not apply to testing TOML encoders since 
+there must exist a TOML decoder that conforms to the specification in order to 
+read the output of a TOML encoder.
 
 
 ## Adding tests
@@ -127,16 +158,21 @@ are considered equal. Particularly if a new type of data is added.)
 `toml-test` was designed so that tests can be easily added and removed. As 
 mentioned above, tests are split into two groups: invalid and valid tests. 
 
-Invalid tests **only check if a parser rejects invalid TOML data**. Therefore, 
-all invalid tests should try to **test one thing and one thing only**. Invalid 
-tests should be named after the fault it is trying to expose.
+Invalid tests **only check if a decoder rejects invalid TOML data**. Or, in the 
+case of testing encoders, invalid tests **only check if an encoder rejects an 
+invalid representation of TOML** (e.g., a hetergeneous array).
+Therefore, all invalid tests should try to **test one thing and one thing 
+only**. Invalid tests should be named after the fault it is trying to expose.
+Invalid tests for decoders are in the `tests/invalid` directory while invalid 
+tests for encoders are in the `tests/invalid-encoder` directory.
 
-Valid tests check that a parser accepts valid TOML data **and** that the parser 
-has the correct representation of the TOML data. Therefore, valid tests need a 
-JSON encoding in addition to the TOML data. The tests should be small enough 
-that writing the JSON encoding by hand will not give you brain damage.
+Valid tests check that a decoder accepts valid TOML data **and** that 
+the parser has the correct representation of the TOML data. Therefore, valid 
+tests need a JSON encoding in addition to the TOML data. The tests should be 
+small enough that writing the JSON encoding by hand will not give you brain 
+damage. The exact reverse is true when testing encoders.
 
-A valid test without a corresponding `.json` file will automatically fail.
+A valid test without either a `.json` or `.toml` file will automatically fail.
 
 If you have tests that you'd like to add, please submit a pull request.
 
@@ -161,7 +197,7 @@ writing tests is a little more cumbersome, but it also reduces the number of
 assumptions we need to make.
 
 
-## Parsers that satisfy the `toml-test` interface
+## Decoders or encoders that satisfy the `toml-test` interface
 
 If you have an implementation, send a pull request adding to this list. Please 
 note the commit SHA1 or version tag that your parser supports in your `README`.
@@ -171,6 +207,5 @@ note the commit SHA1 or version tag that your parser supports in your `README`.
 * Python (@marksteve) - https://github.com/marksteve/toml-ply
 * Python (@uiri) - https://github.com/uiri/toml
 
-N.B. Your parser doesn't need to pass all tests to be on this list. Although,
-perhaps such a list should exist.
+N.B. Your decoder/encoder doesn't need to pass all tests to be on this list. 
 
