@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+
+	"github.com/BurntSushi/toml"
+
 	"os"
 	"os/exec"
 )
@@ -49,16 +52,23 @@ func (r result) failed() bool {
 	return r.err != nil || len(r.failure) > 0
 }
 
-func (r result) path() string {
-	if r.valid {
-		return vPath("%s.toml", r.testName)
+func (r result) pathTest() string {
+	ext := "toml"
+	if flagEncoder {
+		ext = "json"
 	}
-	return invPath("%s.toml", r.testName)
+	if r.valid {
+		return vPath("%s.%s", r.testName, ext)
+	}
+	return invPath("%s.%s", r.testName, ext)
 }
 
-func (r result) jsonPath() string {
+func (r result) pathGold() string {
 	if !r.valid {
-		panic("Cannot call `jsonPath` on invalid test.")
+		panic("Invalid tests do not have a 'correct' version.")
+	}
+	if flagEncoder {
+		return vPath("%s.toml", r.testName)
 	}
 	return vPath("%s.json", r.testName)
 }
@@ -69,7 +79,7 @@ func runInvalidTest(name string) result {
 		valid:    false,
 	}
 
-	_, stderr, err := runParser(r.path())
+	_, stderr, err := runParser(r.pathTest())
 	if err != nil {
 		// Errors here are OK if it's just an exit error.
 		if _, ok := err.(*exec.ExitError); ok {
@@ -91,13 +101,7 @@ func runValidTest(name string) result {
 		valid:    true,
 	}
 
-	jsonExpected, err := loadJson(r.jsonPath())
-	if err != nil {
-		return r.errorf(err.Error())
-	}
-
-	stdout, stderr, err := runParser(r.path())
-
+	stdout, stderr, err := runParser(r.pathTest())
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); ok {
 			switch {
@@ -115,17 +119,33 @@ func runValidTest(name string) result {
 			"but the process exited successfully.")
 	}
 
-	var jsonTest interface{}
-	if err := json.NewDecoder(stdout).Decode(&jsonTest); err != nil {
-		return r.errorf(
-			"Could not decode JSON output from parser: %s", err)
+	if flagEncoder {
+		tomlExpected, err := loadToml(r.pathGold())
+		if err != nil {
+			return r.errorf(err.Error())
+		}
+		var tomlTest interface{}
+		if _, err := toml.DecodeReader(stdout, &tomlTest); err != nil {
+			return r.errorf(
+				"Could not decode TOML output from encoder: %s", err)
+		}
+		return r.cmpToml(tomlExpected, tomlTest)
+	} else {
+		jsonExpected, err := loadJson(r.pathGold())
+		if err != nil {
+			return r.errorf(err.Error())
+		}
+		var jsonTest interface{}
+		if err := json.NewDecoder(stdout).Decode(&jsonTest); err != nil {
+			return r.errorf(
+				"Could not decode JSON output from parser: %s", err)
+		}
+		return r.cmpJson(jsonExpected, jsonTest)
 	}
-
-	return r.cmpJson(jsonExpected, jsonTest)
 }
 
-func runParser(tomlFile string) (*bytes.Buffer, *bytes.Buffer, error) {
-	f, err := os.Open(tomlFile)
+func runParser(testFile string) (*bytes.Buffer, *bytes.Buffer, error) {
+	f, err := os.Open(testFile)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -157,6 +177,15 @@ func loadJson(fp string) (interface{}, error) {
 			"Could not decode expected JSON output at %s: %s", fp, err)
 	}
 	return vjson, nil
+}
+
+func loadToml(fp string) (interface{}, error) {
+	var vtoml interface{}
+	if _, err := toml.DecodeFile(fp, &vtoml); err != nil {
+		return nil, fmt.Errorf(
+			"Could not decode expected TOML output at %s: %s", fp, err)
+	}
+	return vtoml, nil
 }
 
 func (r result) String() string {
