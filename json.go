@@ -13,9 +13,9 @@ import (
 func (r result) cmpJson(expected, test interface{}) result {
 	switch e := expected.(type) {
 	case map[string]interface{}:
-		return r.cmpMaps(e, test)
+		return r.cmpJsonMaps(e, test)
 	case []interface{}:
-		return r.cmpArray(e, test)
+		return r.cmpJsonArrays(e, test)
 	default:
 		return r.failedf("Key '%s' in expected output should be a map or a "+
 			"list of maps, but it's a %T.", r.key, expected)
@@ -23,25 +23,25 @@ func (r result) cmpJson(expected, test interface{}) result {
 	panic("unreachable")
 }
 
-func (r result) cmpMaps(
+func (r result) cmpJsonMaps(
 	e map[string]interface{}, test interface{}) result {
 
 	t, ok := test.(map[string]interface{})
 	if !ok {
-		return r.mismatch("hash map", t)
+		return r.mismatch("table", t)
 	}
 
 	// Check to make sure both or neither are values.
 	if isValue(e) && !isValue(t) {
 		return r.failedf("Key '%s' is supposed to be a value, but the "+
-			"parser reports it as a hash.", r.key)
+			"parser reports it as a table.", r.key)
 	}
 	if !isValue(e) && isValue(t) {
-		return r.failedf("Key '%s' is supposed to be a hash, but the "+
+		return r.failedf("Key '%s' is supposed to be a table, but the "+
 			"parser reports it as a value.", r.key)
 	}
 	if isValue(e) && isValue(t) {
-		return r.cmpValues(e, t)
+		return r.cmpJsonValues(e, t)
 	}
 
 	// Check that the keys of each map are equivalent.
@@ -69,7 +69,7 @@ func (r result) cmpMaps(
 	return r
 }
 
-func (r result) cmpArray(e, t interface{}) result {
+func (r result) cmpJsonArrays(e, t interface{}) result {
 	ea, ok := e.([]interface{})
 	if !ok {
 		return r.failedf("BUG in test case. 'value' should be a JSON array "+
@@ -96,7 +96,7 @@ func (r result) cmpArray(e, t interface{}) result {
 	return r
 }
 
-func (r result) cmpValues(e, t map[string]interface{}) result {
+func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 	etype, ok := e["type"].(string)
 	if !ok {
 		return r.failedf("BUG in test case. 'type' should be a string, "+
@@ -116,14 +116,14 @@ func (r result) cmpValues(e, t map[string]interface{}) result {
 	// If this is an array, then we've got to do some work to check
 	// equality.
 	if etype == "array" {
-		return r.cmpArray(e["value"], t["value"])
+		return r.cmpJsonArrays(e["value"], t["value"])
 	}
 
 	// Floats need special attention too. Not every language can
 	// represent the same floats, and sometimes the string version of
 	// a float can be wonky with extra zeroes and what not.
 	if etype == "float" {
-		return r.cmpFloat(e["value"].(string), t["value"].(string))
+		return r.cmpFloats(e["value"].(string), t["value"].(string))
 	}
 
 	// Otherwise, we can do simple string equality.
@@ -135,7 +135,7 @@ func (r result) cmpValues(e, t map[string]interface{}) result {
 	return r
 }
 
-func (r result) cmpFloat(e, t string) result {
+func (r result) cmpFloats(e, t string) result {
 	ef, err := strconv.ParseFloat(e, 64)
 	if err != nil {
 		return r.failedf("BUG in test case. Could not read '%s' as a float "+
