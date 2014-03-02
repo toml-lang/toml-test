@@ -202,10 +202,25 @@ assumptions we need to make.
 If you have an implementation, send a pull request adding to this list. Please 
 note the commit SHA1 or version tag that your parser supports in your `README`.
 
+* C++ (@skystrife) - https://github.com/skystrife/cpptoml
+* Go (@thompelletier) - https://github.com/pelletier/go-toml
 * Go w/ Reflection (@BurntSushi) - https://github.com/BurntSushi/toml/tree/master/toml-test-go
-* Ruby (@jm, @cespare) - https://gist.github.com/cespare/5052442
-* Python (@marksteve) - https://github.com/marksteve/toml-ply
 * Python (@uiri) - https://github.com/uiri/toml
+* Python (@marksteve) - https://github.com/marksteve/toml-ply
+* Ruby (@jm, @cespare) - https://gist.github.com/cespare/5052442
+* Rust (@mneumann) - https://github.com/mneumann/rust-toml
 
 N.B. Your decoder/encoder doesn't need to pass all tests to be on this list. 
+
+
+## TOML projects using the test suite
+
+I'm not sure why, but some projects seem to build their own testing harness 
+while using the tests in this repository. That's OK, but it's probably more 
+work than necessary. Plus, I claim that `toml-test` outputs nice error 
+messages.
+
+* Julia (@pygy) - https://github.com/pygy/TOML.jl
+* PHP (@yosymfony) - https://github.com/yosymfony/toml
+* Python (@f03lipe) - https://github.com/f03lipe/toml-python
 
