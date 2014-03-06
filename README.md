@@ -1,4 +1,4 @@
-# A language agnostic test suite for TOML encoders and decoders
+### A language agnostic test suite for TOML encoders and decoders
 
 `toml-test` is a higher-order program that tests other 
 [TOML](https://github.com/mojombo/toml)
@@ -22,7 +22,7 @@ Compatible with TOML version
 Dependencies: [Go](http://golang.org).
 
 
-## Try it out
+### Try it out
 
 All you need is to have [Go](http://golang.org) installed. Then simply
 use:
@@ -44,7 +44,7 @@ To test your encoder, the instructions are the same. Accept the input/output
 is reversed, and you'll need to run `toml-test -encoder your-encoder`.
 
 
-## Interface of a decoder
+### Interface of a decoder
 
 For your decoder to be compatible with `toml-test`, it **must** satisfy the 
 interface expected.
@@ -58,7 +58,7 @@ If the TOML data is valid, your decoder **must** output a JSON encoding of that
 data on `stdout` and return with a zero exit code indicating success.
 
 
-## Interface of an encoder
+### Interface of an encoder
 
 For your encoder to be compatible with `toml-test`, it **must** satisfy the 
 interface expected.
@@ -132,7 +132,7 @@ And the JSON encoding expected by `toml-test` is:
 Note that the only JSON values ever used are objects, arrays and strings.
 
 
-## Assumptions of Truth
+### Assumptions of Truth
 
 The following are taken as ground truths by `toml-test`:
 
@@ -153,7 +153,7 @@ there must exist a TOML decoder that conforms to the specification in order to
 read the output of a TOML encoder.
 
 
-## Adding tests
+### Adding tests
 
 `toml-test` was designed so that tests can be easily added and removed. As 
 mentioned above, tests are split into two groups: invalid and valid tests. 
@@ -177,7 +177,7 @@ A valid test without either a `.json` or `.toml` file will automatically fail.
 If you have tests that you'd like to add, please submit a pull request.
 
 
-## Why JSON?
+### Why JSON?
 
 In order for a language agnostic test suite to work, we need some kind of data 
 exchange format. TOML cannot be used, as it would imply that a particular 
@@ -197,7 +197,7 @@ writing tests is a little more cumbersome, but it also reduces the number of
 assumptions we need to make.
 
 
-## Decoders or encoders that satisfy the `toml-test` interface
+### Decoders or encoders that satisfy the `toml-test` interface
 
 If you have an implementation, send a pull request adding to this list. Please 
 note the commit SHA1 or version tag that your parser supports in your `README`.
@@ -213,7 +213,7 @@ note the commit SHA1 or version tag that your parser supports in your `README`.
 N.B. Your decoder/encoder doesn't need to pass all tests to be on this list. 
 
 
-## TOML projects using the test suite
+### TOML projects using the test suite
 
 I'm not sure why, but some projects seem to build their own testing harness 
 while using the tests in this repository. That's OK, but it's probably more 
