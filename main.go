@@ -133,6 +133,9 @@ func main() {
 		fmt.Println("")
 	}
 	fmt.Printf("%d passed, %d failed\n", passed, failed)
+	if failed > 0 {
+		os.Exit(1)
+	}
 }
 
 func runAllTests() []result {
