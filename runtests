@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+if [ ! -x "$1" ]; then
+    echo usage: ./runtests path/to/toml-test/interface/compatible/parser
+    exit 1
+fi
+
+function normalize {
+    python -c 'import json, sys; print json.dumps(json.load(open(sys.argv[1])), sort_keys=True);' $1
+}
+
+for tomlfile in $(ls tests/valid/*.toml); do
+    jsonfile="$(dirname $tomlfile)/$(basename $tomlfile .toml).json"
+    diff -u --label $jsonfile <(normalize $jsonfile) --label "got" <(normalize <(cat $tomlfile | $1)) || true;
+done
