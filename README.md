@@ -40,7 +40,7 @@ To test your decoder, you will have to satisfy the interface expected by
 `toml-test` described below. Then just execute `toml-test your-decoder` in the
 `toml-test` directory to run your decoder against all tests.
 
-To test your encoder, the instructions are the same. Accept the input/output
+To test your encoder, the instructions are the same, except the input/output
 is reversed, and you'll need to run `toml-test -encoder your-encoder`.
 
 
