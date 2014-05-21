@@ -81,18 +81,15 @@ func (r result) cmpJsonArrays(e, t interface{}) result {
 		return r.failedf("Malformed parser output. 'value' should be a "+
 			"JSON array when 'type' indicates 'array', but it is a %T.", t)
 	}
-
 	if len(ea) != len(ta) {
 		return r.failedf("Array lengths differ for key '%s'. Expected a "+
 			"length of %d but got %d.", r.key, len(ea), len(ta))
 	}
-
 	for i := 0; i < len(ea); i++ {
 		if sub := r.cmpJson(ea[i], ta[i]); sub.failed() {
 			return sub
 		}
 	}
-
 	return r
 }
 
@@ -123,7 +120,17 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 	// represent the same floats, and sometimes the string version of
 	// a float can be wonky with extra zeroes and what not.
 	if etype == "float" {
-		return r.cmpFloats(e["value"].(string), t["value"].(string))
+		enum, ok := e["value"].(string)
+		if !ok {
+			return r.failedf("BUG in test case. 'value' should be a string, "+
+				"but it is a %T.", e["value"])
+		}
+		tnum, ok := t["value"].(string)
+		if !ok {
+			return r.failedf("Malformed parser output. 'value' should be a "+
+				"string but it is a %T.", t["value"])
+		}
+		return r.cmpFloats(enum, tnum)
 	}
 
 	// Otherwise, we can do simple string equality.
@@ -131,7 +138,6 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 		return r.failedf("Values for key '%s' don't match. Expected a "+
 			"value of '%s' but got '%s'.", r.key, e["value"], t["value"])
 	}
-
 	return r
 }
 
@@ -147,7 +153,6 @@ func (r result) cmpFloats(e, t string) result {
 		return r.failedf("Malformed parser output. Could not read '%s' as "+
 			"a float value for key '%s'.", t, r.key)
 	}
-
 	if ef != tf {
 		return r.failedf("Values for key '%s' don't match. Expected a "+
 			"value of '%v' but got '%v'.", r.key, ef, tf)
