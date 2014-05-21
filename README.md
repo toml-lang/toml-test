@@ -31,7 +31,7 @@ use:
 cd
 export GOPATH=$HOME/go # if it isn't already set
 go get github.com/BurntSushi/toml-test # install test suite
-go get github.com/BurntSushi/toml/toml-test-decoder # e.g., install my parser
+go get github.com/BurntSushi/toml/cmd/toml-test-decoder # e.g., install my parser
 gotmp/bin/toml-test gotmp/bin/toml-test-decoder # e.g., run tests on my parser
 # Outputs: 63 passed, 0 failed
 ```
