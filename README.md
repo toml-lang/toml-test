@@ -32,9 +32,11 @@ cd
 export GOPATH=$HOME/go # if it isn't already set
 go get github.com/BurntSushi/toml-test # install test suite
 go get github.com/BurntSushi/toml/cmd/toml-test-decoder # e.g., install my parser
-gotmp/bin/toml-test gotmp/bin/toml-test-decoder # e.g., run tests on my parser
-# Outputs: 63 passed, 0 failed
+$HOME/go/bin/toml-test gotmp/bin/toml-test-decoder # e.g., run tests on my parser
+# Outputs: 64 passed, 0 failed
 ```
+
+The `go get` commands install Go packages and binaries into your `GOPATH`.
 
 To test your decoder, you will have to satisfy the interface expected by 
 `toml-test` described below. Then just execute `toml-test your-decoder` in the
@@ -42,6 +44,8 @@ To test your decoder, you will have to satisfy the interface expected by
 
 To test your encoder, the instructions are the same, except the input/output
 is reversed, and you'll need to run `toml-test -encoder your-encoder`.
+(You can install my TOML encoder with `go get 
+github.com/BurntSushi/toml/cmd/toml-test-encoder`.)
 
 
 ### Interface of a decoder
