@@ -211,6 +211,7 @@ note the commit SHA1 or version tag that your parser supports in your `README`.
 * Go w/ Reflection (@BurntSushi) - https://github.com/BurntSushi/toml/tree/master/cmd/toml-test-decoder
 * Python (@uiri) - https://github.com/uiri/toml
 * Python (@marksteve) - https://github.com/marksteve/toml-ply
+* Racket (@greghendershott) - https://github.com/greghendershott/toml
 * Ruby (@jm, @cespare) - https://gist.github.com/cespare/5052442
 * Rust (@mneumann) - https://github.com/mneumann/rust-toml
 
