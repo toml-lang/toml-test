@@ -206,6 +206,7 @@ assumptions we need to make.
 If you have an implementation, send a pull request adding to this list. Please 
 note the commit SHA1 or version tag that your parser supports in your `README`.
 
+* C (@ajwans) - https://github.com/ajwans/libtoml
 * C++ (@skystrife) - https://github.com/skystrife/cpptoml
 * Go (@thompelletier) - https://github.com/pelletier/go-toml
 * Go w/ Reflection (@BurntSushi) - https://github.com/BurntSushi/toml/tree/master/cmd/toml-test-decoder
