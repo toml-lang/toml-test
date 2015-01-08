@@ -225,6 +225,7 @@ while using the tests in this repository. That's OK, but it's probably more
 work than necessary. Plus, I claim that `toml-test` outputs nice error 
 messages.
 
+* Haskell (@cies) - https://github.com/cies/htoml
 * Julia (@pygy) - https://github.com/pygy/TOML.jl
 * PHP (@yosymfony) - https://github.com/yosymfony/toml
 * Python (@f03lipe) - https://github.com/f03lipe/toml-python
