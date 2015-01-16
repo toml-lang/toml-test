@@ -30,5 +30,9 @@
     "backslash": {
         "type": "string",
         "value": "This string has a \u005C backslash character."
+    },
+    "notunicode": {
+        "type": "string",
+        "value": "This string does not have a unicode \\u escape."
     }
 }
