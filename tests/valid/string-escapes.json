@@ -23,10 +23,6 @@
         "type": "string",
         "value": "This string has a \u0022 quote character."
     },
-    "slash": {
-        "type": "string",
-        "value": "This string has a \u002F slash character."
-    },
     "backslash": {
         "type": "string",
         "value": "This string has a \u005C backslash character."
