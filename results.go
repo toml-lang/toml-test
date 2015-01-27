@@ -115,8 +115,8 @@ func runValidTest(name string) result {
 	}
 
 	if stdout == nil {
-		return r.errorf("Parser does not satisfy interface. stdout is empty, " +
-			"but the process exited successfully.")
+		return r.errorf("Parser does not satisfy interface. stdout is " +
+			"empty, but the process exited successfully.")
 	}
 
 	if flagEncoder {

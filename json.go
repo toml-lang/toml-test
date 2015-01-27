@@ -102,8 +102,8 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 
 	ttype, ok := t["type"].(string)
 	if !ok {
-		return r.failedf("Malformed parser output. 'type' should be a string, "+
-			"but it is a %T.", t["type"])
+		return r.failedf("Malformed parser output. 'type' should be a "+
+			"string, but it is a %T.", t["type"])
 	}
 
 	if etype != ttype {
