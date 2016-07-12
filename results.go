@@ -130,18 +130,17 @@ func runValidTest(name string) result {
 				"Could not decode TOML output from encoder: %s", err)
 		}
 		return r.cmpToml(tomlExpected, tomlTest)
-	} else {
-		jsonExpected, err := loadJson(r.pathGold())
-		if err != nil {
-			return r.errorf(err.Error())
-		}
-		var jsonTest interface{}
-		if err := json.NewDecoder(stdout).Decode(&jsonTest); err != nil {
-			return r.errorf(
-				"Could not decode JSON output from parser: %s", err)
-		}
-		return r.cmpJson(jsonExpected, jsonTest)
 	}
+	jsonExpected, err := loadJson(r.pathGold())
+	if err != nil {
+		return r.errorf(err.Error())
+	}
+	var jsonTest interface{}
+	if err := json.NewDecoder(stdout).Decode(&jsonTest); err != nil {
+		return r.errorf(
+			"Could not decode JSON output from parser: %s", err)
+	}
+	return r.cmpJson(jsonExpected, jsonTest)
 }
 
 func runParser(testFile string) (*bytes.Buffer, *bytes.Buffer, error) {
