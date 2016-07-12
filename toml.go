@@ -30,10 +30,8 @@ func (r result) cmpToml(expected, test interface{}) result {
 		return r.cmpTomlMaps(e, test)
 	case []interface{}:
 		return r.cmpTomlArrays(e, test)
-	default:
-		return r.failedf("Unrecognized TOML structure: %T", expected)
 	}
-	panic("unreachable")
+	return r.failedf("Unrecognized TOML structure: %T", expected)
 }
 
 func (r result) cmpTomlMaps(

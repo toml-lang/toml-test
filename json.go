@@ -16,11 +16,9 @@ func (r result) cmpJson(expected, test interface{}) result {
 		return r.cmpJsonMaps(e, test)
 	case []interface{}:
 		return r.cmpJsonArrays(e, test)
-	default:
-		return r.failedf("Key '%s' in expected output should be a map or a "+
-			"list of maps, but it's a %T.", r.key, expected)
 	}
-	panic("unreachable")
+	return r.failedf("Key '%s' in expected output should be a map or a "+
+		"list of maps, but it's a %T.", r.key, expected)
 }
 
 func (r result) cmpJsonMaps(
