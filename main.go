@@ -77,7 +77,7 @@ The 'testdir' directory should have two sub-directories: 'invalid' and 'valid'.
 The 'invalid' directory should contain 'toml' files,
 where test names are the file names not including the '.toml' suffix.
 
-The 'valid' directory should contian 'toml' files and a 'json' file for each
+The 'valid' directory should contain 'toml' files and a 'json' file for each
 'toml' file, that contains the expected output of 'parser-cmd'. Test names
 are the file names not including the '.toml' or '.json' suffix.
 
