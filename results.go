@@ -9,6 +9,7 @@ import (
 
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type result struct {
@@ -153,7 +154,8 @@ func runParser(testFile string) (*bytes.Buffer, *bytes.Buffer, error) {
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 
-	c := exec.Command(parserCmd)
+	cmd := strings.Split(parserCmd, " ")
+	c := exec.Command(cmd[0], cmd[1:]...)
 	c.Stdin = f
 	c.Stdout = stdout
 	c.Stderr = stderr
