@@ -30,5 +30,12 @@
             {"type": "datetime", "value": "1979-05-27T07:32:00Z"},
             {"type": "datetime", "value": "2006-06-01T11:00:00Z"}
         ]
+    },
+    "comments": {
+        "type": "array",
+        "value": [
+            {"type": "integer", "value": "1"},
+            {"type": "integer", "value": "2"}
+        ]
     }
 }
