@@ -1,5 +1,5 @@
 {
-  "best-day-ever": {"type": "datetime", "value": "1987-07-05T17:45:00Z"},
+  "best-day-ever": {"type": "datetime", "value": "1987-07-05T17:45:00+00:00"},
   "numtheory": {
     "boring": {"type": "bool", "value": "false"},
     "perfection": {

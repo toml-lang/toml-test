@@ -2,6 +2,7 @@ package main
 
 import (
 	"strconv"
+	"time"
 )
 
 // compareJson consumes the recursive structure of both `expected` and `test`
@@ -114,29 +115,38 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 	// equality.
 	if etype == "array" {
 		return r.cmpJsonArrays(e["value"], t["value"])
-	}
-
-	// Floats need special attention too. Not every language can
-	// represent the same floats, and sometimes the string version of
-	// a float can be wonky with extra zeroes and what not.
-	if etype == "float" {
-		enum, ok := e["value"].(string)
+	} else {
+		// Atomic values are always strings
+		evalue, ok := e["value"].(string)
 		if !ok {
-			return r.failedf("BUG in test case. 'value' should be a string, "+
-				"but it is a %T.", e["value"])
+			return r.failedf("BUG in test case. 'value' "+
+				"should be a string, but it is a %T.",
+				e["value"])
 		}
-		tnum, ok := t["value"].(string)
+		tvalue, ok := t["value"].(string)
 		if !ok {
-			return r.failedf("Malformed parser output. 'value' should be a "+
-				"string but it is a %T.", t["value"])
+			return r.failedf("Malformed parser output. 'value' "+
+				"should be a string but it is a %T.",
+				t["value"])
 		}
-		return r.cmpFloats(enum, tnum)
-	}
 
-	// Otherwise, we can do simple string equality.
-	if e["value"] != t["value"] {
+		// Excepting floats and datetimes, other values can be
+		// compared as strings.
+		switch etype {
+		case "float":
+			return r.cmpFloats(evalue, tvalue);
+		case "datetime":
+			return r.cmpAsDatetimes(evalue, tvalue);
+		default:
+			return r.cmpAsStrings(evalue, tvalue);
+		}
+	}
+}
+
+func (r result) cmpAsStrings(e, t string) result {
+	if e != t {
 		return r.failedf("Values for key '%s' don't match. Expected a "+
-			"value of '%s' but got '%s'.", r.key, e["value"], t["value"])
+			"value of '%s' but got '%s'.", r.key, e, t)
 	}
 	return r
 }
@@ -144,16 +154,37 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 func (r result) cmpFloats(e, t string) result {
 	ef, err := strconv.ParseFloat(e, 64)
 	if err != nil {
-		return r.failedf("BUG in test case. Could not read '%s' as a float "+
-			"value for key '%s'.", e, r.key)
+		return r.failedf("BUG in test case. Could not read '%s' as a "+
+			"float value for key '%s'.", e, r.key)
 	}
 
 	tf, err := strconv.ParseFloat(t, 64)
 	if err != nil {
-		return r.failedf("Malformed parser output. Could not read '%s' as "+
-			"a float value for key '%s'.", t, r.key)
+		return r.failedf("Malformed parser output. Could not read '%s' "+
+			"as a float value for key '%s'.", t, r.key)
 	}
 	if ef != tf {
+		return r.failedf("Values for key '%s' don't match. Expected a "+
+			"value of '%v' but got '%v'.", r.key, ef, tf)
+	}
+	return r
+}
+
+func (r result) cmpAsDatetimes(e, t string) result {
+	var err error
+
+	ef, err := time.Parse(time.RFC3339Nano, e)
+	if err != nil {
+		return r.failedf("BUG in test case. Could not read '%s' as a "+
+			"datetime value for key '%s'.", e, r.key)
+	}
+
+	tf, err := time.Parse(time.RFC3339Nano, t)
+	if err != nil {
+		return r.failedf("Malformed parser output. Could not read '%s' "+
+			"as datetime value for key '%s'.", t, r.key)
+	}
+	if !ef.Equal(tf) {
 		return r.failedf("Values for key '%s' don't match. Expected a "+
 			"value of '%v' but got '%v'.", r.key, ef, tf)
 	}

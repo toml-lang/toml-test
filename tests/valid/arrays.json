@@ -26,9 +26,9 @@
     "dates": {
         "type": "array",
         "value": [
-            {"type": "datetime", "value": "1987-07-05T17:45:00Z"},
-            {"type": "datetime", "value": "1979-05-27T07:32:00Z"},
-            {"type": "datetime", "value": "2006-06-01T11:00:00Z"}
+            {"type": "datetime", "value": "1987-07-05T17:45:00+00:00"},
+            {"type": "datetime", "value": "1979-05-27T07:32:00+00:00"},
+            {"type": "datetime", "value": "2006-06-01T11:00:00+00:00"}
         ]
     },
     "comments": {
