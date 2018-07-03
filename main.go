@@ -37,7 +37,7 @@ func init() {
 	// If no test directory was specified, let's look for it automatically.
 	// Assumes `toml-test` was installed with the Go tool.
 	if len(flagTestdir) == 0 {
-		imp := path.Join("github.com", "uiri", "toml-test", "tests")
+		imp := path.Join("github.com", "BurntSushi", "toml-test", "tests")
 		for _, dir := range build.Default.SrcDirs() {
 			if readable(path.Join(dir, imp)) {
 				flagTestdir = path.Join(dir, imp)
