@@ -14,10 +14,10 @@ compared. Note though that encoders have their own set of invalid tests in the
 invalid-encoder directory. The JSON given to a TOML encoder is in the same 
 format as the JSON that a TOML decoder should output.
 
-Version: v0.2.0 (in sync with TOML)
+Version: v0.4.0 (in sync with TOML)
 
 Compatible with TOML version
-[v0.2.0](https://github.com/mojombo/toml/blob/master/versions/toml-v0.2.0.md)
+[v0.4.0](https://github.com/mojombo/toml/blob/master/versions/toml-v0.4.0.md)
 
 Dependencies: [Go](http://golang.org).
 
