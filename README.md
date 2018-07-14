@@ -14,10 +14,10 @@ compared. Note though that encoders have their own set of invalid tests in the
 invalid-encoder directory. The JSON given to a TOML encoder is in the same 
 format as the JSON that a TOML decoder should output.
 
-Version: v0.2.0 (in sync with TOML)
+Version: v0.4.0 (in sync with TOML)
 
 Compatible with TOML version
-[v0.2.0](https://github.com/mojombo/toml/blob/master/versions/toml-v0.2.0.md)
+[v0.4.0](https://github.com/mojombo/toml/blob/master/versions/toml-v0.4.0.md)
 
 Dependencies: [Go](http://golang.org).
 
@@ -211,8 +211,12 @@ note the commit SHA1 or version tag that your parser supports in your `README`.
 * C++ (@skystrife) - https://github.com/skystrife/cpptoml
 * Go (@thompelletier) - https://github.com/pelletier/go-toml
 * Go w/ Reflection (@BurntSushi) - https://github.com/BurntSushi/toml/tree/master/cmd/toml-test-decoder
+* LabVIEW (@dbtaylor) - https://github.com/erdosmiller/lv-toml
+* Node.js/Browser (@redhotvengeance) - https://github.com/redhotvengeance/topl
+* PHP (@leonelquinteros) - https://github.com/leonelquinteros/php-toml
 * Python (@uiri) - https://github.com/uiri/toml
 * Python (@marksteve) - https://github.com/marksteve/toml-ply
+* Racket (@greghendershott) - https://github.com/greghendershott/toml
 * Ruby (@jm, @cespare) - https://gist.github.com/cespare/5052442
 * Rust (@mneumann) - https://github.com/mneumann/rust-toml
 
