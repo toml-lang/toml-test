@@ -119,7 +119,7 @@ And the JSON encoding expected by `toml-test` is:
 
 ```json
 {
-  "best-day-ever": {"type": "datetime", "value": "1987-07-05T17:45:00+00:00"},
+  "best-day-ever": {"type": "datetime", "value": "1987-07-05T17:45:00Z"},
   "numtheory": {
     "boring": {"type": "bool", "value": "false"},
     "perfection": {
