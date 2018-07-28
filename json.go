@@ -3,6 +3,7 @@ package main
 import (
 	"strconv"
 	"time"
+	"strings"
 )
 
 // compareJson consumes the recursive structure of both `expected` and `test`
@@ -173,13 +174,13 @@ func (r result) cmpFloats(e, t string) result {
 func (r result) cmpAsDatetimes(e, t string) result {
 	var err error
 
-	ef, err := time.Parse(time.RFC3339Nano, e)
+	ef, err := time.Parse(time.RFC3339Nano, strings.Replace(e, " ", "T", 1))
 	if err != nil {
 		return r.failedf("BUG in test case. Could not read '%s' as a "+
 			"datetime value for key '%s'.", e, r.key)
 	}
 
-	tf, err := time.Parse(time.RFC3339Nano, t)
+	tf, err := time.Parse(time.RFC3339Nano, strings.Replace(t, " ", "T", 1))
 	if err != nil {
 		return r.failedf("Malformed parser output. Could not read '%s' "+
 			"as datetime value for key '%s'.", t, r.key)
