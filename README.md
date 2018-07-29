@@ -91,7 +91,10 @@ In the above, `TTYPE` may be one of:
 * string
 * integer
 * float
-* datetime
+* datetime (for offset date-time)
+* local-datetime
+* local-date
+* local-time
 * bool
 * array
 
@@ -101,7 +104,9 @@ and `TVALUE` is always a JSON string, except when `TTYPE` is `array` in which
 Empty hashes correspond to empty JSON objects (i.e., `{}`) and empty arrays 
 correspond to empty JSON arrays (i.e., `[]`).
 
-Datetime should be encoded following RFC 3339.
+Offset datetimes should be encoded following RFC 3339. Local datetimes should be
+encoded following RFC 3339, without the offset part. Local dates should be
+encoded as the date part of RFC 3339 and Local times as the time part.
 
 ### Example JSON encoding
 

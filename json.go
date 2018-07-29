@@ -138,6 +138,8 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 			return r.cmpFloats(evalue, tvalue);
 		case "datetime":
 			return r.cmpAsDatetimes(evalue, tvalue);
+		case "local-datetime":
+			return r.cmpAsLocalDateTimes(evalue, tvalue);
 		default:
 			return r.cmpAsStrings(evalue, tvalue);
 		}
@@ -151,6 +153,18 @@ func (r result) cmpAsStrings(e, t string) result {
 	}
 	return r
 }
+
+func (r result) cmpAsLocalDateTimes(e, t string) result {
+	ce := strings.Replace(strings.Replace(e, "t", "T", 1), " ", "T", 1)
+	ct := strings.Replace(strings.Replace(t, "t", "T", 1), " ", "T", 1)
+
+	if ce != ct {
+		return r.failedf("Values for key '%s' don't match. Expected a "+
+			"value of '%s' but got '%s'.", r.key, e, t)
+	}
+	return r
+}
+
 
 func (r result) cmpFloats(e, t string) result {
 	ef, err := strconv.ParseFloat(e, 64)
