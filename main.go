@@ -1,10 +1,3 @@
-/*
- * This work is free. You can redistribute it and/or modify it under the
- * terms of the Do What The Fuck You Want To Public License, Version 2,
- * as published by Sam Hocevar. See the COPYING file or http://www.wtfpl.net/ 
- * for more details.
- */
-
 package main
 
 import (
@@ -75,8 +68,8 @@ func usage() {
 		path.Base(os.Args[0]))
 	log.Println(`
 parser-cmd should be a program that accepts TOML data on stdin until EOF,
-and outputs the corresponding JSON encoding on stdout. Please see 'README.md' 
-for details on how to satisfy the interface expected by 'toml-test' with your 
+and outputs the corresponding JSON encoding on stdout. Please see 'README.md'
+for details on how to satisfy the interface expected by 'toml-test' with your
 own parser.
 
 The 'testdir' directory should have two sub-directories: 'invalid' and 'valid'.
