@@ -167,6 +167,35 @@ func (r result) cmpAsLocalDateTimes(e, t string) result {
 
 
 func (r result) cmpFloats(e, t string) result {
+	// Handle Infinity and NaN
+	tc := strings.ToLower(t)
+	ec := strings.ToLower(e)
+
+	if ec == "nan" || ec == "-nan" || ec == "+nan" {
+		if tc == "nan" || tc == "-nan" || tc == "+nan" {
+			return r
+		} else {
+			return r.failedf("Value for key '%s' don't match. Expected either nan, -nan or +nan but got '%v'.", r.key, tc)
+		}
+	}
+
+	if ec == "inf" || ec == "+inf" {
+		if tc == "inf" || tc == "+inf" {
+			return r
+		} else {
+			return r.failedf("Value for key '%s' don't match. Expected inf or +inf but got '%v'.", r.key, tc)
+		}
+	}
+
+	if ec == "-inf" {
+		if tc == "-inf" {
+			return r
+		} else {
+			return r.failedf("Value for key '%s' don't match. Expected -inf but got '%v'.", r.key, tc)
+		}
+	}
+
+	// Else, compare as regular floats
 	ef, err := strconv.ParseFloat(e, 64)
 	if err != nil {
 		return r.failedf("BUG in test case. Could not read '%s' as a "+
