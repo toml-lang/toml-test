@@ -233,4 +233,4 @@ messages.
 * Julia (@pygy) - https://github.com/pygy/TOML.jl
 * PHP (@yosymfony) - https://github.com/yosymfony/toml
 * Python (@f03lipe) - https://github.com/f03lipe/toml-python
-
+* JavaScript (@iarna) - https://github.com/iarna/iarna-toml
