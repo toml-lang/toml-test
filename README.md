@@ -101,6 +101,7 @@ and `TVALUE` is always a JSON string, except when `TTYPE` is `array` in which
 Empty hashes correspond to empty JSON objects (i.e., `{}`) and empty arrays 
 correspond to empty JSON arrays (i.e., `[]`).
 
+Datetime should be encoded following RFC 3339.
 
 ### Example JSON encoding
 
