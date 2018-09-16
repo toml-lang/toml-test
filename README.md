@@ -92,9 +92,9 @@ In the above, `TTYPE` may be one of:
 * integer
 * float
 * datetime (for offset date-time)
-* local-datetime
-* local-date
-* local-time
+* datetime-local
+* date
+* time
 * bool
 * array
 

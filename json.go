@@ -138,7 +138,7 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 			return r.cmpFloats(evalue, tvalue);
 		case "datetime":
 			return r.cmpAsDatetimes(evalue, tvalue);
-		case "local-datetime":
+		case "datetime-local":
 			return r.cmpAsLocalDateTimes(evalue, tvalue);
 		default:
 			return r.cmpAsStrings(evalue, tvalue);
