@@ -112,37 +112,31 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 		return r.valMismatch(etype, ttype)
 	}
 
-	// If this is an array, then we've got to do some work to check
-	// equality.
-	if etype == "array" {
-		return r.cmpJsonArrays(e["value"], t["value"])
-	} else {
-		// Atomic values are always strings
-		evalue, ok := e["value"].(string)
-		if !ok {
-			return r.failedf("BUG in test case. 'value' "+
-				"should be a string, but it is a %T.",
-				e["value"])
-		}
-		tvalue, ok := t["value"].(string)
-		if !ok {
-			return r.failedf("Malformed parser output. 'value' "+
-				"should be a string but it is a %T.",
-				t["value"])
-		}
+	// Atomic values are always strings
+	evalue, ok := e["value"].(string)
+	if !ok {
+		return r.failedf("BUG in test case. 'value' "+
+			"should be a string, but it is a %T.",
+			e["value"])
+	}
+	tvalue, ok := t["value"].(string)
+	if !ok {
+		return r.failedf("Malformed parser output. 'value' "+
+			"should be a string but it is a %T.",
+			t["value"])
+	}
 
-		// Excepting floats and datetimes, other values can be
-		// compared as strings.
-		switch etype {
-		case "float":
-			return r.cmpFloats(evalue, tvalue);
-		case "datetime":
-			return r.cmpAsDatetimes(evalue, tvalue);
-		case "datetime-local":
-			return r.cmpAsLocalDateTimes(evalue, tvalue);
-		default:
-			return r.cmpAsStrings(evalue, tvalue);
-		}
+	// Excepting floats and datetimes, other values can be
+	// compared as strings.
+	switch etype {
+	case "float":
+		return r.cmpFloats(evalue, tvalue);
+	case "datetime":
+		return r.cmpAsDatetimes(evalue, tvalue);
+	case "datetime-local":
+		return r.cmpAsLocalDateTimes(evalue, tvalue);
+	default:
+		return r.cmpAsStrings(evalue, tvalue);
 	}
 }
 
