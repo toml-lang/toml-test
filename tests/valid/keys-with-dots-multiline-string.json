@@ -1,0 +1,16 @@
+{
+  "foo": {
+    "bar": {
+      "type": "string",
+      "value": "hello"
+    },
+    "spam": {
+      "type": "string",
+      "value": "hello\n"
+    },
+    "apple": {
+      "type": "string",
+      "value": "hello\n\nmore"
+    }
+  }
+}

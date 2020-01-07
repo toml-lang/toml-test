@@ -1,0 +1,9 @@
+foo.bar = """
+hello"""
+foo.spam = """
+hello
+"""
+foo.apple = """
+hello
+
+more"""
