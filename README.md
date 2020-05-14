@@ -17,7 +17,7 @@ format as the JSON that a TOML decoder should output.
 Version: v0.4.0 (in sync with TOML)
 
 Compatible with TOML version
-[v0.4.0](https://github.com/mojombo/toml/blob/master/versions/toml-v0.4.0.md)
+[v0.4.0](https://github.com/toml-lang/toml/blob/v0.4.0/versions/en/toml-v0.4.0.md)
 
 Dependencies: [Go](http://golang.org).
 
