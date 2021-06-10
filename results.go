@@ -15,6 +15,7 @@ type result struct {
 	testName string
 	err      error
 	valid    bool
+	skipped  bool
 	failure  string
 	key      string
 }
