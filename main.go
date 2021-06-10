@@ -15,6 +15,7 @@ var (
 	flagTestdir = ""
 	flagShowAll = false
 	flagEncoder = false
+	flagSkip    = ""
 )
 
 var (
@@ -50,6 +51,8 @@ func init() {
 		"When set, all tests will be shown.")
 	flag.BoolVar(&flagEncoder, "encoder", flagEncoder,
 		"When set, the given executable will be tested as a TOML encoder.")
+	flag.StringVar(&flagSkip, "skip", flagSkip,
+		"Tests to skip, comma-separated and as e.g. 'invalid/test-name'")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -104,11 +107,19 @@ func main() {
 	}
 	parserCmd = flag.Arg(0)
 
+	var skip []string
+	if fs := strings.TrimSpace(flagSkip); fs != "" {
+		skip = strings.Split(fs, ",")
+		for i := range skip {
+			skip[i] = strings.TrimSpace(skip[i])
+		}
+	}
+
 	var results []result
 
 	// Run all tests.
 	if flag.NArg() == 1 {
-		results = runAllTests()
+		results = runAllTests(skip)
 	} else { // just a few
 		results = make([]result, 0, flag.NArg()-1)
 		for _, testName := range flag.Args()[1:] {
@@ -117,13 +128,15 @@ func main() {
 	}
 
 	out := make([]string, 0, len(results))
-	passed, failed := 0, 0
+	var passed, failed, skipped int
 	for _, r := range results {
 		if flagShowAll || r.failed() {
 			out = append(out, r.String())
 		}
 		if r.failed() {
 			failed++
+		} else if r.skipped {
+			skipped++
 		} else {
 			passed++
 		}
@@ -132,13 +145,18 @@ func main() {
 		fmt.Println(strings.Join(out, "\n"+strings.Repeat("-", 79)+"\n"))
 		fmt.Println("")
 	}
-	fmt.Printf("%d passed, %d failed\n", passed, failed)
+	fmt.Printf("toml-test %s: %3d passed, %2d failed", parserCmd, passed, failed)
+	if skipped > 0 {
+		fmt.Printf(", %2d skipped", skipped)
+	}
+	fmt.Println()
+
 	if failed > 0 {
 		os.Exit(1)
 	}
 }
 
-func runAllTests() []result {
+func runAllTests(skip []string) []result {
 	invalidTests, err := ioutil.ReadDir(dirInvalid)
 	if err != nil {
 		log.Fatalf("Cannot read invalid directory (%s): %s", dirInvalid, err)
@@ -155,6 +173,10 @@ func runAllTests() []result {
 			continue
 		}
 		tname := stripSuffix(f.Name())
+		if r, skipped := hasSkip("invalid/"+tname, skip); skipped {
+			results = append(results, r)
+			continue
+		}
 		results = append(results, runInvalidTest(tname))
 	}
 	for _, f := range validTests {
@@ -162,9 +184,22 @@ func runAllTests() []result {
 			continue
 		}
 		tname := stripSuffix(f.Name())
+		if r, skipped := hasSkip("valid/"+tname, skip); skipped {
+			results = append(results, r)
+			continue
+		}
 		results = append(results, runValidTest(tname))
 	}
 	return results
+}
+
+func hasSkip(test string, skip []string) (result, bool) {
+	for _, s := range skip {
+		if s == test {
+			return result{testName: test, skipped: true}, true
+		}
+	}
+	return result{}, false
 }
 
 func runTestByName(name string) result {
@@ -172,7 +207,6 @@ func runTestByName(name string) result {
 		return runInvalidTest(name)
 	}
 	if readable(vPath("%s.toml", name)) && readable(vPath("%s.json", name)) {
-
 		return runValidTest(name)
 	}
 	return result{testName: name}.errorf(
