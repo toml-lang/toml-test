@@ -209,6 +209,7 @@ note the commit SHA1 or version tag that your parser supports in your `README`.
 
 * C (@ajwans) - https://github.com/ajwans/libtoml
 * C++ (@skystrife) - https://github.com/skystrife/cpptoml
+* C++ (@ToruNiina) - https://github.com/ToruNiina/toml11
 * Go (@thompelletier) - https://github.com/pelletier/go-toml
 * Go w/ Reflection (@BurntSushi) - https://github.com/BurntSushi/toml/tree/master/cmd/toml-test-decoder
 * LabVIEW (@dbtaylor) - https://github.com/erdosmiller/lv-toml
