@@ -1,0 +1,14 @@
+{
+    "\n": {"type":"string","value":"newline"},
+    "\u00c0": {"type":"string","value":"latin capital letter A with grave"},
+    "\"": {"type":"string","value":"just a quote"},
+    "backsp\u0008\u0008": {
+    },
+    "\"quoted\"": {
+        "quote": {"type":"bool","value":"true"}
+    },
+    "a.b": {
+        "\u00c0": {
+        }
+    }
+}

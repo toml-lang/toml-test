@@ -1,0 +1,16 @@
+{
+    "alpha": {"type":"string","value":"a"},
+    "123": {"type":"string","value":"num"},
+    "000111": {"type":"string","value":"leading"},
+    "10e3": {"type":"string","value":"false float"},
+    "one1two2": {"type":"string","value":"mixed"},
+    "with-dash": {"type":"string","value":"dashed"},
+    "under_score": {"type":"string","value":"___"},
+    "34-11": {"type":"integer","value":"23"},
+    "2018_10": {
+        "001": {"type":"integer","value":"1"}
+    },
+    "a-a-a": {
+        "_": {"type":"bool","value":"false"}
+    }
+}

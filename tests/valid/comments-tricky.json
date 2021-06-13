@@ -1,0 +1,20 @@
+{
+    "section": {
+        "one": {"type":"string","value":"11"},
+        "two": {"type":"string","value":"22#"},
+        "three": {"type":"string","value":"#"},
+        "four": {"type":"string","value":"# no comment\n# nor this\n#also not comment"},
+        "five": {"type":"float","value":"5.5"},
+        "six": {"type":"integer","value":"6"},
+        "8": {"type":"string","value":"eight"},
+        "ten": {"type":"float","value":"1000"},
+        "eleven": {"type":"float","value":"11.1"}
+    },
+    "hash#tag": {
+        "#!": {"type":"string","value":"hash bang"},
+        "arr3": {"type":"array","value":[{"type":"string","value":"#"},{"type":"string","value":"#"},{"type":"string","value":"###"}]},
+        "arr4": {"type":"array","value":[{"type":"integer","value":"1"},{"type":"integer","value":"2"},{"type":"integer","value":"3"},{"type":"integer","value":"4"}]},
+        "arr5": {"type":"array","value":[{"type":"array","value":[{"type":"array","value":[{"type":"array","value":[{"type":"array","value":[{"type":"string","value":"#"}]}]}]}]}]},
+        "tbl1": {"#":{"type":"string","value":"}#"}}
+    }
+}

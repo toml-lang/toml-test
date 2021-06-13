@@ -1,0 +1,9 @@
+{
+    "end_esc": {"type":"string","value":"String does not end here\" but ends here\\"},
+    "lit_end_esc": {"type":"string","value":"String ends here\\"},
+    "multiline_unicode": {"type":"string","value":"\u00a0"},
+    "multiline_not_unicode": {"type":"string","value":"\\u0041"},
+    "multiline_end_esc": {"type":"string","value":"When will it end? \"\"\"...\"\"\" should be here\""},
+    "lit_multiline_not_unicode": {"type":"string","value":"\\u007f"},
+    "lit_multiline_end": {"type":"string","value":"There is no escape\\"}
+}

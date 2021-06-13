@@ -1,0 +1,14 @@
+{
+    "sectioN": {"type":"string","value":"NN"},
+    "section": {
+        "name": {"type":"string","value":"lower"},
+        "NAME": {"type":"string","value":"upper"},
+        "Name": {"type":"string","value":"capitalized"}
+    },
+    "Section": {
+        "name": {"type":"string","value":"different section!!"},
+        "μ": {"type":"string","value":"greek small letter mu"},
+        "Μ": {"type":"string","value":"greek capital letter MU"},
+        "M": {"type":"string","value":"latin letter M"}
+    }
+}
