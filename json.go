@@ -21,7 +21,6 @@ func (r result) cmpJson(expected, test interface{}) result {
 		return r.failedf("Key '%s' in expected output should be a map or a "+
 			"list of maps, but it's a %T.", r.key, expected)
 	}
-	panic("unreachable")
 }
 
 func (r result) cmpJsonMaps(
@@ -83,8 +82,10 @@ func (r result) cmpJsonArrays(e, t interface{}) result {
 			"JSON array when 'type' indicates 'array', but it is a %T.", t)
 	}
 	if len(ea) != len(ta) {
-		return r.failedf("Array lengths differ for key '%s'. Expected a "+
-			"length of %d but got %d.", r.key, len(ea), len(ta))
+		return r.failedf("Array lengths differ for key '%s':\n"+
+			"  Expected:     %d\n"+
+			"  Your encoder: %d",
+			r.key, len(ea), len(ta))
 	}
 	for i := 0; i < len(ea); i++ {
 		if sub := r.cmpJson(ea[i], ta[i]); sub.failed() {
@@ -134,19 +135,21 @@ func (r result) cmpJsonValues(e, t map[string]interface{}) result {
 		// compared as strings.
 		switch etype {
 		case "float":
-			return r.cmpFloats(evalue, tvalue);
+			return r.cmpFloats(evalue, tvalue)
 		case "datetime":
-			return r.cmpAsDatetimes(evalue, tvalue);
+			return r.cmpAsDatetimes(evalue, tvalue)
 		default:
-			return r.cmpAsStrings(evalue, tvalue);
+			return r.cmpAsStrings(evalue, tvalue)
 		}
 	}
 }
 
 func (r result) cmpAsStrings(e, t string) result {
 	if e != t {
-		return r.failedf("Values for key '%s' don't match. Expected a "+
-			"value of '%s' but got '%s'.", r.key, e, t)
+		return r.failedf("Values for key '%s' don't match:\n"+
+			"  Expected:     %s\n"+
+			"  Your encoder: %s",
+			r.key, e, t)
 	}
 	return r
 }
@@ -164,8 +167,10 @@ func (r result) cmpFloats(e, t string) result {
 			"as a float value for key '%s'.", t, r.key)
 	}
 	if ef != tf {
-		return r.failedf("Values for key '%s' don't match. Expected a "+
-			"value of '%v' but got '%v'.", r.key, ef, tf)
+		return r.failedf("Values for key '%s' don't match:\n"+
+			"  Expected:     %v\n"+
+			"  Your encoder: %v",
+			r.key, ef, tf)
 	}
 	return r
 }
@@ -185,8 +190,10 @@ func (r result) cmpAsDatetimes(e, t string) result {
 			"as datetime value for key '%s'.", t, r.key)
 	}
 	if !ef.Equal(tf) {
-		return r.failedf("Values for key '%s' don't match. Expected a "+
-			"value of '%v' but got '%v'.", r.key, ef, tf)
+		return r.failedf("Values for key '%s' don't match:\n"+
+			"  Expected:     %v\n"+
+			"  Your encoder: %v",
+			r.key, ef, tf)
 	}
 	return r
 }

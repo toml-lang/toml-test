@@ -192,11 +192,7 @@ func (r result) String() string {
 	buf := new(bytes.Buffer)
 	p := func(s string, v ...interface{}) { fmt.Fprintf(buf, s, v...) }
 
-	validStr := "invalid"
-	if r.valid {
-		validStr = "valid"
-	}
-	p("Test: %s (%s)\n\n", r.testName, validStr)
+	p("Test: %s/%s\n", map[bool]string{true: "valid", false: "invalid"}[r.valid], r.testName)
 
 	if r.err != nil {
 		p("Error running test: %s", r.err)

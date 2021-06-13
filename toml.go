@@ -19,8 +19,9 @@ func (r result) cmpToml(expected, test interface{}) result {
 				"a %T.", r.key, test)
 		}
 		if !reflect.DeepEqual(expected, test) {
-			return r.failedf("Values for key '%s' differ. Expected value is "+
-				"%v (%T), but your encoder produced %v (%T).",
+			return r.failedf("Values for key '%s' differ:\n"+
+				"  Expected:     %v (%T)\n"+
+				"  Your encoder: %v (%T)",
 				r.key, expected, expected, test, test)
 		}
 		return r
@@ -33,7 +34,6 @@ func (r result) cmpToml(expected, test interface{}) result {
 	default:
 		return r.failedf("Unrecognized TOML structure: %T", expected)
 	}
-	panic("unreachable")
 }
 
 func (r result) cmpTomlMaps(
