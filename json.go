@@ -46,14 +46,14 @@ func (r result) cmpJsonMaps(
 	}
 
 	// Check that the keys of each map are equivalent.
-	for k, _ := range e {
+	for k := range e {
 		if _, ok := t[k]; !ok {
 			bunk := r.kjoin(k)
 			return bunk.failedf("Could not find key '%s' in parser output.",
 				bunk.key)
 		}
 	}
-	for k, _ := range t {
+	for k := range t {
 		if _, ok := e[k]; !ok {
 			bunk := r.kjoin(k)
 			return bunk.failedf("Could not find key '%s' in expected output.",
@@ -62,7 +62,7 @@ func (r result) cmpJsonMaps(
 	}
 
 	// Okay, now make sure that each value is equivalent.
-	for k, _ := range e {
+	for k := range e {
 		if sub := r.kjoin(k).cmpJson(e[k], t[k]); sub.failed() {
 			return sub
 		}
