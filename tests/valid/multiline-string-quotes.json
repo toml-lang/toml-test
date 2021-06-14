@@ -25,9 +25,17 @@
   },
   "one": {
     "type": "string",
+    "value": "\"one quote\""
+  },
+  "one_space": {
+    "type": "string",
     "value": " \"one quote\" "
   },
   "two": {
+    "type": "string",
+    "value": "\"\"two quotes\"\""
+  },
+  "two_space": {
     "type": "string",
     "value": " \"\"two quotes\"\" "
   }
