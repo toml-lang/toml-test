@@ -1,0 +1,14 @@
+{
+  "bestdayever": {
+    "type": "datetime-local",
+    "value": "1987-07-05T17:45:00"
+  },
+  "bestdayever_with_space": {
+    "type": "datetime-local",
+    "value": "1987-07-05T17:45:00"
+  },
+  "milliseconds": {
+    "type": "datetime-local",
+    "value": "1977-12-21T10:32:00.555"
+  }
+}

@@ -132,8 +132,8 @@ func (r result) cmpJSONValues(want, have map[string]interface{}) result {
 	switch wantType {
 	case "float":
 		return r.cmpFloats(wantVal, haveVal)
-	case "datetime":
-		return r.cmpAsDatetimes(wantVal, haveVal)
+	case "datetime", "datetime-local", "date-local", "time-local":
+		return r.cmpAsDatetimes(wantType, wantVal, haveVal)
 	default:
 		return r.cmpAsStrings(wantVal, haveVal)
 	}
@@ -180,13 +180,30 @@ func (r result) cmpFloats(want, have string) result {
 	return r
 }
 
-func (r result) cmpAsDatetimes(want, have string) result {
-	wantT, err := time.Parse(time.RFC3339Nano, want)
+var datetimeRepl = strings.NewReplacer(
+	" ", "T",
+	"t", "T",
+	"z", "Z")
+
+var layouts = map[string]string{
+	"datetime":       time.RFC3339Nano,
+	"datetime-local": "2006-01-02T15:04:05.999999999",
+	"date-local":     "2006-01-02",
+	"time-local":     "15:04:05",
+}
+
+func (r result) cmpAsDatetimes(kind, want, have string) result {
+	layout, ok := layouts[kind]
+	if !ok {
+		panic("should never happen")
+	}
+
+	wantT, err := time.Parse(layout, datetimeRepl.Replace(want))
 	if err != nil {
 		return r.bugf("Could not read '%s' as a datetime value for key '%s'", want, r.key)
 	}
 
-	haveT, err := time.Parse(time.RFC3339Nano, have)
+	haveT, err := time.Parse(layout, datetimeRepl.Replace(want))
 	if err != nil {
 		return r.failedf("Malformed output from your encoder: key '%s' is not a datetime: '%s'", r.key, have)
 	}
@@ -195,6 +212,16 @@ func (r result) cmpAsDatetimes(want, have string) result {
 			"  Expected:     %v\n"+
 			"  Your encoder: %v",
 			r.key, wantT, haveT)
+	}
+	return r
+}
+
+func (r result) cmpAsDatetimesLocal(want, have string) result {
+	if datetimeRepl.Replace(want) != datetimeRepl.Replace(have) {
+		return r.failedf("Values for key '%s' don't match:\n"+
+			"  Expected:     %v\n"+
+			"  Your encoder: %v",
+			r.key, want, have)
 	}
 	return r
 }

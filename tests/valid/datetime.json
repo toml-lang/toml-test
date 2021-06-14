@@ -3,6 +3,10 @@
     "type": "datetime",
     "value": "1987-07-05T17:45:00Z"
   },
+  "bestdayever_with_space": {
+    "type": "datetime",
+    "value": "1987-07-05T17:45:00Z"
+  },
   "milliseconds": {
     "type": "datetime",
     "value": "1977-12-21T10:32:00.555+07:00"
