@@ -1,3 +1,6 @@
 {
-    "kilo": {"type": "integer", "value": "1000"}
+  "kilo": {
+    "type": "integer",
+    "value": "1000"
+  }
 }

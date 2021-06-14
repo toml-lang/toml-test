@@ -1,7 +1,10 @@
 {
   "foo": [
     {
-        "bar": {"type": "string", "value": "\"{{baz}}\"" }
+      "bar": {
+        "type": "string",
+        "value": "\"{{baz}}\""
+      }
     }
   ]
 }

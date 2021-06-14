@@ -1,3 +1,6 @@
 {
-    "a b": {"type": "integer", "value": "1"}
+  "a b": {
+    "type": "integer",
+    "value": "1"
+  }
 }

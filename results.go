@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/fs"
+	"os/exec"
+	"strings"
 
 	"github.com/BurntSushi/toml"
-
-	"os"
-	"os/exec"
 )
 
 type result struct {
@@ -18,6 +18,10 @@ type result struct {
 	skipped  bool
 	failure  string
 	key      string
+
+	// Input is the test, output is whatever the tested tool returned.
+	input, output, want string
+	fromStderr          bool
 }
 
 func (r result) errorf(format string, v ...interface{}) result {
@@ -25,19 +29,27 @@ func (r result) errorf(format string, v ...interface{}) result {
 	return r
 }
 
+func (r result) bugf(format string, v ...interface{}) result {
+	return r.failedf("BUG IN TEST CASE: "+format, v...)
+}
+
 func (r result) failedf(format string, v ...interface{}) result {
 	r.failure = fmt.Sprintf(format, v...)
 	return r
 }
 
-func (r result) mismatch(expected string, got interface{}) result {
-	return r.failedf("Type mismatch for key '%s'. Expected %s but got %T.",
-		r.key, expected, got)
+func (r result) mismatch(wantType string, want, have interface{}) result {
+	return r.failedf("Key '%s' is not an %s but %[4]T:\n"+
+		"  Expected:     %#[3]v\n"+
+		"  Your encoder: %#[4]v",
+		r.key, wantType, want, have)
 }
 
-func (r result) valMismatch(expected string, got string) result {
-	return r.failedf("Type mismatch for key '%s'. Expected %s but got %s.",
-		r.key, expected, got)
+func (r result) valMismatch(wantType, haveType string, want, have interface{}) result {
+	return r.failedf("Key '%s' is not an %s but %s:\n"+
+		"  Expected:    %#[3]v\n"+
+		"  Your encoder: %#[4]v",
+		r.key, wantType, want, have)
 }
 
 func (r result) kjoin(key string) result {
@@ -59,9 +71,9 @@ func (r result) pathTest() string {
 		ext = "json"
 	}
 	if r.valid {
-		return vPath("%s.%s", r.testName, ext)
+		return fmt.Sprintf("%s.%s", r.testName, ext)
 	}
-	return invPath("%s.%s", r.testName, ext)
+	return fmt.Sprintf("%s.%s", r.testName, ext)
 }
 
 func (r result) pathGold() string {
@@ -69,9 +81,9 @@ func (r result) pathGold() string {
 		panic("Invalid tests do not have a 'correct' version.")
 	}
 	if flagEncoder {
-		return vPath("%s.toml", r.testName)
+		return fmt.Sprintf("%s.toml", r.testName)
 	}
-	return vPath("%s.json", r.testName)
+	return fmt.Sprintf("%s.json", r.testName)
 }
 
 func runInvalidTest(name string) result {
@@ -80,7 +92,7 @@ func runInvalidTest(name string) result {
 		valid:    false,
 	}
 
-	_, stderr, err := runParser(r.pathTest())
+	_, stderr, err := runParser(&r)
 	if err != nil {
 		// Errors here are OK if it's just an exit error.
 		if _, ok := err.(*exec.ExitError); ok {
@@ -97,12 +109,9 @@ func runInvalidTest(name string) result {
 }
 
 func runValidTest(name string) result {
-	r := result{
-		testName: name,
-		valid:    true,
-	}
+	r := result{testName: name, valid: true}
 
-	stdout, stderr, err := runParser(r.pathTest())
+	stdout, stderr, err := runParser(&r)
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); ok {
 			switch {
@@ -116,93 +125,128 @@ func runValidTest(name string) result {
 	}
 
 	if stdout == nil {
-		return r.errorf("Parser does not satisfy interface. stdout is " +
-			"empty, but the process exited successfully.")
+		return r.errorf("stdout is empty but %q exited successfully", parserCmd)
 	}
 
-	if flagEncoder {
-		tomlExpected, err := loadToml(r.pathGold())
-		if err != nil {
-			return r.errorf(err.Error())
-		}
-		var tomlTest interface{}
-		if _, err := toml.DecodeReader(stdout, &tomlTest); err != nil {
-			return r.errorf(
-				"Could not decode TOML output from encoder: %s", err)
-		}
-		return r.cmpToml(tomlExpected, tomlTest)
+	wantB, err := fs.ReadFile(files, r.pathGold())
+	if err != nil {
+		return r.bugf(err.Error())
 	}
-	jsonExpected, err := loadJson(r.pathGold())
+	r.want = string(wantB)
+
+	if flagEncoder {
+		want, err := loadTOML(r)
+		if err != nil {
+			return r.bugf(err.Error())
+		}
+
+		var have interface{}
+		if _, err := toml.Decode(r.output, &have); err != nil {
+			return r.errorf("decode TOML from encoder %q:\n  %s", parserCmd, err)
+		}
+		return r.cmpTOML(want, have)
+	}
+
+	want, err := loadJSON(r)
 	if err != nil {
 		return r.errorf(err.Error())
 	}
-	var jsonTest interface{}
-	if err := json.NewDecoder(stdout).Decode(&jsonTest); err != nil {
-		return r.errorf(
-			"Could not decode JSON output from parser: %s", err)
+
+	var have interface{}
+	if err := json.Unmarshal([]byte(r.output), &have); err != nil {
+		return r.errorf("decode JSON output from parser:\n  %s", err)
 	}
-	return r.cmpJson(jsonExpected, jsonTest)
+
+	return r.cmpJSON(want, have)
 }
 
-func runParser(testFile string) (*bytes.Buffer, *bytes.Buffer, error) {
-	f, err := os.Open(testFile)
+func runParser(r *result) (*bytes.Buffer, *bytes.Buffer, error) {
+	data, err := fs.ReadFile(files, r.pathTest())
 	if err != nil {
 		return nil, nil, err
 	}
 
-	stdout := new(bytes.Buffer)
-	stderr := new(bytes.Buffer)
+	r.input = string(data)
 
+	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
 	c := exec.Command(parserCmd)
-	c.Stdin = f
-	c.Stdout = stdout
-	c.Stderr = stderr
+	c.Stdin, c.Stdout, c.Stderr = bytes.NewReader(data), stdout, stderr
 
-	if err := c.Run(); err != nil {
+	err = c.Run() // Error checked later
+
+	if stderr.Len() > 0 {
+		r.output = strings.TrimSpace(stderr.String()) + "\n"
+		r.fromStderr = true
+	} else {
+		r.output = strings.TrimSpace(stdout.String()) + "\n"
+	}
+
+	if err != nil {
 		return stdout, stderr, err
 	}
 	return stdout, nil, nil
 }
 
-func loadJson(fp string) (interface{}, error) {
-	fjson, err := os.Open(fp)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"Could not find expected JSON output at %s.", fp)
-	}
-
+func loadJSON(r result) (interface{}, error) {
 	var vjson interface{}
-	if err := json.NewDecoder(fjson).Decode(&vjson); err != nil {
-		return nil, fmt.Errorf(
-			"Could not decode expected JSON output at %s: %s", fp, err)
+	if err := json.Unmarshal([]byte(r.want), &vjson); err != nil {
+		return nil, fmt.Errorf("Could not decode JSON file %q:\n  %s", r.pathGold(), err)
 	}
 	return vjson, nil
 }
 
-func loadToml(fp string) (interface{}, error) {
+func loadTOML(r result) (interface{}, error) {
 	var vtoml interface{}
-	if _, err := toml.DecodeFile(fp, &vtoml); err != nil {
-		return nil, fmt.Errorf(
-			"Could not decode expected TOML output at %s: %s", fp, err)
+	_, err := toml.Decode(r.want, &vtoml)
+	if err != nil {
+		return nil, fmt.Errorf("Could not decode TOML file %q:\n  %s", r.pathGold(), err)
 	}
 	return vtoml, nil
 }
 
 func (r result) String() string {
 	buf := new(bytes.Buffer)
-	p := func(s string, v ...interface{}) { fmt.Fprintf(buf, s, v...) }
 
-	p("Test: %s/%s\n", map[bool]string{true: "valid", false: "invalid"}[r.valid], r.testName)
+	buf.WriteString(bold(fmt.Sprintf("Test: %s", r.testName)))
+	buf.WriteString(fmt.Sprintf("  (%s < %s)\n", parserCmd, r.pathTest()))
 
+	if r.failure == "" && r.err == nil {
+		buf.WriteString("PASSED")
+		return buf.String()
+	}
+
+	msg := r.failure
 	if r.err != nil {
-		p("Error running test: %s", r.err)
-		return buf.String()
-	}
-	if len(r.failure) > 0 {
-		p(r.failure)
-		return buf.String()
+		msg = r.err.Error()
 	}
 
-	p("PASSED.")
+	buf.WriteString(msg)
+	showStream(buf, "input sent to "+parserCmd, r.input)
+	if r.fromStderr {
+		showStream(buf, "output from "+parserCmd+" (stderr)", r.output)
+	} else {
+		showStream(buf, "output from "+parserCmd+" (stdout)", r.output)
+	}
+	showStream(buf, "want", r.want)
+	buf.WriteByte('\n')
 	return buf.String()
+}
+
+func showStream(buf *bytes.Buffer, name, s string) {
+	buf.WriteByte('\n')
+
+	fmt.Fprintln(buf, bold("    "+name+":"))
+	if s == "" {
+		fmt.Fprintln(buf, "        <empty>")
+		return
+	}
+
+	fmt.Fprintln(buf, indent(s, 8))
+}
+
+func bold(s string) string {
+	if flagNoBold {
+		return s
+	}
+	return "\x1b[1m" + s + "\x1b[0m"
 }

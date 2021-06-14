@@ -1,4 +1,10 @@
 {
-    "os": {"type": "string", "value": "unix"},
-    "newline": {"type": "string", "value": "lf"}
+  "newline": {
+    "type": "string",
+    "value": "lf"
+  },
+  "os": {
+    "type": "string",
+    "value": "unix"
+  }
 }

@@ -1,113 +1,112 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
-	"go/build"
-	"io/ioutil"
+	"io/fs"
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
-var (
-	flagTestdir = ""
-	flagShowAll = false
-	flagEncoder = false
-	flagSkip    = ""
-)
-
-var (
-	parserCmd  string
-	dirInvalid string
-	dirValid   string
-	invalidExt = "toml" // set to "json" when testing encoders
-)
-
-func init() {
-	log.SetFlags(0)
-
-	// If no test directory was specified, let's look for it automatically.
-	// Assumes `toml-test` was installed with the Go tool.
-	if len(flagTestdir) == 0 {
-		imp := path.Join("github.com", "BurntSushi", "toml-test", "tests")
-		for _, dir := range build.Default.SrcDirs() {
-			if readable(path.Join(dir, imp)) {
-				flagTestdir = path.Join(dir, imp)
-				break
-			}
-		}
-	}
-
-	// Nada, just use 'tests'.
-	if len(flagTestdir) == 0 {
-		flagTestdir = "tests"
-	}
-
-	flag.StringVar(&flagTestdir, "testdir", flagTestdir,
-		"The path to the test directory.")
-	flag.BoolVar(&flagShowAll, "all", flagShowAll,
-		"When set, all tests will be shown.")
-	flag.BoolVar(&flagEncoder, "encoder", flagEncoder,
-		"When set, the given executable will be tested as a TOML encoder.")
-	flag.StringVar(&flagSkip, "skip", flagSkip,
-		"Tests to skip, comma-separated and as e.g. 'invalid/test-name'")
-
-	flag.Usage = usage
-	flag.Parse()
-
-	dirValid = path.Join(flagTestdir, "valid")
-	if flagEncoder {
-		dirInvalid = path.Join(flagTestdir, "invalid-encoder")
-		invalidExt = "json"
-	} else {
-		dirInvalid = path.Join(flagTestdir, "invalid")
-	}
-}
-
 func usage() {
-	log.Printf("Usage: %s parser-cmd [ test-name ... ]\n",
-		path.Base(os.Args[0]))
-	log.Println(`
-parser-cmd should be a program that accepts TOML data on stdin until EOF,
-and outputs the corresponding JSON encoding on stdout. Please see 'README.md'
-for details on how to satisfy the interface expected by 'toml-test' with your
-own parser.
+	log.Printf(`Usage: %[1]s parser-cmd [ test-name ... ]
 
-The 'testdir' directory should have two sub-directories: 'invalid' and 'valid'.
+toml-test is a tool to verify the correctness of TOML parsers.
+https://github.com/BurntSushi/toml-test
 
-The 'invalid' directory should contain 'toml' files,
-where test names are the file names not including the '.toml' suffix.
+The first positional argument (parser-cmd) should be a program that accepts TOML
+data on stdin until EOF, and outputs the corresponding JSON encoding on stdout.
+Please see 'README.md' for details on how to satisfy the interface expected by
+'toml-test' with your own parser.
 
-The 'valid' directory should contain 'toml' files and a 'json' file for each
-'toml' file, that contains the expected output of 'parser-cmd'. Test names
-are the file names not including the '.toml' or '.json' suffix.
+Any other positional arguments are tests to run. For example:
 
-Test names must be globally unique. Behavior is undefined if there is a
-failure test with the same name as a valid test.
+   $ %[1]s my-parser valid/test1 invalid/oh-noes
 
-Note that toml-test can also test TOML encoders with the "encoder" flag set.
-In particular, the binary will be given JSON on stdin and expect TOML on
-stdout. The JSON will be in the same format as specified in the toml-test
-README. Note that this depends on the correctness of my TOML parser!
-(For encoders, the same directory scheme above is used, except the
-'invalid-encoder' directory is used instead of the 'invalid' directory.)
+When omitted it will run all tests.
 
-Flags:`)
+Note that flags *must* be placed before parser-cmd.
 
-	flag.PrintDefaults()
+Flags:
+
+    -encoder    The given executable will be tested as a TOML encoder.
+
+                The binary will be sent JSON on stdin and write TOML to stdout.
+                The JSON will be in the same format as specified in the
+                toml-test README. Note that this depends on the correctness of
+                my TOML parser! (For encoders, the same directory scheme above
+                is used, except the 'invalid-encoder' directory is used instead
+                of the 'invalid' directory.)
+
+    -all        Show detailed input/output for all tests.
+
+    -skip       Tests to skip, can add multiple by separating them with commas.
+                Example:
+
+                     $ %[1]s -skip valid/test1,invalid/oh-noes my-parser
+
+    -no-bold    Don't output bold text in test failure messages.
+
+    -testdir    Location of the tests; the default is to use the tests compiled
+                in the binary; this is only useful if you want to work on
+                writing tests.
+
+                This should have two sub-directories: 'invalid' and 'valid'. The
+                'invalid' directory contains 'toml' files, where test names are
+                the file names not including the '.toml' suffix.
+
+                The 'valid' directory contains 'toml' files and a 'json' file
+                for each 'toml' file, which contains the expected output of
+                'parser-cmd'. Test names are the file names not including the
+                '.toml' or '.json' suffix.
+`, path.Base(os.Args[0]))
 
 	os.Exit(1)
 }
 
-func main() {
+var (
+	flagEncoder = false
+	flagNoBold  = false
+	parserCmd   string
+)
+
+//go:embed tests/*
+var packed embed.FS
+
+var files fs.FS
+
+var (
+	dirValid   = "valid"
+	dirInvalid = "invalid"
+	invalidExt = "toml" // set to "json" when testing encoders
+)
+
+// TODO: Go's flag package is kinda crap; it *requires* flags to come before
+// positional arguments. We can work around that though (many go commands do,
+// like go test).
+func parseFlags() (showAll bool, skip []string) {
+	flagSkip := ""
+	flagTestdir := ""
+
+	log.SetFlags(0)
+	flag.StringVar(&flagTestdir, "testdir", flagTestdir, "")
+	flag.BoolVar(&showAll, "all", showAll, "")
+	flag.BoolVar(&flagEncoder, "encoder", flagEncoder, "")
+	flag.BoolVar(&flagNoBold, "no-bold", flagNoBold, "")
+	flag.StringVar(&flagSkip, "skip", flagSkip, "")
+	flag.Usage = usage
+	flag.Parse()
+
 	if flag.NArg() < 1 {
 		flag.Usage()
 	}
+
 	parserCmd = flag.Arg(0)
 
-	var skip []string
 	if fs := strings.TrimSpace(flagSkip); fs != "" {
 		skip = strings.Split(fs, ",")
 		for i := range skip {
@@ -115,24 +114,44 @@ func main() {
 		}
 	}
 
-	var results []result
+	if flagEncoder {
+		dirInvalid = "invalid-encoder"
+		invalidExt = "json"
+	}
 
-	// Run all tests.
+	var err error
+	if flagTestdir != "" {
+		files = os.DirFS(flagTestdir)
+	} else {
+		files, err = fs.Sub(packed, "tests")
+	}
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return showAll, skip
+}
+
+func main() {
+	showAll, skip := parseFlags()
+
+	var results []result
 	if flag.NArg() == 1 {
 		results = runAllTests(skip)
-	} else { // just a few
+	} else {
 		results = make([]result, 0, flag.NArg()-1)
-		for _, testName := range flag.Args()[1:] {
-			results = append(results, runTestByName(testName))
+		for _, n := range flag.Args()[1:] {
+			results = append(results, runTestByName(n))
 		}
 	}
 
-	out := make([]string, 0, len(results))
 	var passed, failed, skipped int
 	for _, r := range results {
-		if flagShowAll || r.failed() {
-			out = append(out, r.String())
+		if showAll || r.failed() {
+			fmt.Println(strings.TrimLeft(indent(r.String(), 4), " "))
+			fmt.Println()
 		}
+
 		if r.failed() {
 			failed++
 		} else if r.skipped {
@@ -141,10 +160,7 @@ func main() {
 			passed++
 		}
 	}
-	if len(out) > 0 {
-		fmt.Println(strings.Join(out, "\n"+strings.Repeat("-", 79)+"\n"))
-		fmt.Println("")
-	}
+
 	fmt.Printf("toml-test %s: %3d passed, %2d failed", parserCmd, passed, failed)
 	if skipped > 0 {
 		fmt.Printf(", %2d skipped", skipped)
@@ -157,14 +173,14 @@ func main() {
 }
 
 func runAllTests(skip []string) []result {
-	invalidTests, err := ioutil.ReadDir(dirInvalid)
+	invalidTests, err := fs.ReadDir(files, dirInvalid)
 	if err != nil {
-		log.Fatalf("Cannot read invalid directory (%s): %s", dirInvalid, err)
+		log.Fatalf("Cannot read invalid directory %q: %s", dirInvalid, err)
 	}
 
-	validTests, err := ioutil.ReadDir(dirValid)
+	validTests, err := fs.ReadDir(files, dirValid)
 	if err != nil {
-		log.Fatalf("Cannot read valid directory (%s): %s", dirValid, err)
+		log.Fatalf("Cannot read valid directory %q: %s", dirValid, err)
 	}
 
 	results := make([]result, 0, len(invalidTests)+len(validTests))
@@ -172,8 +188,8 @@ func runAllTests(skip []string) []result {
 		if !strings.HasSuffix(f.Name(), fmt.Sprintf(".%s", invalidExt)) {
 			continue
 		}
-		tname := stripSuffix(f.Name())
-		if r, skipped := hasSkip("invalid/"+tname, skip); skipped {
+		tname := filepath.Join(dirInvalid, stripSuffix(f.Name()))
+		if r, skipped := hasSkip(tname, skip); skipped {
 			results = append(results, r)
 			continue
 		}
@@ -183,8 +199,8 @@ func runAllTests(skip []string) []result {
 		if !strings.HasSuffix(f.Name(), ".toml") {
 			continue
 		}
-		tname := stripSuffix(f.Name())
-		if r, skipped := hasSkip("valid/"+tname, skip); skipped {
+		tname := filepath.Join(dirValid, stripSuffix(f.Name()))
+		if r, skipped := hasSkip(tname, skip); skipped {
 			results = append(results, r)
 			continue
 		}
@@ -203,27 +219,16 @@ func hasSkip(test string, skip []string) (result, bool) {
 }
 
 func runTestByName(name string) result {
-	if readable(invPath("%s.%s", name, invalidExt)) {
+	invalid := strings.Contains(name, dirInvalid+"/")
+	if invalid {
 		return runInvalidTest(name)
 	}
-	if readable(vPath("%s.toml", name)) && readable(vPath("%s.json", name)) {
-		return runValidTest(name)
-	}
-	return result{testName: name}.errorf(
-		"Could not find test in '%s' or '%s'.", dirInvalid, dirValid)
+	return runValidTest(name)
 }
 
 func readable(fp string) bool {
 	_, err := os.Stat(fp)
 	return err == nil
-}
-
-func vPath(fname string, v ...interface{}) string {
-	return path.Join(dirValid, fmt.Sprintf(fname, v...))
-}
-
-func invPath(fname string, v ...interface{}) string {
-	return path.Join(dirInvalid, fmt.Sprintf(fname, v...))
 }
 
 func stripSuffix(fname string) string {
@@ -233,4 +238,9 @@ func stripSuffix(fname string) string {
 		}
 	}
 	return fname
+}
+
+func indent(s string, n int) string {
+	sp := strings.Repeat(" ", n)
+	return sp + strings.ReplaceAll(strings.TrimRight(s, "\n"), "\n", "\n"+sp)
 }
