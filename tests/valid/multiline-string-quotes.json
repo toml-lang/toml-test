@@ -1,9 +1,17 @@
 {
   "lit_one": {
     "type": "string",
+    "value": "'one quote'"
+  },
+  "lit_one_space": {
+    "type": "string",
     "value": " 'one quote' "
   },
   "lit_two": {
+    "type": "string",
+    "value": "''two quotes''"
+  },
+  "lit_two_space": {
     "type": "string",
     "value": " ''two quotes'' "
   },

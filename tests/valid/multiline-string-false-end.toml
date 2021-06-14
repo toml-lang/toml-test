@@ -1,6 +1,0 @@
-one = """ "one quote" """
-two = """ ""two quotes"" """
-lit_one = ''' 'one quote' '''
-lit_two = ''' ''two quotes'' '''
-mismatch1 = """aaa'''bbb"""
-mismatch2 = '''aaa"""bbb'''
