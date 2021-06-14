@@ -2,58 +2,60 @@ package main
 
 import (
 	"strconv"
+	"strings"
 	"time"
 )
 
-// compareJson consumes the recursive structure of both `expected` and `test`
-// simultaneously. If anything is unequal, the result has failed and
-// comparison stops.
+// cmpJSON consumes the recursive structure of both `want` and `have`
+// simultaneously. If anything is unequal, the result has failed and comparison
+// stops.
 //
-// N.B. `reflect.DeepEqual` could work here, but it won't tell us how the
-// two structures are different.
-func (r result) cmpJson(expected, test interface{}) result {
-	switch e := expected.(type) {
+// N.B. `reflect.DeepEqual` could work here, but it won't tell us how the two
+// structures are different.
+func (r result) cmpJSON(want, have interface{}) result {
+	switch w := want.(type) {
 	case map[string]interface{}:
-		return r.cmpJsonMaps(e, test)
+		return r.cmpJSONMaps(w, have)
 	case []interface{}:
-		return r.cmpJsonArrays(e, test)
+		return r.cmpJSONArrays(w, have)
 	default:
-		return r.failedf("Key '%s' in expected output should be a map or a "+
-			"list of maps, but it's a %T.", r.key, expected)
+		return r.failedf(
+			"Key '%s' in expected output should be a map or a list of maps, but it's a %T",
+			r.key, want)
 	}
 }
 
-func (r result) cmpJsonMaps(
-	e map[string]interface{}, test interface{}) result {
-
-	t, ok := test.(map[string]interface{})
+func (r result) cmpJSONMaps(want map[string]interface{}, have interface{}) result {
+	haveMap, ok := have.(map[string]interface{})
 	if !ok {
-		return r.mismatch("table", t)
+		return r.mismatch("table", want, haveMap)
 	}
 
 	// Check to make sure both or neither are values.
-	if isValue(e) && !isValue(t) {
-		return r.failedf("Key '%s' is supposed to be a value, but the "+
-			"parser reports it as a table.", r.key)
+	if isValue(want) && !isValue(haveMap) {
+		return r.failedf(
+			"Key '%s' is supposed to be a value, but the parser reports it as a table",
+			r.key)
 	}
-	if !isValue(e) && isValue(t) {
-		return r.failedf("Key '%s' is supposed to be a table, but the "+
-			"parser reports it as a value.", r.key)
+	if !isValue(want) && isValue(haveMap) {
+		return r.failedf(
+			"Key '%s' is supposed to be a table, but the parser reports it as a value",
+			r.key)
 	}
-	if isValue(e) && isValue(t) {
-		return r.cmpJsonValues(e, t)
+	if isValue(want) && isValue(haveMap) {
+		return r.cmpJSONValues(want, haveMap)
 	}
 
 	// Check that the keys of each map are equivalent.
-	for k := range e {
-		if _, ok := t[k]; !ok {
+	for k := range want {
+		if _, ok := haveMap[k]; !ok {
 			bunk := r.kjoin(k)
 			return bunk.failedf("Could not find key '%s' in parser output.",
 				bunk.key)
 		}
 	}
-	for k := range t {
-		if _, ok := e[k]; !ok {
+	for k := range haveMap {
+		if _, ok := want[k]; !ok {
 			bunk := r.kjoin(k)
 			return bunk.failedf("Could not find key '%s' in expected output.",
 				bunk.key)
@@ -61,139 +63,138 @@ func (r result) cmpJsonMaps(
 	}
 
 	// Okay, now make sure that each value is equivalent.
-	for k := range e {
-		if sub := r.kjoin(k).cmpJson(e[k], t[k]); sub.failed() {
+	for k := range want {
+		if sub := r.kjoin(k).cmpJSON(want[k], haveMap[k]); sub.failed() {
 			return sub
 		}
 	}
 	return r
 }
 
-func (r result) cmpJsonArrays(e, t interface{}) result {
-	ea, ok := e.([]interface{})
+func (r result) cmpJSONArrays(want, have interface{}) result {
+	wantSlice, ok := want.([]interface{})
 	if !ok {
-		return r.failedf("BUG in test case. 'value' should be a JSON array "+
-			"when 'type' indicates 'array', but it is a %T.", e)
+		return r.bugf("'value' should be a JSON array when 'type=array', but it is a %T", want)
 	}
 
-	ta, ok := t.([]interface{})
+	haveSlice, ok := have.([]interface{})
 	if !ok {
-		return r.failedf("Malformed parser output. 'value' should be a "+
-			"JSON array when 'type' indicates 'array', but it is a %T.", t)
+		return r.failedf(
+			"Malformed output from your encoder: 'value' is not a JSON array: %T", have)
 	}
-	if len(ea) != len(ta) {
+
+	if len(wantSlice) != len(haveSlice) {
 		return r.failedf("Array lengths differ for key '%s':\n"+
 			"  Expected:     %d\n"+
 			"  Your encoder: %d",
-			r.key, len(ea), len(ta))
+			r.key, len(wantSlice), len(haveSlice))
 	}
-	for i := 0; i < len(ea); i++ {
-		if sub := r.cmpJson(ea[i], ta[i]); sub.failed() {
+	for i := 0; i < len(wantSlice); i++ {
+		if sub := r.cmpJSON(wantSlice[i], haveSlice[i]); sub.failed() {
 			return sub
 		}
 	}
 	return r
 }
 
-func (r result) cmpJsonValues(e, t map[string]interface{}) result {
-	etype, ok := e["type"].(string)
+func (r result) cmpJSONValues(want, have map[string]interface{}) result {
+	wantType, ok := want["type"].(string)
 	if !ok {
-		return r.failedf("BUG in test case. 'type' should be a string, "+
-			"but it is a %T.", e["type"])
+		return r.bugf("'type' should be a string, but it is a %T", want["type"])
 	}
 
-	ttype, ok := t["type"].(string)
+	haveType, ok := have["type"].(string)
 	if !ok {
-		return r.failedf("Malformed parser output. 'type' should be a "+
-			"string, but it is a %T.", t["type"])
+		return r.failedf("Malformed output from your encoder: 'type' is not a string: %T", have["type"])
 	}
 
-	if etype != ttype {
-		return r.valMismatch(etype, ttype)
+	if wantType != haveType {
+		return r.valMismatch(wantType, haveType, want, have)
 	}
 
-	// If this is an array, then we've got to do some work to check
-	// equality.
-	if etype == "array" {
-		return r.cmpJsonArrays(e["value"], t["value"])
-	} else {
-		// Atomic values are always strings
-		evalue, ok := e["value"].(string)
-		if !ok {
-			return r.failedf("BUG in test case. 'value' "+
-				"should be a string, but it is a %T.",
-				e["value"])
-		}
-		tvalue, ok := t["value"].(string)
-		if !ok {
-			return r.failedf("Malformed parser output. 'value' "+
-				"should be a string but it is a %T.",
-				t["value"])
-		}
+	// If this is an array, then we've got to do some work to check equality.
+	if wantType == "array" {
+		return r.cmpJSONArrays(want, have)
+	}
 
-		// Excepting floats and datetimes, other values can be
-		// compared as strings.
-		switch etype {
-		case "float":
-			return r.cmpFloats(evalue, tvalue)
-		case "datetime":
-			return r.cmpAsDatetimes(evalue, tvalue)
-		default:
-			return r.cmpAsStrings(evalue, tvalue)
-		}
+	// Atomic values are always strings
+	wantVal, ok := want["value"].(string)
+	if !ok {
+		return r.bugf("'value' should be a string, but it is a %T", want["value"])
+	}
+
+	haveVal, ok := have["value"].(string)
+	if !ok {
+		return r.failedf("Malformed output from your encoder: %T is not a string", have["value"])
+	}
+
+	// Excepting floats and datetimes, other values can be compared as strings.
+	switch wantType {
+	case "float":
+		return r.cmpFloats(wantVal, haveVal)
+	case "datetime":
+		return r.cmpAsDatetimes(wantVal, haveVal)
+	default:
+		return r.cmpAsStrings(wantVal, haveVal)
 	}
 }
 
-func (r result) cmpAsStrings(e, t string) result {
-	if e != t {
+func (r result) cmpAsStrings(want, have string) result {
+	if want != have {
 		return r.failedf("Values for key '%s' don't match:\n"+
 			"  Expected:     %s\n"+
 			"  Your encoder: %s",
-			r.key, e, t)
+			r.key, want, have)
 	}
 	return r
 }
 
-func (r result) cmpFloats(e, t string) result {
-	ef, err := strconv.ParseFloat(e, 64)
-	if err != nil {
-		return r.failedf("BUG in test case. Could not read '%s' as a "+
-			"float value for key '%s'.", e, r.key)
+func (r result) cmpFloats(want, have string) result {
+	// Special case for NaN, since NaN != NaN.
+	if strings.HasSuffix(want, "nan") || strings.HasSuffix(have, "nan") {
+		if want != have {
+			return r.failedf("Values for key '%s' don't match:\n"+
+				"  Expected:     %v\n"+
+				"  Your encoder: %v",
+				r.key, want, have)
+		}
+		return r
 	}
 
-	tf, err := strconv.ParseFloat(t, 64)
+	wantF, err := strconv.ParseFloat(want, 64)
 	if err != nil {
-		return r.failedf("Malformed parser output. Could not read '%s' "+
-			"as a float value for key '%s'.", t, r.key)
+		return r.bugf("Could not read '%s' as a float value for key '%s'", want, r.key)
 	}
-	if ef != tf {
+
+	haveF, err := strconv.ParseFloat(have, 64)
+	if err != nil {
+		return r.failedf("Malformed output from your encoder: key '%s' is not a float: '%s'", r.key, have)
+	}
+
+	if wantF != haveF {
 		return r.failedf("Values for key '%s' don't match:\n"+
 			"  Expected:     %v\n"+
 			"  Your encoder: %v",
-			r.key, ef, tf)
+			r.key, wantF, haveF)
 	}
 	return r
 }
 
-func (r result) cmpAsDatetimes(e, t string) result {
-	var err error
-
-	ef, err := time.Parse(time.RFC3339Nano, e)
+func (r result) cmpAsDatetimes(want, have string) result {
+	wantT, err := time.Parse(time.RFC3339Nano, want)
 	if err != nil {
-		return r.failedf("BUG in test case. Could not read '%s' as a "+
-			"datetime value for key '%s'.", e, r.key)
+		return r.bugf("Could not read '%s' as a datetime value for key '%s'", want, r.key)
 	}
 
-	tf, err := time.Parse(time.RFC3339Nano, t)
+	haveT, err := time.Parse(time.RFC3339Nano, have)
 	if err != nil {
-		return r.failedf("Malformed parser output. Could not read '%s' "+
-			"as datetime value for key '%s'.", t, r.key)
+		return r.failedf("Malformed output from your encoder: key '%s' is not a datetime: '%s'", r.key, have)
 	}
-	if !ef.Equal(tf) {
+	if !wantT.Equal(haveT) {
 		return r.failedf("Values for key '%s' don't match:\n"+
 			"  Expected:     %v\n"+
 			"  Your encoder: %v",
-			r.key, ef, tf)
+			r.key, wantT, haveT)
 	}
 	return r
 }

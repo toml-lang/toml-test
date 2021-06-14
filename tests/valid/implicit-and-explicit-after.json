@@ -1,10 +1,16 @@
 {
-    "a": {
-        "better": {"type": "integer", "value": "43"},
-        "b": {
-            "c": {
-                "answer": {"type": "integer", "value": "42"}
-            }
+  "a": {
+    "b": {
+      "c": {
+        "answer": {
+          "type": "integer",
+          "value": "42"
         }
+      }
+    },
+    "better": {
+      "type": "integer",
+      "value": "43"
     }
+  }
 }

@@ -1,3 +1,6 @@
 {
-    "answer": {"type": "integer", "value": "42"}
+  "answer": {
+    "type": "integer",
+    "value": "42"
+  }
 }
