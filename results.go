@@ -210,18 +210,17 @@ func (r result) String() string {
 	buf.WriteString(bold(fmt.Sprintf("Test: %s", r.testName)))
 	buf.WriteString(fmt.Sprintf("  (%s < %s)\n", parserCmd, r.pathTest()))
 
-	if r.err != nil {
-		buf.WriteString(r.err.Error())
-		return buf.String()
-	}
-
-	if len(r.failure) == 0 {
+	if r.failure == "" && r.err == nil {
 		buf.WriteString("PASSED")
 		return buf.String()
 	}
 
-	buf.WriteString(r.failure)
+	msg := r.failure
+	if r.err != nil {
+		msg = r.err.Error()
+	}
 
+	buf.WriteString(msg)
 	showStream(buf, "input sent to "+parserCmd, r.input)
 	if r.fromStderr {
 		showStream(buf, "output from "+parserCmd+" (stderr)", r.output)
