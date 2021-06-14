@@ -13,12 +13,9 @@ compared. Note though that encoders have their own set of invalid tests in the
 invalid-encoder directory. The JSON given to a TOML encoder is in the same 
 format as the JSON that a TOML decoder should output.
 
-Version: v0.4.0 (in sync with TOML)
+Compatible with TOML version [v0.5.0](https://toml.io/en/v0.5.0)
 
-Compatible with TOML version
-[v0.4.0](https://github.com/toml-lang/toml/blob/v0.4.0/versions/en/toml-v0.4.0.md)
-
-Dependencies: [Go](http://golang.org).
+Dependencies: [Go](http://golang.org) 1.16 or newer.
 
 [t]: https://toml.io
 
@@ -109,17 +106,20 @@ In the above, `TTYPE` may be one of:
 - string
 - integer
 - float
-- datetime
 - bool
-- array
+- datetime
+- datetime-local
+- date-local
+- time-local
 
-`TVALUE` is always a JSON string, except when `TTYPE` is `array` in which
-`TVALUE` is a JSON array containing TOML values.
+`TVALUE` is always a JSON string.
 
 Empty hashes correspond to empty JSON objects (i.e., `{}`) and empty arrays
 correspond to empty JSON arrays (i.e., `[]`).
 
-Datetime should be encoded in RFC3339.
+Offset datetimes should be encoded in RFC 3339; Local datetimes should be
+encoded following RFC 3339 without the offset part. Local dates should be
+encoded as the date part of RFC 3339 and Local times as the time part.
 
 ### Example JSON encoding
 Here is the TOML data:

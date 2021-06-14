@@ -47,7 +47,7 @@ func (r result) mismatch(wantType string, want, have interface{}) result {
 
 func (r result) valMismatch(wantType, haveType string, want, have interface{}) result {
 	return r.failedf("Key '%s' is not an %s but %s:\n"+
-		"  Expected:    %#[3]v\n"+
+		"  Expected:     %#[3]v\n"+
 		"  Your encoder: %#[4]v",
 		r.key, wantType, want, have)
 }
