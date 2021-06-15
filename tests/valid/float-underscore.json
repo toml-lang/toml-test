@@ -9,6 +9,6 @@
   },
   "exponent": {
     "type": "float",
-    "value": "3e14"
+    "value": "3.0e14"
   }
 }

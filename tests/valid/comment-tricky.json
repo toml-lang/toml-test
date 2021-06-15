@@ -84,7 +84,7 @@
     },
     "ten": {
       "type": "float",
-      "value": "1000"
+      "value": "1000.0"
     },
     "three": {
       "type": "string",
