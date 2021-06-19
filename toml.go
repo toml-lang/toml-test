@@ -1,31 +1,30 @@
-package main
+package tomltest
 
 import (
 	"math"
 	"reflect"
 )
 
-// cmpToml consumes the recursive structure of both `expected` and `test`
-// simultaneously. If anything is unequal, the result has failed and
-// comparison stops.
+// cmpTOML consumes the recursive structure of both want and have
+// simultaneously. If anything is unequal the result has failed and comparison
+// stops.
 //
-// N.B. `reflect.DeepEqual` could work here, but it won't tell us how the
-// two structures are different. (Although we do use it here on primitive
-// values.)
-func (r result) cmpTOML(want, have interface{}) result {
+// reflect.DeepEqual could work here, but it won't tell us how the two
+// structures are different.
+func (r Test) cmpTOML(want, have interface{}) Test {
 	if isTomlValue(want) {
 		if !isTomlValue(have) {
-			return r.failedf("Type for key '%s' differs:\n"+
+			return r.fail("Type for key '%s' differs:\n"+
 				"  Expected:     %[2]v (%[2]T)\n"+
 				"  Your encoder: %[3]v (%[3]T)",
-				r.key, want, have)
+				r.Key, want, have)
 		}
 
 		if !deepEqual(want, have) {
-			return r.failedf("Values for key '%s' differ:\n"+
+			return r.fail("Values for key '%s' differ:\n"+
 				"  Expected:     %[2]v (%[2]T)\n"+
 				"  Your encoder: %[3]v (%[3]T)",
-				r.key, want, have)
+				r.Key, want, have)
 		}
 		return r
 	}
@@ -36,11 +35,11 @@ func (r result) cmpTOML(want, have interface{}) result {
 	case []interface{}:
 		return r.cmpTOMLArrays(w, have)
 	default:
-		return r.failedf("Unrecognized TOML structure: %T", want)
+		return r.fail("Unrecognized TOML structure: %T", want)
 	}
 }
 
-func (r result) cmpTOMLMap(want map[string]interface{}, have interface{}) result {
+func (r Test) cmpTOMLMap(want map[string]interface{}, have interface{}) Test {
 	haveMap, ok := have.(map[string]interface{})
 	if !ok {
 		return r.mismatch("table", want, haveMap)
@@ -50,26 +49,26 @@ func (r result) cmpTOMLMap(want map[string]interface{}, have interface{}) result
 	for k := range want {
 		if _, ok := haveMap[k]; !ok {
 			bunk := r.kjoin(k)
-			return bunk.failedf("Could not find key '%s' in encoder output", bunk.key)
+			return bunk.fail("Could not find key '%s' in encoder output", bunk.Key)
 		}
 	}
 	for k := range haveMap {
 		if _, ok := want[k]; !ok {
 			bunk := r.kjoin(k)
-			return bunk.failedf("Could not find key '%s' in expected output", bunk.key)
+			return bunk.fail("Could not find key '%s' in expected output", bunk.Key)
 		}
 	}
 
 	// Okay, now make sure that each value is equivalent.
 	for k := range want {
-		if sub := r.kjoin(k).cmpTOML(want[k], haveMap[k]); sub.failed() {
+		if sub := r.kjoin(k).cmpTOML(want[k], haveMap[k]); sub.Failed() {
 			return sub
 		}
 	}
 	return r
 }
 
-func (r result) cmpTOMLArrays(want []interface{}, have interface{}) result {
+func (r Test) cmpTOMLArrays(want []interface{}, have interface{}) Test {
 	// Slice can be decoded to []interface{} for an array of primitives, or
 	// []map[string]interface{} for an array of tables.
 	//
@@ -88,13 +87,13 @@ func (r result) cmpTOMLArrays(want []interface{}, have interface{}) result {
 	}
 
 	if len(want) != len(haveSlice) {
-		return r.failedf("Array lengths differ for key '%s'"+
+		return r.fail("Array lengths differ for key '%s'"+
 			"  Expected:     %[2]v (len=%[4]d)\n"+
 			"  Your encoder: %[3]v (len=%[5]d)",
-			r.key, want, haveSlice, len(want), len(haveSlice))
+			r.Key, want, haveSlice, len(want), len(haveSlice))
 	}
 	for i := 0; i < len(want); i++ {
-		if sub := r.cmpTOML(want[i], haveSlice[i]); sub.failed() {
+		if sub := r.cmpTOML(want[i], haveSlice[i]); sub.Failed() {
 			return sub
 		}
 	}

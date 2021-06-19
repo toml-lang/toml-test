@@ -1,2 +1,4 @@
-github.com/BurntSushi/toml v0.3.2-0.20210614221721-cd9deba40dc3 h1:vCIfnb1pHr29dOiCRrw6wvouZBjJJs/UqRtwcUxdxoo=
-github.com/BurntSushi/toml v0.3.2-0.20210614221721-cd9deba40dc3/go.mod h1:2QZjSXA5e+XyFeCAxxtL8Z4StYUsTquL8ODGPR3C3MA=
+github.com/BurntSushi/toml v0.3.2-0.20210614224209-34d990aa228d h1:8wJJ1naeH+VvjmuQsUQJE1G6uPWAk0bjra8GKGFir9A=
+github.com/BurntSushi/toml v0.3.2-0.20210614224209-34d990aa228d/go.mod h1:2QZjSXA5e+XyFeCAxxtL8Z4StYUsTquL8ODGPR3C3MA=
+zgo.at/zli v0.0.0-20210619044753-e7020a328e59 h1:NId7flXh2TTB7XD/0/WBTuZ8L5mpNMCdYyqJ/VQIlFM=
+zgo.at/zli v0.0.0-20210619044753-e7020a328e59/go.mod h1:HLAc12TjNGT+VRXr76JnsNE3pbooQtwKWhX+RlDjQ2Y=

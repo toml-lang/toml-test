@@ -1,16 +1,15 @@
 ### A language agnostic test suite for TOML encoders and decoders
-`toml-test` is a higher-order program that tests other [TOML][t] decoders or
-encoders. The goal is to make it comprehensive.
+`toml-test` is a tool to verify the correctness of [TOML][t] parsers and writers.
 
 Tests are divided into two groups: "invalid" and "valid". Decoders that reject
 "invalid" tests pass the tests, and decoders that accept "valid" tests and
 output precisely what is expected pass the tests. The output format is JSON,
 described below.
 
-Both decoders and encoders share valid tests, except an encoder accepts JSON 
-and outputs TOML. The TOML representations are read with a blessed decoder and 
-compared. Note though that encoders have their own set of invalid tests in the 
-invalid-encoder directory. The JSON given to a TOML encoder is in the same 
+Both decoders and encoders share valid tests, except an encoder accepts JSON and
+outputs TOML. The TOML representations are read with a blessed decoder and
+compared. Note though that encoders have their own set of invalid tests in the
+invalid-encoder directory. The JSON given to a TOML encoder is in the same
 format as the JSON that a TOML decoder should output.
 
 Compatible with TOML version [v0.5.0](https://toml.io/en/v0.5.0)
@@ -20,15 +19,22 @@ Dependencies: [Go](http://golang.org) 1.16 or newer.
 [t]: https://toml.io
 
 ### Try it out
-All you need is to have [Go](http://golang.org) installed. Then simply use:
+All you need is to have [Go](http://golang.org) installed. Then use:
 
 ```bash
-cd
-go get github.com/BurntSushi/toml-test                   # install test suite
-go get github.com/BurntSushi/toml/cmd/toml-test-decoder  # e.g., install my parser
-toml-test toml-test-decoder                              # e.g., run tests on my parser
+# install test suite
+$ go get github.com/BurntSushi/toml-test/cmd/toml-test
 
-# Outputs: 64 passed, 0 failed
+# Install my parser
+$ go get github.com/BurntSushi/toml/cmd/toml-test-decoder
+$ go get github.com/BurntSushi/toml/cmd/toml-test-encoder
+
+# Run tests on my parser
+$ toml-test toml-test-decoder
+toml-test [toml-test-decoder]: using embeded tests: 204 passed
+
+$ toml-test -encoder toml-test-encoder
+toml-test [toml-test-encoder]: using embeded tests:  83 passed,  0 failed
 ```
 
 The `go get` commands install Go packages and binaries.
