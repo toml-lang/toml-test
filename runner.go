@@ -1,9 +1,12 @@
+//go:generate ./gen-multi.py
+
 package tomltest
 
 import (
 	"bytes"
 	"embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os/exec"
@@ -40,9 +43,33 @@ func EmbeddedTests() fs.FS {
 type Runner struct {
 	Files     fs.FS    // Test files.
 	Encoder   bool     // Are we testing an encoder?
-	ParserCmd []string // The parser command.
 	RunTests  []string // Tests to run; run all if blank.
 	SkipTests []string // Tests to skip.
+	Parser    Parser   // Send data to a parser.
+}
+
+// A Parser instance is used to call the TOML parser we test.
+//
+// By default this is done through an external command.
+type Parser interface {
+	// Encode a JSON string to TOML.
+	//
+	// The output is the TOML string; if outputIsError is true then it's assumed
+	// that an encoding error occurred.
+	//
+	// An error return should only be used in case an unrecoverable error
+	// occurred; failing to encode to TOML is not an error, but the encoder
+	// unexpectedly panicking is.
+	Encode(jsonInput string) (output string, outputIsError bool, err error)
+
+	// Decode a TOML string to JSON. The same semantics as Encode apply.
+	Decode(tomlInput string) (output string, outputIsError bool, err error)
+}
+
+// CommandParser calls an external command.
+type CommandParser struct {
+	fsys fs.FS
+	cmd  []string
 }
 
 // Tests are tests to run.
@@ -85,6 +112,10 @@ func (r Runner) List() ([]string, error) {
 }
 
 // Run all tests listed in t.RunTests.
+//
+// TODO: give option to:
+// - Run all tests with \n replaced with \r\n
+// - Run all tests with '# comment' appended to every line.
 func (r Runner) Run() (Tests, error) {
 	skipped, err := r.findTests()
 	if err != nil {
@@ -99,7 +130,7 @@ func (r Runner) Run() (Tests, error) {
 			continue
 		}
 
-		t := Test{Path: p, Encoder: r.Encoder}.Run(r.Files, r.ParserCmd)
+		t := Test{Path: p, Encoder: r.Encoder}.Run(r.Parser, r.Files)
 		tests.Tests = append(tests.Tests, t)
 
 		if t.Failed() {
@@ -134,22 +165,39 @@ func (r *Runner) findTests() (int, error) {
 		return 0, err
 	}
 
-	if len(r.RunTests) == 0 {
-		r.RunTests = ls
-		return 0, nil
-	}
-
-	run := make([]string, 0, len(r.RunTests))
-	for _, l := range ls {
-		for _, r := range r.RunTests {
-			if m, _ := filepath.Match(r, l); m {
-				run = append(run, l)
-				break
+	r.RunTests = ls
+	var skip int
+	if len(r.RunTests) > 0 {
+		run := make([]string, 0, len(r.RunTests))
+		for _, l := range ls {
+			for _, r := range r.RunTests {
+				if m, _ := filepath.Match(r, l); m {
+					run = append(run, l)
+					break
+				}
 			}
 		}
+		r.RunTests, skip = run, len(ls)-len(run)
 	}
-	r.RunTests = run
-	return len(ls) - len(run), nil
+
+	// Expand invalid tests ending in ".multi.toml"
+	expanded := make([]string, 0, len(r.RunTests))
+	for _, path := range r.RunTests {
+		if !strings.HasSuffix(path, ".multi") {
+			expanded = append(expanded, path)
+			continue
+		}
+
+		d, err := fs.ReadFile(r.Files, path+".toml")
+		if err != nil {
+			return 0, err
+		}
+
+		fmt.Println(string(d))
+	}
+	r.RunTests = expanded
+
+	return skip, nil
 }
 
 func (r Runner) hasSkip(path string) bool {
@@ -161,44 +209,81 @@ func (r Runner) hasSkip(path string) bool {
 	return false
 }
 
+func (c CommandParser) Encode(input string) (output string, outputIsError bool, err error) {
+	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
+	cmd := exec.Command(c.cmd[0])
+	cmd.Args = c.cmd
+	cmd.Stdin, cmd.Stdout, cmd.Stderr = strings.NewReader(input), stdout, stderr
+
+	err = cmd.Run()
+	if err != nil {
+		eErr := &exec.ExitError{}
+		if errors.As(err, &eErr) {
+			fmt.Fprintf(stderr, "\nExit %d\n", eErr.ProcessState.ExitCode())
+			err = nil
+		}
+	}
+
+	if stderr.Len() > 0 {
+		return strings.TrimSpace(stderr.String()) + "\n", true, err
+	}
+	return strings.TrimSpace(stdout.String()) + "\n", false, err
+}
+func NewCommandParser(fsys fs.FS, cmd []string) CommandParser     { return CommandParser{fsys, cmd} }
+func (c CommandParser) Decode(input string) (string, bool, error) { return c.Encode(input) }
+
 // Run this test.
-func (t Test) Run(fsys fs.FS, cmd []string) Test {
+func (t Test) Run(p Parser, fsys fs.FS) Test {
 	if t.Type() == TypeInvalid {
-		return t.runInvalid(fsys, cmd)
+		return t.runInvalid(p, fsys)
 	}
-	return t.runValid(fsys, cmd)
+	return t.runValid(p, fsys)
 }
 
-func (t Test) runInvalid(fsys fs.FS, cmd []string) Test {
-	_, stderr, err := t.runParser(fsys, cmd)
+func (t Test) runInvalid(p Parser, fsys fs.FS) Test {
+	var err error
+	_, t.Input, err = t.ReadInput(fsys)
 	if err != nil {
-		// We expect an exit of >0, so this is good.
-		if _, ok := err.(*exec.ExitError); ok {
-			return t
-		}
+		return t.bug(err.Error())
+	}
+
+	if t.Encoder {
+		t.Output, t.OutputFromStderr, err = p.Encode(t.Input)
+	} else {
+		t.Output, t.OutputFromStderr, err = p.Decode(t.Input)
+	}
+	if err != nil {
 		return t.fail(err.Error())
 	}
-	if stderr != nil { // We expect some error.
-		return t
+	if !t.OutputFromStderr {
+		return t.fail("Expected an error, but no error was reported.")
 	}
-	return t.fail("Expected an error, but no error was reported.")
+	return t
 }
 
-func (t Test) runValid(fsys fs.FS, cmd []string) Test {
-	stdout, stderr, err := t.runParser(fsys, cmd)
+func (t Test) runValid(p Parser, fsys fs.FS) Test {
+	var err error
+	_, t.Input, err = t.ReadInput(fsys)
 	if err != nil {
-		if _, ok := err.(*exec.ExitError); ok {
-			switch {
-			case stderr != nil && stderr.Len() > 0:
-				return t.fail(stderr.String())
-			case stdout != nil && stdout.Len() > 0:
-				return t.fail(stdout.String())
-			}
-		}
+		return t.bug(err.Error())
+	}
+
+	if t.Encoder {
+		t.Output, t.OutputFromStderr, err = p.Encode(t.Input)
+	} else {
+		t.Output, t.OutputFromStderr, err = p.Decode(t.Input)
+	}
+	if err != nil {
 		return t.fail(err.Error())
 	}
-	if stdout == nil {
-		return t.fail("stdout is empty but %q exited successfully", cmd)
+	if t.OutputFromStderr {
+		return t.fail(t.Output)
+	}
+	if t.Output == "" {
+		// Special case: we expect an empty output here.
+		if t.Path != "valid/empty-file" {
+			return t.fail("stdout is empty")
+		}
 	}
 
 	// Compare for encoder test
@@ -209,7 +294,8 @@ func (t Test) runValid(fsys fs.FS, cmd []string) Test {
 		}
 		var have interface{}
 		if _, err := toml.Decode(t.Output, &have); err != nil {
-			return t.fail("decode TOML from encoder %q:\n  %s", cmd, err)
+			//return t.fail("decode TOML from encoder %q:\n  %s", cmd, err)
+			return t.fail("decode TOML from encoder:\n  %s", err)
 		}
 		return t.cmpTOML(want, have)
 	}
@@ -226,35 +312,6 @@ func (t Test) runValid(fsys fs.FS, cmd []string) Test {
 	}
 
 	return t.cmpJSON(want, have)
-}
-
-// Run the parser (e.g. toml-test-decode or toml-test-encode), set Input and
-// Output on Test, and return std{out,err}.
-func (t *Test) runParser(fsys fs.FS, cmd []string) (*bytes.Buffer, *bytes.Buffer, error) {
-	var err error
-	_, t.Input, err = t.ReadInput(fsys)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
-	c := exec.Command(cmd[0])
-	c.Args = cmd
-	c.Stdin, c.Stdout, c.Stderr = strings.NewReader(t.Input), stdout, stderr
-
-	err = c.Run() // Error checked later
-
-	if stderr.Len() > 0 {
-		t.Output = strings.TrimSpace(stderr.String()) + "\n"
-		t.OutputFromStderr = true
-	} else {
-		t.Output = strings.TrimSpace(stdout.String()) + "\n"
-	}
-
-	if err != nil {
-		return stdout, stderr, err
-	}
-	return stdout, nil, nil
 }
 
 // ReadInput reads the file sent to the encoder.

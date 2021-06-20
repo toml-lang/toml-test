@@ -1,5 +1,22 @@
 name.first = "Tom"
-name.last = "Preston-Werner"
-point.x = 1
-point.y = 2 
-l1.l2.l3 = {l4.l5.l6 = 42}
+
+many.dots.here.dot.dot.dot = {m.m.m = 42}
+x = {   a.b  =  1   }
+x = {   "a"."b"  =  1   }
+x = {   a   .   b  =  1   }
+x = {   "a"   .   "b"  =  1   }
+y = {a.b=1}
+
+# Space are ignored
+top.b = 1
+top . b = 1
+"top"."q" = 1
+"top" . "q" = 1
+'top'.'q' = 1
+'top' . 'q' = 1
+"top".'q' = 1
+"top" . 'q' = 1
+top.'q' = 1
+top . 'q' = 1
+"top".q = 1
+"top" . q = 1

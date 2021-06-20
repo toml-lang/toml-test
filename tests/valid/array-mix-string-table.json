@@ -1,0 +1,36 @@
+{
+  "contributors": [
+    "Foo Bar \u003cfoo@example.com\u003e",
+    {
+      "email": "bazqux@example.com",
+      "name": "Baz Qux",
+      "url": "https://example.com/bazqux"
+    }
+  ],
+  "numbers": [
+    {
+      "type": "float",
+      "value": "0.1"
+    },
+    {
+      "type": "float",
+      "value": "0.2"
+    },
+    {
+      "type": "float",
+      "value": "0.5"
+    },
+    {
+      "type": "integer",
+      "value": "1"
+    },
+    {
+      "type": "integer",
+      "value": "2"
+    },
+    {
+      "type": "integer",
+      "value": "5"
+    }
+  ]
+}

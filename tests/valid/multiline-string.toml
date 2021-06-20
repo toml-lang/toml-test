@@ -1,3 +1,5 @@
+# NOTE: this file includes some literal tab characters.
+
 multiline_empty_one = """"""
 multiline_empty_two = """
 """
@@ -5,7 +7,7 @@ multiline_empty_three = """\
     """
 multiline_empty_four = """\
    \
-   \
+   \  
    """
 
 equivalent_one = "The quick brown fox jumps over the lazy dog."
@@ -21,3 +23,24 @@ equivalent_three = """\
        fox jumps over \
        the lazy dog.\
        """
+
+whitespace-after-bs = """\
+       The quick brown \
+       fox jumps over \   
+       the lazy dog.\	
+       """
+
+no-space = """a\
+    b"""
+
+keep-ws-before = """a   	\
+   b"""
+
+escape-bs-1 = """a \\
+b"""
+
+escape-bs-2 = """a \\\
+b"""
+
+escape-bs-3 = """a \\\\
+  b"""
