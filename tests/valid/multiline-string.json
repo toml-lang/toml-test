@@ -11,6 +11,22 @@
     "type": "string",
     "value": "The quick brown fox jumps over the lazy dog."
   },
+  "escape-bs-1": {
+    "type": "string",
+    "value": "a \\\nb"
+  },
+  "escape-bs-2": {
+    "type": "string",
+    "value": "a \\b"
+  },
+  "escape-bs-3": {
+    "type": "string",
+    "value": "a \\\\\n  b"
+  },
+  "keep-ws-before": {
+    "type": "string",
+    "value": "a   \tb"
+  },
   "multiline_empty_four": {
     "type": "string",
     "value": ""
@@ -26,5 +42,13 @@
   "multiline_empty_two": {
     "type": "string",
     "value": ""
+  },
+  "no-space": {
+    "type": "string",
+    "value": "ab"
+  },
+  "whitespace-after-bs": {
+    "type": "string",
+    "value": "The quick brown fox jumps over the lazy dog."
   }
 }

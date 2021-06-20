@@ -15,7 +15,7 @@ var hlErr = zli.ColorHex("#f6d6d6").Bg() | zli.Black | zli.Bold
 
 var version = "git"
 
-func parseFlags() (tomltest.Runner, int, string) {
+func parseFlags() (tomltest.Runner, []string, int, string) {
 	f := zli.NewFlags(os.Args)
 	var (
 		help        = f.Bool(false, "help", "h")
@@ -38,13 +38,12 @@ func parseFlags() (tomltest.Runner, int, string) {
 	}
 
 	r := tomltest.Runner{
-		ParserCmd: f.Args,
 		Encoder:   encoder.Bool(),
 		RunTests:  run.StringsSplit(","),
 		SkipTests: skip.StringsSplit(","),
 	}
 
-	if len(r.ParserCmd) == 0 {
+	if len(f.Args) == 0 {
 		zli.Fatalf("no parser command")
 	}
 	for _, r := range r.RunTests {
@@ -87,6 +86,8 @@ func parseFlags() (tomltest.Runner, int, string) {
 		}
 	}
 
+	r.Parser = tomltest.NewCommandParser(r.Files, f.Args)
+
 	switch color.String() {
 	case "always", "yes":
 		zli.WantColor = true
@@ -99,11 +100,11 @@ func parseFlags() (tomltest.Runner, int, string) {
 		zli.Fatalf("invalid value for -color: %q", color)
 	}
 
-	return r, showAll.Int(), testDir.String()
+	return r, f.Args, showAll.Int(), testDir.String()
 }
 
 func main() {
-	runner, showAll, testDir := parseFlags()
+	runner, cmd, showAll, testDir := parseFlags()
 
 	tests, err := runner.Run()
 	zli.F(err)
@@ -116,7 +117,7 @@ func main() {
 		}
 	}
 
-	fmt.Printf("toml-test %s: ", runner.ParserCmd)
+	fmt.Printf("toml-test %s: ", cmd)
 	if testDir == "" {
 		fmt.Print("using embeded tests: ")
 	} else {

@@ -1,9 +1,9 @@
 {
-  "answer": {
+  "int64-max": {
     "type": "integer",
     "value": "9223372036854775807"
   },
-  "neganswer": {
+  "int64-max-neg": {
     "type": "integer",
     "value": "-9223372036854775808"
   }
