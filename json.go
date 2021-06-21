@@ -120,7 +120,7 @@ func (r Test) cmpJSONValues(want, have map[string]interface{}) Test {
 	// Atomic values are always strings
 	wantVal, ok := want["value"].(string)
 	if !ok {
-		return r.bug("'value' should be a string, but it is a %T", want["value"])
+		return r.bug("'value' %v should be a string, but it is a %[1]T", want["value"])
 	}
 
 	haveVal, ok := have["value"].(string)

@@ -1,22 +1,35 @@
-name.first = "Tom"
+# Note: this file contains literal tab characters.
 
-many.dots.here.dot.dot.dot = {m.m.m = 42}
-x = {   a.b  =  1   }
-x = {   "a"."b"  =  1   }
-x = {   a   .   b  =  1   }
-x = {   "a"   .   "b"  =  1   }
-y = {a.b=1}
+name.first = "Arthur"
+"name".'last' = "Dent"
 
-# Space are ignored
-top.b = 1
-top . b = 1
-"top"."q" = 1
-"top" . "q" = 1
-'top'.'q' = 1
-'top' . 'q' = 1
-"top".'q' = 1
-"top" . 'q' = 1
-top.'q' = 1
-top . 'q' = 1
-"top".q = 1
-"top" . q = 1
+many.dots.here.dot.dot.dot = 42
+
+# Space are ignored, and key parts can be quoted.
+count.a       = 1
+count . b     = 2
+"count"."c"   = 3
+"count" . "d" = 4
+'count'.'e'   = 5
+'count' . 'f' = 6
+"count".'g'   = 7
+"count" . 'h' = 8
+count.'i'     = 9
+count 	.	 'j'	   = 10
+"count".k     = 11
+"count" . l   = 12
+
+[tbl]
+a.b.c = 42.666
+
+[a.few.dots]
+polka.dot = "again?"
+polka.dance-with = "Dot"
+
+[[arr]]
+a.b.c=1
+a.b.d=2
+
+[[arr]]
+a.b.c=3
+a.b.d=4
