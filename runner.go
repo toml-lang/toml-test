@@ -165,9 +165,11 @@ func (r *Runner) findTests() (int, error) {
 		return 0, err
 	}
 
-	r.RunTests = ls
 	var skip int
-	if len(r.RunTests) > 0 {
+
+	if len(r.RunTests) == 0 {
+		r.RunTests = ls
+	} else {
 		run := make([]string, 0, len(r.RunTests))
 		for _, l := range ls {
 			for _, r := range r.RunTests {
