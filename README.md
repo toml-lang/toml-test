@@ -12,22 +12,24 @@ compared. Note though that encoders have their own set of invalid tests in the
 invalid-encoder directory. The JSON given to a TOML encoder is in the same
 format as the JSON that a TOML decoder should output.
 
-Compatible with TOML version [v0.5.0](https://toml.io/en/v0.5.0)
+Compatible with TOML version [v1.0.0](https://toml.io/en/v1.0.0)
 
-Dependencies: [Go](http://golang.org) 1.16 or newer.
+There are binaries on the [release page][r]; these are statically compiled and
+should run in most environments.
 
+[r]: https://github.com/BurntSushi/toml-test/releases
 [t]: https://toml.io
 
 ### Try it out
 All you need is to have [Go](http://golang.org) installed. Then use:
 
 ```bash
-# install test suite
-$ go get github.com/BurntSushi/toml-test/cmd/toml-test
+# install test suite; can also use the binaries mentioned above.
+$ go install github.com/BurntSushi/toml-test/cmd/toml-test@master
 
 # Install my parser
-$ go get github.com/BurntSushi/toml/cmd/toml-test-decoder
-$ go get github.com/BurntSushi/toml/cmd/toml-test-encoder
+$ go install github.com/BurntSushi/toml/cmd/toml-test-decoder@master
+$ go install github.com/BurntSushi/toml/cmd/toml-test-encoder@master
 
 # Run tests on my parser
 $ toml-test toml-test-decoder
@@ -37,16 +39,14 @@ $ toml-test -encoder toml-test-encoder
 toml-test [toml-test-encoder]: using embeded tests:  83 passed,  0 failed
 ```
 
-The `go get` commands install Go packages and binaries.
+The `go install` commands install Go packages and binaries.
 
 To test your decoder you will have to satisfy the interface expected by
 `toml-test`; then execute `toml-test your-decoder` in the `toml-test` directory
 to run your decoder against all tests.
 
-To test your encoder, the instructions are the same, except the input/output
-is reversed, and you'll need to run `toml-test -encoder your-encoder`.
-(You can install my TOML encoder with `go get
-github.com/BurntSushi/toml/cmd/toml-test-encoder`.)
+To test your encoder, the instructions are the same, except the input/output is
+reversed, and you'll need to run `toml-test -encoder your-encoder`.
 
 ### Interface of a decoder
 For your decoder to be compatible with `toml-test` it **must** satisfy the
