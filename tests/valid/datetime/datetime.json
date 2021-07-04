@@ -1,18 +1,10 @@
 {
-  "bestdayever": {
+  "lower": {
     "type": "datetime",
     "value": "1987-07-05T17:45:00Z"
   },
-  "bestdayever_with_space": {
+  "space": {
     "type": "datetime",
     "value": "1987-07-05T17:45:00Z"
-  },
-  "milliseconds": {
-    "type": "datetime",
-    "value": "1977-12-21T10:32:00.555+07:00"
-  },
-  "numoffset": {
-    "type": "datetime",
-    "value": "1977-06-28T07:32:00-05:00"
   }
 }

@@ -26,7 +26,8 @@ Tests are split in to two groups:
    invalid         Invalid TOML files that should be rejected with an error.
    invalid-encoder Invalid input for the encoder
 
-All tests are referred to as valid/name or invalid/name
+All tests are referred to relative to to the tests/ directory: valid/dir/name or
+invalid/dir/name.
 
 Flags:
 

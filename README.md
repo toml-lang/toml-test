@@ -53,10 +53,10 @@ For example, to run the tests against the Go TOML library:
     $ go install github.com/BurntSushi/toml/cmd/toml-test-encoder@master
 
     $ toml-test toml-test-decoder
-    toml-test [toml-test-decoder]: using embeded tests: 204 passed
+    toml-test [toml-test-decoder]: using embeded tests: 278 passed
 
     $ toml-test -encoder toml-test-encoder
-    toml-test [toml-test-encoder]: using embeded tests:  83 passed,  0 failed
+    toml-test [toml-test-encoder]: using embeded tests:  94 passed,  0 failed
 
 The default is to use the tests compiled in the binary; you can use `-testdir`
 to load tests from the filesystem. You can use `-run [name]` or `-skip [name]`

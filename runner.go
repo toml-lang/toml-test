@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -106,7 +107,7 @@ func (r Runner) List() ([]string, error) {
 
 	d := "invalid" + map[bool]string{true: "-encoder", false: ""}[r.Encoder]
 	if err := r.findTOML(d, &ls); err != nil {
-		return nil, fmt.Errorf("reading 'invalid/' dir: %w", err)
+		return nil, fmt.Errorf("reading %q dir: %w", d, err)
 	}
 	return ls, nil
 }
@@ -145,7 +146,7 @@ func (r Runner) Run() (Tests, error) {
 
 // find all TOML files in 'path' relative to the test directory.
 func (r Runner) findTOML(path string, appendTo *[]string) error {
-	return fs.WalkDir(r.Files, path, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(r.Files, path, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -156,6 +157,13 @@ func (r Runner) findTOML(path string, appendTo *[]string) error {
 		*appendTo = append(*appendTo, strings.TrimSuffix(path, ".toml"))
 		return nil
 	})
+
+	// It's okay if the directory doesn't exist.
+	var pErr *os.PathError
+	if errors.As(err, &pErr) && pErr.Op == "open" && pErr.Path == path {
+		return nil
+	}
+	return err
 }
 
 // Expand RunTest glob patterns, or return all tests if RunTests if empty.
