@@ -1,64 +1,79 @@
-### A language agnostic test suite for TOML encoders and decoders
-`toml-test` is a tool to verify the correctness of [TOML][t] parsers and writers.
+`toml-test` is a language-agnostic test suite to verify the correctness of
+[TOML][t] parsers and writers.
 
-Tests are divided into two groups: "invalid" and "valid". Decoders that reject
-"invalid" tests pass the tests, and decoders that accept "valid" tests and
-output precisely what is expected pass the tests. The output format is JSON,
-described below.
+Tests are divided into two groups: "invalid" and "valid". Decoders or encoders
+that reject "invalid" tests pass the tests, and decoders that accept "valid"
+tests and output precisely what is expected pass the tests. The output format is
+JSON, described below.
 
-Both decoders and encoders share valid tests, except an encoder accepts JSON and
-outputs TOML. The TOML representations are read with a blessed decoder and
-compared. Note though that encoders have their own set of invalid tests in the
-invalid-encoder directory. The JSON given to a TOML encoder is in the same
+Both encoders and decoders share valid tests, except an encoder accepts JSON and
+outputs TOML rather than the reverse. The TOML representations are read with a
+blessed decoder and is compared. Encoders have their own set of invalid tests in
+the invalid-encoder directory. The JSON given to a TOML encoder is in the same
 format as the JSON that a TOML decoder should output.
 
-Compatible with TOML version [v1.0.0](https://toml.io/en/v1.0.0)
+Compatible with TOML version [v1.0.0][v1].
 
+[t]: https://toml.io
+[v1]: https://toml.io/en/v1.0.0
+
+Installation
+------------
 There are binaries on the [release page][r]; these are statically compiled and
-should run in most environments.
+should run in most environments. It's recommended you use a binary, or a tagged
+release if you build from source especially in CI environments. This prevents
+your tests from breaking on changes to tests in this tool.
+
+To compile from source you will need Go 1.16 or newer (older versions will *not*
+work):
+
+    $ git clone https://github.com/BurntSushi/toml-test.git
+    $ cd toml-test
+    $ go build ./cmd/toml-test
+
+This will build a `./toml-test` binary.
 
 [r]: https://github.com/BurntSushi/toml-test/releases
-[t]: https://toml.io
 
-### Try it out
-All you need is to have [Go](http://golang.org) installed. Then use:
+Usage
+-----
+`toml-test` accepts an encoder or decoder as the first positional argument, for
+example:
 
-```bash
-# install test suite; can also use the binaries mentioned above.
-$ go install github.com/BurntSushi/toml-test/cmd/toml-test@master
+    $ toml-test my-toml-decoder
+    $ toml-test my-toml-encoder -encoder
 
-# Install my parser
-$ go install github.com/BurntSushi/toml/cmd/toml-test-decoder@master
-$ go install github.com/BurntSushi/toml/cmd/toml-test-encoder@master
+The `-encoder` flag is used to signal that this is an encoder rather than a
+decoder.
 
-# Run tests on my parser
-$ toml-test toml-test-decoder
-toml-test [toml-test-decoder]: using embeded tests: 204 passed
+For example, to run the tests against the Go TOML library:
 
-$ toml-test -encoder toml-test-encoder
-toml-test [toml-test-encoder]: using embeded tests:  83 passed,  0 failed
-```
+    # Install my parser
+    $ go install github.com/BurntSushi/toml/cmd/toml-test-decoder@master
+    $ go install github.com/BurntSushi/toml/cmd/toml-test-encoder@master
 
-The `go install` commands install Go packages and binaries.
+    $ toml-test toml-test-decoder
+    toml-test [toml-test-decoder]: using embeded tests: 204 passed
 
-To test your decoder you will have to satisfy the interface expected by
-`toml-test`; then execute `toml-test your-decoder` in the `toml-test` directory
-to run your decoder against all tests.
+    $ toml-test -encoder toml-test-encoder
+    toml-test [toml-test-encoder]: using embeded tests:  83 passed,  0 failed
 
-To test your encoder, the instructions are the same, except the input/output is
-reversed, and you'll need to run `toml-test -encoder your-encoder`.
+The default is to use the tests compiled in the binary; you can use `-testdir`
+to load tests from the filesystem. You can use `-run [name]` or `-skip [name]`
+to run or skip specific tests. Both flags can be given more than once and accept
+glob patterns: `-run 'valid/string/*'`.
 
-### Interface of a decoder
+See `toml-test -help` for detailed usage.
+
+### Implementing a decoder
 For your decoder to be compatible with `toml-test` it **must** satisfy the
-interface expected.
+expected interface:
 
-Your decoder **must** accept TOML data on `stdin` until EOF.
-
-If the TOML data is invalid, your decoder **must** return with a non-zero exit
-code indicating an error.
-
-If the TOML data is valid, your decoder **must** output a JSON encoding of that 
-data on `stdout` and return with a zero exit code indicating success.
+- Your decoder **must** accept TOML data on `stdin` until EOF.
+- If the TOML data is invalid, your decoder **must** return with a non-zero
+  exit, code indicating an error.
+- If the TOML data is valid, your decoder **must** output a JSON encoding of
+  that data on `stdout` and return with a zero exit code indicating success.
 
 An example in pseudocode:
 
@@ -70,37 +85,38 @@ An example in pseudocode:
         print_error_to_stderr()
         exit(1)
 
-    print_as_json(parsed_toml)
+    print_as_tagged_json(parsed_toml)
     exit(0)
 
-### Interface of an encoder
-For your encoder to be compatible with `toml-test`, it **must** satisfy the 
-interface expected.
+Details on the tagged JSON is explained below in "JSON encoding".
 
-Your encoder **must** accept JSON data on `stdin` until EOF.
+### Implementing an encoder
+For your encoder to be compatible with `toml-test`, it **must** satisfy the
+expected interface:
 
-If the JSON data cannot be converted to a valid TOML representation, your
-encoder **must** return with a non-zero exit code indicating an error.
-
-If the JSON data can be converted to a valid TOML representation, your encoder
-**must** output a TOML encoding of that data on `stdout` and return with a zero
-exit code indicating success.
+- Your encoder **must** accept JSON data on `stdin` until EOF.
+- If the JSON data cannot be converted to a valid TOML representation, your
+  encoder **must** return with a non-zero exit code indicating an error.
+- If the JSON data can be converted to a valid TOML representation, your encoder
+  **must** output a TOML encoding of that data on `stdout` and return with a
+  zero exit code indicating success.
 
 An example in pseudocode:
 
     json_data = read_stdin()
 
-    parsed_json = decode_json(json_data)
+    parsed_json_with_tags = decode_json(json_data)
 
     if error_parsing_json():
         print_error_to_stderr()
         exit(1)
 
-    print_as_toml(parsed_json)
+    print_as_toml(parsed_json_with_tags)
     exit(0)
 
-### JSON encoding
-The following JSON encoding applies equally to both encoders and decoders.
+JSON encoding
+-------------
+The following JSON encoding applies equally to both encoders and decoders:
 
 - TOML tables correspond to JSON objects.
 - TOML table arrays correspond to JSON arrays.
@@ -120,21 +136,39 @@ In the above, `TTYPE` may be one of:
 
 `TVALUE` is always a JSON string.
 
-Empty hashes correspond to empty JSON objects (i.e., `{}`) and empty arrays
-correspond to empty JSON arrays (i.e., `[]`).
+Empty hashes correspond to empty JSON objects (`{}`) and empty arrays correspond
+to empty JSON arrays (`[]`).
 
 Offset datetimes should be encoded in RFC 3339; Local datetimes should be
 encoded following RFC 3339 without the offset part. Local dates should be
 encoded as the date part of RFC 3339 and Local times as the time part.
 
-### Example JSON encoding
-Here is the TOML data:
+Examples:
+
+    TOML                JSON
+
+    a = 42              {"type": "integer": "value": "42}
+
+---
+
+    [tbl]               {"tbl": {
+    a = 42                  "a": {"type": "integer": "value": "42}
+                        }}
+
+---
+
+    a = ["a", 2]        {"a": [
+                            {"type": "string", "value": "1"},
+                            {"type: "integer": "value": "2"}
+                        ]}
+
+Or a more complex example:
 
 ```toml
 best-day-ever = 1987-07-05T17:45:00Z
 
 [numtheory]
-boring = false
+boring     = false
 perfection = [6, 28, 496]
 ```
 
@@ -145,21 +179,24 @@ And the JSON encoding expected by `toml-test` is:
   "best-day-ever": {"type": "datetime", "value": "1987-07-05T17:45:00Z"},
   "numtheory": {
     "boring": {"type": "bool", "value": "false"},
-    "perfection": {
-      "type": "array",
-      "value": [
-        {"type": "integer", "value": "6"},
-        {"type": "integer", "value": "28"},
-        {"type": "integer", "value": "496"}
-      ]
-    }
+    "perfection": [
+      {"type": "integer", "value": "6"},
+      {"type": "integer", "value": "28"},
+      {"type": "integer", "value": "496"}
+    ]
   }
 }
 ```
 
 Note that the only JSON values ever used are objects, arrays and strings.
 
-### Assumptions of Truth
+An example implementation can be found in the BurnSushi/toml:
+
+- [Add tags](https://github.com/BurntSushi/toml/blob/master/internal/tag/add.go)
+- [Remove tags](https://github.com/BurntSushi/toml/blob/master/internal/tag/rm.go)
+
+Assumptions of Truth
+--------------------
 The following are taken as ground truths by `toml-test`:
 
 - All tests classified as `invalid` **are** invalid.
@@ -178,7 +215,8 @@ added.) Obviously, this advantage does not apply to testing TOML encoders since
 there must exist a TOML decoder that conforms to the specification in order to
 read the output of a TOML encoder.
 
-### Adding tests
+Adding tests
+------------
 `toml-test` was designed so that tests can be easily added and removed. As
 mentioned above, tests are split into two groups: invalid and valid tests. 
 
@@ -200,7 +238,8 @@ A valid test without either a `.json` or `.toml` file will automatically fail.
 
 If you have tests that you'd like to add, please submit a pull request.
 
-### Why JSON?
+Why JSON?
+---------
 In order for a language agnostic test suite to work, we need some kind of data
 exchange format. TOML cannot be used, as it would imply that a particular parser
 has a blessing of correctness.
