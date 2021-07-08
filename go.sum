@@ -1,5 +1,5 @@
-github.com/ando-masaki/toml v0.3.1 h1:Wc85aO9k3praBJK2NhGFC6k9Vcv2aU2p0R+/Tujo6+Y=
-github.com/ando-masaki/toml v0.3.1/go.mod h1:/oasJMYY1TyyhggRDMTGYdKCrZhd98Fbku6algDZwvk=
+github.com/BurntSushi/toml v0.3.1 h1:Wc85aO9k3praBJK2NhGFC6k9Vcv2aU2p0R+/Tujo6+Y=
+github.com/BurntSushi/toml v0.3.1/go.mod h1:/oasJMYY1TyyhggRDMTGYdKCrZhd98Fbku6algDZwvk=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 h1:nxC68pudNYkKU6jWhgrqdreuFiOQWj1Fs7T3VrH4Pjw=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20210317153231-de623e64d2a6 h1:EC6+IGYTjPpRfv9a2b/6Puw0W+hLtAhkV1tPsXhutqs=

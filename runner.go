@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ando-masaki/toml"
+	"github.com/BurntSushi/toml"
 )
 
 type testType uint8

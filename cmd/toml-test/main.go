@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	tomltest "github.com/ando-masaki/toml-test"
+	tomltest "github.com/BurntSushi/toml-test"
 	"zgo.at/zli"
 )
 
