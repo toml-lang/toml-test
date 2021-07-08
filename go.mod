@@ -1,9 +1,8 @@
-module github.com/BurntSushi/toml-test
+module github.com/ando-masaki/toml-test
 
 go 1.16
 
 require (
-	github.com/BurntSushi/toml v0.3.2-0.20210704081116-ccff24ee4463
-	// no_term branch, which doesn't depend on x/term and x/sys
-	zgo.at/zli v0.0.0-20210619044753-e7020a328e59
+	github.com/ando-masaki/toml v0.3.1
+	zgo.at/zli v0.0.0-20210625065259-d03e49b7c9ea
 )
