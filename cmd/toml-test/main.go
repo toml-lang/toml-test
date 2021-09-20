@@ -119,7 +119,7 @@ func main() {
 
 	fmt.Printf("toml-test %s: ", cmd)
 	if testDir == "" {
-		fmt.Print("using embeded tests: ")
+		fmt.Print("using embedded tests: ")
 	} else {
 		fmt.Printf("tests from %q: ", testDir)
 	}
