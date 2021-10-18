@@ -307,7 +307,7 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 			//return t.fail("decode TOML from encoder %q:\n  %s", cmd, err)
 			return t.fail("decode TOML from encoder:\n  %s", err)
 		}
-		return t.cmpTOML(want, have)
+		return t.CompareTOML(want, have)
 	}
 
 	// Compare for decoder test
