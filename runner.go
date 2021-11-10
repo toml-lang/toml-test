@@ -321,7 +321,7 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 		return t.fail("decode JSON output from parser:\n  %s", err)
 	}
 
-	return t.cmpJSON(want, have)
+	return t.CompareJSON(want, have)
 }
 
 // ReadInput reads the file sent to the encoder.
