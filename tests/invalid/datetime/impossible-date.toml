@@ -1,2 +1,18 @@
-# No months with 50 days.
-d = 2006-01-50T00:00:00Z
+# date-month      = 2DIGIT  ; 01-12
+under_month = 2007-00-01T00:00:00-00:00
+over_month = 2006-13-01T00:00:00-00:00
+
+# date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
+#                           ; month/year
+under_mday = 2006-01-00T00:00:00-00:00
+over_mday = 2006-01-32T00:00:00-00:00
+
+# time-hour       = 2DIGIT  ; 00-23
+over_hour = 2006-01-01T24:00:00-00:00
+
+# time-minute     = 2DIGIT  ; 00-59
+over_minute = 2006-01-01T00:60:00-00:00
+
+# time-second     = 2DIGIT  ; 00-58, 00-59, 00-60 based on leap second
+#                           ; rules
+over_second = 2006-01-01T00:00:61-00:00
