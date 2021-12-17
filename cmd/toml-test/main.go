@@ -140,7 +140,7 @@ func short(r tomltest.Runner, t tomltest.Test) string {
 
 	switch {
 	case t.Failure != "":
-		b.WriteString(zli.Colorf("FAIL", hlErr))
+		b.WriteString(zli.Colorize("FAIL", hlErr))
 		b.WriteByte(' ')
 		b.WriteString(zli.Bold.String())
 		b.WriteString(t.Path)
@@ -167,7 +167,7 @@ func detailed(r tomltest.Runner, t tomltest.Test) string {
 	if t.Failed() {
 		b.WriteString(indentWith(
 			indent(t.Failure, 4),
-			zli.Colorf(" ", hlErr)))
+			zli.Colorize(" ", hlErr)))
 		b.WriteByte('\n')
 	}
 	showStream(b, "input sent to parser-cmd", t.Input)
@@ -188,7 +188,7 @@ func detailed(r tomltest.Runner, t tomltest.Test) string {
 
 func showStream(b *strings.Builder, name, s string) {
 	b.WriteByte('\n')
-	fmt.Fprintln(b, zli.Colorf("     "+name+":", zli.Bold))
+	fmt.Fprintln(b, zli.Colorize("     "+name+":", zli.Bold))
 	if s == "" {
 		fmt.Fprintln(b, "          <empty>")
 		return
