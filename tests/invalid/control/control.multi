@@ -29,3 +29,5 @@ rawmulti-del = '''null\x7f'''
 string-bs = "backspace\x08"
 
 bare-null = "some value" \x00
+bare-formfeed = \x0c
+bare-vertical-tab = \x0b
