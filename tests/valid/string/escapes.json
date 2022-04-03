@@ -50,5 +50,9 @@
   "unitseparator": {
     "type": "string",
     "value": "This string has a \u001f unit separator control code."
+  },
+  "esc": {
+    "type": "string",
+    "value": "\u001b There is no escape! \u001b"
   }
 }
