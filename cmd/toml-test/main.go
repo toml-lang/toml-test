@@ -11,7 +11,7 @@ import (
 	"zgo.at/zli"
 )
 
-var hlErr = zli.ColorHex("#f6d6d6").Bg() | zli.Black | zli.Bold
+var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
 
 var version = "git"
 
