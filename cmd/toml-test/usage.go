@@ -42,6 +42,10 @@ Flags:
                specified in the toml-test README. Note that this depends on the
                correctness of my TOML parser!
 
+    -toml      The TOML version to run tests for. Supported versions are "1.0.0"
+               and "next" (which includes changes which aren't in a "tagged"
+               TOML version yet). Defaults to 1.0.0.
+
     -v         List all tests, even passing ones. Add twice to show detailed
                output for passing tests.
 

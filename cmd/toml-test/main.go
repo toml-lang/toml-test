@@ -20,6 +20,7 @@ func parseFlags() (tomltest.Runner, []string, int, string) {
 	var (
 		help        = f.Bool(false, "help", "h")
 		versionFlag = f.Bool(false, "version", "V")
+		tomlVersion = f.String("1.0.0", "toml")
 		encoder     = f.Bool(false, "encoder")
 		testDir     = f.String("", "testdir")
 		showAll     = f.IntCounter(0, "v")
@@ -41,6 +42,7 @@ func parseFlags() (tomltest.Runner, []string, int, string) {
 		Encoder:   encoder.Bool(),
 		RunTests:  run.StringsSplit(","),
 		SkipTests: skip.StringsSplit(","),
+		Version:   tomlVersion.String(),
 	}
 
 	if len(f.Args) == 0 {
