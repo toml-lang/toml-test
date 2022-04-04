@@ -13,13 +13,11 @@ import (
 
 var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
 
-var version = "git"
-
 func parseFlags() (tomltest.Runner, []string, int, string) {
 	f := zli.NewFlags(os.Args)
 	var (
 		help        = f.Bool(false, "help", "h")
-		versionFlag = f.Bool(false, "version", "V")
+		versionFlag = f.IntCounter(0, "version", "V")
 		tomlVersion = f.String("1.0.0", "toml")
 		encoder     = f.Bool(false, "encoder")
 		testDir     = f.String("", "testdir")
@@ -33,8 +31,8 @@ func parseFlags() (tomltest.Runner, []string, int, string) {
 		fmt.Printf(usage, filepath.Base(os.Args[0]))
 		zli.Exit(0)
 	}
-	if versionFlag.Bool() {
-		fmt.Println(version)
+	if versionFlag.Int() > 0 {
+		zli.PrintVersion(versionFlag.Int() > 1)
 		zli.Exit(0)
 	}
 

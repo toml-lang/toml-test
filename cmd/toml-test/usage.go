@@ -31,68 +31,68 @@ invalid/dir/name.
 
 Flags:
 
-    -help      Show this help and exit.
+    -h, -help     Show this help and exit.
 
-    -version   Show version and exit.
+    -V, -version  Show version and exit. Add twice to show detailed build info.
 
-    -encoder   The given parser-cmd will be tested as a TOML encoder rather than
-               a decoder.
+    -encoder      The given parser-cmd will be tested as a TOML encoder rather
+                  than a decoder.
 
-               The parser-cmd will be sent JSON on stdin and is expected to
-               write TOML to stdout. The JSON will be in the same format as
-               specified in the toml-test README. Note that this depends on the
-               correctness of my TOML parser!
+                  The parser-cmd will be sent JSON on stdin and is expected to
+                  write TOML to stdout. The JSON will be in the same format as
+                  specified in the toml-test README. Note that this depends on
+                  the correctness of my TOML parser!
 
-    -toml      Select TOML version to run tests for. Supported versions are
-               "1.0.0" and "next" (which includes changes which aren't in a
-               "tagged" TOML version yet). Defaults to 1.0.0.
+    -toml         Select TOML version to run tests for. Supported versions are
+                  "1.0.0" and "next" (which includes changes which aren't in a
+                  "tagged" TOML version yet). Defaults to 1.0.0.
 
-    -v         List all tests, even passing ones. Add twice to show detailed
-               output for passing tests.
+    -v            List all tests, even passing ones. Add twice to show detailed
+                  output for passing tests.
 
-    -run       Specify a list of tests to run; the default is to run all tests.
+    -run          Specify list of tests to run; the default is to run all tests.
 
-               Test names include the directory, i.e. "valid/test-name" or
-               "invalid/test-name". You can use globbing patterns , for example
-               to run all string tests:
+                  Test names include the directory, i.e. "valid/test-name" or
+                  "invalid/test-name". You can use globbing patterns , for
+                  example to run all string tests:
 
-                   $ toml-test toml-test-decoder -run 'valid/string*'
+                      $ toml-test toml-test-decoder -run 'valid/string*'
 
-               You can specify this argument more than once, and/or specify
-               multiple tests by separating them with a comma:
+                  You can specify this argument more than once, and/or specify
+                  multiple tests by separating them with a comma:
 
-                   $ toml-test toml-test-decoder \
-                       -run valid/string-empty \
-                       -run valid/string-nl,valid/string-simple
+                      $ toml-test toml-test-decoder \
+                          -run valid/string-empty \
+                          -run valid/string-nl,valid/string-simple
 
-               This will run three tests (string-empty, string-nl,
-               string-simple).
+                  This will run three tests (string-empty, string-nl,
+                  string-simple).
 
-               Quote glob characters so they won't be picked up by the shell.
-               Supported paterns: https://godocs.io/path/filepath#Match
+                  Quote glob characters so they won't be picked up by the shell.
+                  Supported paterns: https://godocs.io/path/filepath#Match
 
-    -skip      Tests to skip, this uses the same syntax as the -run flag.
+    -skip         Tests to skip, this uses the same syntax as the -run flag.
 
-    -color     Output color; possible values:
+    -color        Output color; possible values:
 
-                    always   Show test failures in bold and red.
-                    bold     Show test failures in bold only.
-                    never    Never output any escape codes.
+                       always   Show test failures in bold and red.
+                       bold     Show test failures in bold only.
+                       never    Never output any escape codes.
 
-               Default is "always", or "never" if NO_COLOR is set.
+                  Default is "always", or "never" if NO_COLOR is set.
 
-    -testdir   Location of the tests; the default is to use the tests compiled
-               in the binary; this is only useful if you want to add or modify
-               tests.
+    -testdir      Location of the tests; the default is to use the tests
+                  compiled in the binary; this is only useful if you want to add
+                  or modify tests.
 
-               A test in the invalid directory is a toml file that is known to
-               be invalid and should be rejected by the parser.
+                  A test in the invalid directory is a toml file that is known
+                  to be invalid and should be rejected by the parser.
 
-               A test in the valid directory is a toml and json file with the
-               same name, where the json file is the JSON representation of the
-               TOML file according to the syntax described in the README.
+                  A test in the valid directory is a toml and json file with the
+                  same name, where the json file is the JSON representation of
+                  the TOML file according to the syntax described in the README.
 
-               For encoders, the same directory scheme above is used, except
-               the invalid-encoder directory is used instead of the invalid
-               directory.
+                  For encoders, the same directory scheme above is used, except
+                  the invalid-encoder directory is used instead of the invalid
+                  directory.
 `
