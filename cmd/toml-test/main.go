@@ -90,16 +90,20 @@ func parseFlags() (tomltest.Runner, []string, int, string) {
 
 	r.Parser = tomltest.NewCommandParser(r.Files, f.Args)
 
-	switch color.String() {
-	case "always", "yes":
-		zli.WantColor = true
-	case "never", "no":
-		zli.WantColor = false
-	case "bold", "monochrome":
-		zli.WantColor = true
-		hlErr = zli.Bold
-	default:
-		zli.Fatalf("invalid value for -color: %q", color)
+	_, ok := os.LookupEnv("NO_COLOR")
+	zli.WantColor = !ok
+	if color.Set() {
+		switch color.String() {
+		case "always", "yes":
+			zli.WantColor = true
+		case "never", "no":
+			zli.WantColor = false
+		case "bold", "monochrome":
+			zli.WantColor = true
+			hlErr = zli.Bold
+		default:
+			zli.Fatalf("invalid value for -color: %q", color)
+		}
 	}
 
 	return r, f.Args, showAll.Int(), testDir.String()
