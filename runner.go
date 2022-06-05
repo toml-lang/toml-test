@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
@@ -171,7 +170,12 @@ func (r Runner) Run() (Tests, error) {
 
 // find all TOML files in 'path' relative to the test directory.
 func (r Runner) findTOML(path string, appendTo *[]string, exclude []string) error {
-	err := fs.WalkDir(r.Files, path, func(path string, d fs.DirEntry, err error) error {
+	// It's okay if the directory doesn't exist.
+	if _, err := fs.Stat(r.Files, path); errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+
+	return fs.WalkDir(r.Files, path, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -189,13 +193,6 @@ func (r Runner) findTOML(path string, appendTo *[]string, exclude []string) erro
 		*appendTo = append(*appendTo, path)
 		return nil
 	})
-
-	// It's okay if the directory doesn't exist.
-	var pErr *os.PathError
-	if errors.As(err, &pErr) && pErr.Op == "open" && pErr.Path == path {
-		return nil
-	}
-	return err
 }
 
 // Expand RunTest glob patterns, or return all tests if RunTests if empty.
