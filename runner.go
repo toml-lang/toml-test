@@ -101,6 +101,9 @@ type Test struct {
 
 // List all tests in Files for the current TOML version.
 func (r Runner) List() ([]string, error) {
+	if r.Version == "" {
+		r.Version = "1.0.0"
+	}
 	if _, ok := versions[r.Version]; !ok {
 		v := make([]string, 0, len(versions))
 		for k := range versions {
