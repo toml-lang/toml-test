@@ -35,6 +35,33 @@ This will build a `./toml-test` binary.
 
 [r]: https://github.com/BurntSushi/toml-test/releases
 
+### Conda-forge
+
+This project is available with the conda environment manager on the
+[conda-forge channel][cf] for Windows, MacOS, and Linux.
+
+    $ conda install -c conda-forge toml-test
+
+The test cases will be available with the installation and can be accessed
+with:
+
+    $ toml-test -testdir $CONDA_PREFIX/share/toml-test/tests
+
+[cf]: https://anaconda.org/conda-forge/toml-test
+
+### Homebrew
+
+This project is available with the [Homebrew package manager][brew] and can be
+installed using:
+
+    $ brew install toml-test
+
+The test cases will be installed as well and can be accessed using:
+
+    $ toml-test -testdir $(brew --prefix toml-test)/share/toml-test/tests
+
+[brew]: https://formulae.brew.sh/formula/toml-test
+
 Usage
 -----
 `toml-test` accepts an encoder or decoder as the first positional argument, for
