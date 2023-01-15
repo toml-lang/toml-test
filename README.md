@@ -69,11 +69,11 @@ See `toml-test -help` for detailed usage.
 For your decoder to be compatible with `toml-test` it **must** satisfy the
 expected interface:
 
-- Your decoder **must** accept TOML data on `stdin` until EOF.
+- Your decoder **must** accept TOML data on `stdin`.
 - If the TOML data is invalid, your decoder **must** return with a non-zero
-  exit, code indicating an error.
+  exit code, indicating an error.
 - If the TOML data is valid, your decoder **must** output a JSON encoding of
-  that data on `stdout` and return with a zero exit code indicating success.
+  that data on `stdout` and return with a zero exit code, indicating success.
 
 An example in pseudocode:
 
@@ -94,12 +94,12 @@ Details on the tagged JSON is explained below in "JSON encoding".
 For your encoder to be compatible with `toml-test`, it **must** satisfy the
 expected interface:
 
-- Your encoder **must** accept JSON data on `stdin` until EOF.
+- Your encoder **must** accept JSON data on `stdin`.
 - If the JSON data cannot be converted to a valid TOML representation, your
-  encoder **must** return with a non-zero exit code indicating an error.
+  encoder **must** return with a non-zero exit code, indicating an error.
 - If the JSON data can be converted to a valid TOML representation, your encoder
   **must** output a TOML encoding of that data on `stdout` and return with a
-  zero exit code indicating success.
+  zero exit code, indicating success.
 
 An example in pseudocode:
 
@@ -121,9 +121,9 @@ The following JSON encoding applies equally to both encoders and decoders:
 - TOML tables correspond to JSON objects.
 - TOML table arrays correspond to JSON arrays.
 - TOML values correspond to a special JSON object of the form:
-  `{"type": "{TTYPE}", "value": {TVALUE}}`
+  `{"type": "{TOML_TYPE}", "value": "{TOML_VALUE}"}`
 
-In the above, `TTYPE` may be one of:
+In the above, `TOML_TYPE` may be one of:
 
 - string
 - integer
@@ -134,7 +134,7 @@ In the above, `TTYPE` may be one of:
 - date-local
 - time-local
 
-`TVALUE` is always a JSON string.
+`TOML_VALUE` is always a JSON string.
 
 Empty hashes correspond to empty JSON objects (`{}`) and empty arrays correspond
 to empty JSON arrays (`[]`).
@@ -147,19 +147,19 @@ Examples:
 
     TOML                JSON
 
-    a = 42              {"type": "integer": "value": "42}
+    a = 42              {"type": "integer": "value": "42"}
 
----
+<!-- -->
 
     [tbl]               {"tbl": {
-    a = 42                  "a": {"type": "integer": "value": "42}
+    a = 42                  "a": {"type": "integer": "value": "42"}
                         }}
 
----
+<!-- -->
 
     a = ["a", 2]        {"a": [
-                            {"type": "string", "value": "1"},
-                            {"type: "integer": "value": "2"}
+                            {"type": "string",  "value": "1"},
+                            {"type": "integer": "value": "2"}
                         ]}
 
 Or a more complex example:
@@ -207,7 +207,6 @@ TOML; a few things are left up to implementations, and are not tested here.
   This tests only millisecond precision, and not any further precision or the
   truncation of it.
 
-
 Assumptions of Truth
 --------------------
 The following are taken as ground truths by `toml-test`:
@@ -216,9 +215,9 @@ The following are taken as ground truths by `toml-test`:
 - All tests classified as `valid` **are** valid.
 - All expected outputs in `valid/test-name.json` are exactly correct.
 - The Go standard library package `encoding/json` decodes JSON correctly.
-- When testing encoders, the TOML decoder at
-  [BurntSushi/toml](https://github.com/BurntSushi/toml) is assumed to be 
-  correct. (Note that this assumption is not made when testing decoders!)
+- When testing encoders the
+  [BurntSushi/toml](https://github.com/BurntSushi/toml) TOML decoder is assumed
+  to be correct. (Note that this assumption is not made when testing decoders!)
 
 Of particular note is that **no TOML decoder** is taken as ground truth when
 testing decoders. This means that most changes to the spec will only require an
