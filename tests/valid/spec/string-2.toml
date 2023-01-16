@@ -1,4 +1,3 @@
-
 # On a Unix system, the above multi-line string will most likely be the same as:
 str2 = "Roses are red\nViolets are blue"
 

@@ -1,19 +1,18 @@
 {
+  "quoted": {
+    "type": "string",
+    "value": "Tom \"Dubs\" Preston-Werner"
+  },
   "regex": {
     "type": "string",
-    "value": "<\\i\\c*\\s*>"
-  },
-  "winpath2": {
-    "type": "string",
-    "value": "\\\\ServerX\\admin$\\system32\\"
+    "value": "\u003c\\i\\c*\\s*\u003e"
   },
   "winpath": {
     "type": "string",
     "value": "C:\\Users\\nodejs\\templates"
   },
-  "quoted": {
+  "winpath2": {
     "type": "string",
-    "value": "Tom \"Dubs\" Preston-Werner"
+    "value": "\\\\ServerX\\admin$\\system32\\"
   }
 }
-

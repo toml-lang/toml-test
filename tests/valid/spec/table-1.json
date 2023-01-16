@@ -1,4 +1,14 @@
 {
+  "table-1": {
+    "key1": {
+      "type": "string",
+      "value": "some string"
+    },
+    "key2": {
+      "type": "integer",
+      "value": "123"
+    }
+  },
   "table-2": {
     "key1": {
       "type": "string",
@@ -8,16 +18,5 @@
       "type": "integer",
       "value": "456"
     }
-  },
-  "table-1": {
-    "key2": {
-      "type": "integer",
-      "value": "123"
-    },
-    "key1": {
-      "type": "string",
-      "value": "some string"
-    }
   }
 }
-

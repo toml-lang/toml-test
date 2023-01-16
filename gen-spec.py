@@ -4,6 +4,8 @@ import argparse
 import pathlib
 import shutil
 import re
+import subprocess
+import os
 
 
 ROOT = pathlib.Path(__file__).parent
@@ -43,7 +45,6 @@ def main():
         except ParseError:
             pass
         else:
-            print(f"Parsing {header}")
             case_index = 0
             continue
 
@@ -122,13 +123,24 @@ def parse_block(line_index, lines):
 def write_invalid_case(header, index, block):
     path = INVALID_ROOT / f"{header}-{index}.toml"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(block)
+    path.write_text(block.strip() + '\n')
 
 
 def write_valid_case(header, index, block):
     path = VALID_ROOT / f"{header}-{index}.toml"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(block)
+    path.write_text(block.strip() + '\n')
+
+    # Use version from $PATH as it's so much faster (go run compiles a new
+    # version every time).
+    #
+    # TODO: maybe just compile this once to /tmp/ and cleanup after exit?
+    cmd = ['go', 'run', 'github.com/BurntSushi/toml/cmd/toml-test-decoder']
+    if shutil.which('toml-test-decoderx') is not None:
+        cmd = ['toml-test-decoder']
+    subprocess.run(cmd,
+        stdin=open(path),
+        stdout=open(VALID_ROOT / f"{header}-{index}.json", mode='w'))
 
     invalid_index = 0
     lines = block.splitlines()

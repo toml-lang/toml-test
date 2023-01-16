@@ -1,8 +1,7 @@
 {
+  "animal": {},
   "fruit": {
-    "orange": {},
-    "apple": {}
-  },
-  "animal": {}
+    "apple": {},
+    "orange": {}
+  }
 }
-

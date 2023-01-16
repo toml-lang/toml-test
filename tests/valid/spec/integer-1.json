@@ -3,11 +3,11 @@
     "type": "integer",
     "value": "1000"
   },
-  "int7": {
+  "int6": {
     "type": "integer",
     "value": "5349221"
   },
-  "int6": {
+  "int7": {
     "type": "integer",
     "value": "5349221"
   },
@@ -16,4 +16,3 @@
     "value": "12345"
   }
 }
-

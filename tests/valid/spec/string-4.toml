@@ -1,4 +1,3 @@
-
 str4 = """Here are two quotation marks: "". Simple enough."""
 # str5 = """Here are three quotation marks: """."""  # INVALID
 str5 = """Here are three quotation marks: ""\"."""

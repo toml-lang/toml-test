@@ -1,27 +1,26 @@
 {
-  "hex2": {
-    "type": "integer",
-    "value": "3735928559"
-  },
   "bin1": {
     "type": "integer",
     "value": "214"
   },
-  "oct2": {
+  "hex1": {
     "type": "integer",
-    "value": "493"
+    "value": "3735928559"
   },
-  "oct1": {
+  "hex2": {
     "type": "integer",
-    "value": "342391"
+    "value": "3735928559"
   },
   "hex3": {
     "type": "integer",
     "value": "3735928559"
   },
-  "hex1": {
+  "oct1": {
     "type": "integer",
-    "value": "3735928559"
+    "value": "342391"
+  },
+  "oct2": {
+    "type": "integer",
+    "value": "493"
   }
 }
-

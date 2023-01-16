@@ -1,24 +1,4 @@
 {
-  "point": {
-    "y": {
-      "type": "integer",
-      "value": "2"
-    },
-    "x": {
-      "type": "integer",
-      "value": "1"
-    }
-  },
-  "name": {
-    "last": {
-      "type": "string",
-      "value": "Preston-Werner"
-    },
-    "first": {
-      "type": "string",
-      "value": "Tom"
-    }
-  },
   "animal": {
     "type": {
       "name": {
@@ -26,6 +6,25 @@
         "value": "pug"
       }
     }
+  },
+  "name": {
+    "first": {
+      "type": "string",
+      "value": "Tom"
+    },
+    "last": {
+      "type": "string",
+      "value": "Preston-Werner"
+    }
+  },
+  "point": {
+    "x": {
+      "type": "integer",
+      "value": "1"
+    },
+    "y": {
+      "type": "integer",
+      "value": "2"
+    }
   }
 }
-

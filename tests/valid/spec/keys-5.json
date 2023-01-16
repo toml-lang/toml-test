@@ -1,26 +1,26 @@
 {
+  "apple": {
+    "color": {
+      "type": "string",
+      "value": "red"
+    },
+    "skin": {
+      "type": "string",
+      "value": "thin"
+    },
+    "type": {
+      "type": "string",
+      "value": "fruit"
+    }
+  },
   "orange": {
     "color": {
       "type": "string",
       "value": "orange"
     },
-    "type": {
-      "type": "string",
-      "value": "fruit"
-    },
     "skin": {
       "type": "string",
       "value": "thick"
-    }
-  },
-  "apple": {
-    "skin": {
-      "type": "string",
-      "value": "thin"
-    },
-    "color": {
-      "type": "string",
-      "value": "red"
     },
     "type": {
       "type": "string",
@@ -28,4 +28,3 @@
     }
   }
 }
-
