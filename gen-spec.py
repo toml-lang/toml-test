@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
 
-import argparse
-import pathlib
-import shutil
-import re
-import subprocess
-import os
-
+import argparse, pathlib, shutil, re, subprocess, os, tempfile
 
 ROOT = pathlib.Path(__file__).parent
 VALID_ROOT = ROOT / f"tests/valid/spec"
 INVALID_ROOT = ROOT / f"tests/invalid/spec"
 
-
-def main():
+def main(tmp):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--input",
@@ -22,6 +15,9 @@ def main():
         help="Spec to parse for test cases",
     )
     args = parser.parse_args()
+
+    decoder = os.path.join(tmp, 'toml-test-decoder')
+    subprocess.run(['go', 'build', '-o', decoder, 'github.com/BurntSushi/toml/cmd/toml-test-decoder'])
 
     try:
         shutil.rmtree(VALID_ROOT)
@@ -60,16 +56,14 @@ def main():
                 if has_active_invalid(block):
                     write_invalid_case(header, case_index, block)
                 else:
-                    write_valid_case(header, case_index, block)
+                    write_valid_case(decoder, header, case_index, block)
                 case_index += 1
             continue
 
         line_index += 1
 
-
 class ParseError(RuntimeError):
     pass
-
 
 def parse_header(line_index, lines):
     try:
@@ -94,21 +88,17 @@ def parse_header(line_index, lines):
     header = header.lower().replace(" ", "-").replace("/", "-")
     return line_index, header
 
-
-FENCE = "```"
-
-
 def parse_block(line_index, lines):
     info = ""
     try:
         fence = lines[line_index]
-        if not fence.startswith(FENCE):
+        if not fence.startswith('```'):
             raise ParseError()
-        info = fence.removeprefix(FENCE)
+        info = fence.removeprefix('```')
 
         block = []
         line = ""
-        while line != FENCE:
+        while line != '```':
             block.append(line)
             line_index += 1
             line = lines[line_index]
@@ -119,26 +109,17 @@ def parse_block(line_index, lines):
 
     return line_index, info, "\n".join(block)
 
-
 def write_invalid_case(header, index, block):
     path = INVALID_ROOT / f"{header}-{index}.toml"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block.strip() + '\n')
 
-
-def write_valid_case(header, index, block):
+def write_valid_case(decoder, header, index, block):
     path = VALID_ROOT / f"{header}-{index}.toml"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block.strip() + '\n')
 
-    # Use version from $PATH as it's so much faster (go run compiles a new
-    # version every time).
-    #
-    # TODO: maybe just compile this once to /tmp/ and cleanup after exit?
-    cmd = ['go', 'run', 'github.com/BurntSushi/toml/cmd/toml-test-decoder']
-    if shutil.which('toml-test-decoderx') is not None:
-        cmd = ['toml-test-decoder']
-    subprocess.run(cmd,
+    subprocess.run([decoder],
         stdin=open(path),
         stdout=open(VALID_ROOT / f"{header}-{index}.json", mode='w'))
 
@@ -152,7 +133,6 @@ def write_valid_case(header, index, block):
             write_invalid_case(header, f"{index}-{invalid_index}", "\n".join(new_lines))
             invalid_index += 1
 
-
 def has_active_invalid(block):
     lines = block.splitlines()
     for line in lines:
@@ -160,6 +140,6 @@ def has_active_invalid(block):
             return True
     return False
 
-
 if __name__ == "__main__":
-    main()
+    with tempfile.TemporaryDirectory() as tmp:
+        main(tmp)
