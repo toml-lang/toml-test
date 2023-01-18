@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 
-import argparse, pathlib, shutil, re, subprocess, os, tempfile
+import argparse, pathlib, shutil, re, subprocess, os, tempfile, glob, os.path
 
 ROOT = pathlib.Path(__file__).parent
 VALID_ROOT = ROOT / f"tests/valid/spec"
 INVALID_ROOT = ROOT / f"tests/invalid/spec"
 
-def main(tmp):
+def gen_multi():
+    for f in glob.glob(str(ROOT / 'tests/invalid/*/*.multi')):
+        base = os.path.dirname(f[:-6])
+        for line in open(f, 'rb').readlines():
+            name = line.split(b'=')[0].strip().decode()
+            if name == '' or name[0] == '#':
+                continue
+
+            line = re.sub(r'(?<=[^\\])\\x([0-9a-fA-F]{2})', lambda m: chr(int(m[1], 16)), line.decode())
+            path = base + "/" + name + '.toml'
+            with open(path, 'wb+') as fp:
+                fp.write(line.encode())
+
+def gen_spec(tmp):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--input",
@@ -142,4 +155,5 @@ def has_active_invalid(block):
 
 if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as tmp:
-        main(tmp)
+        gen_spec(tmp)
+        gen_multi()
