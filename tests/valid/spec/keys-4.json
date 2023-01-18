@@ -1,0 +1,17 @@
+{
+  "fruit": {
+    "name": {
+      "type": "string",
+      "value": "banana"
+    },
+    "color": {
+      "type": "string",
+      "value": "yellow"
+    },
+    "flavor": {
+      "type": "string",
+      "value": "banana"
+    }
+  }
+}
+

@@ -1,0 +1,22 @@
+{
+  "fruit": {
+    "apple": {
+      "taste": {
+        "sweet": {
+          "type": "bool",
+          "value": "true"
+        }
+      },
+      "texture": {
+        "smooth": {
+          "type": "bool",
+          "value": "true"
+        }
+      },
+      "color": {
+        "type": "string",
+        "value": "red"
+      }
+    }
+  }
+}

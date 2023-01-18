@@ -1,0 +1,27 @@
+{
+  "sf3": {
+    "type": "float",
+    "value": "-inf"
+  },
+  "sf4": {
+    "type": "float",
+    "value": "nan"
+  },
+  "sf6": {
+    "type": "float",
+    "value": "nan"
+  },
+  "sf2": {
+    "type": "float",
+    "value": "inf"
+  },
+  "sf1": {
+    "type": "float",
+    "value": "inf"
+  },
+  "sf5": {
+    "type": "float",
+    "value": "nan"
+  }
+}
+

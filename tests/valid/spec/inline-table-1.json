@@ -1,0 +1,31 @@
+{
+  "point": {
+    "x": {
+      "type": "integer",
+      "value": "1"
+    },
+    "y": {
+      "type": "integer",
+      "value": "2"
+    }
+  },
+  "animal": {
+    "type": {
+      "name": {
+        "type": "string",
+        "value": "pug"
+      }
+    }
+  },
+  "name": {
+    "first": {
+      "type": "string",
+      "value": "Tom"
+    },
+    "last": {
+      "type": "string",
+      "value": "Preston-Werner"
+    }
+  }
+}
+

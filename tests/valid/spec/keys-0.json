@@ -1,0 +1,19 @@
+{
+  "bare-key": {
+    "type": "string",
+    "value": "value"
+  },
+  "key": {
+    "type": "string",
+    "value": "value"
+  },
+  "1234": {
+    "type": "string",
+    "value": "value"
+  },
+  "bare_key": {
+    "type": "string",
+    "value": "value"
+  }
+}
+
