@@ -1,6 +1,10 @@
 {
   "fruit": {
     "apple": {
+      "color": {
+        "type": "string",
+        "value": "red"
+      },
       "taste": {
         "sweet": {
           "type": "bool",
@@ -12,10 +16,6 @@
           "type": "bool",
           "value": "true"
         }
-      },
-      "color": {
-        "type": "string",
-        "value": "red"
       }
     }
   }

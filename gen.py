@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 
-import argparse
-import pathlib
-import shutil
-import re
-
+import argparse, pathlib, shutil, re, subprocess, os, tempfile, glob, os.path
 
 ROOT = pathlib.Path(__file__).parent
 VALID_ROOT = ROOT / f"tests/valid/spec"
 INVALID_ROOT = ROOT / f"tests/invalid/spec"
 
+def gen_multi():
+    for f in glob.glob(str(ROOT / 'tests/invalid/*/*.multi')):
+        base = os.path.dirname(f[:-6])
+        for line in open(f, 'rb').readlines():
+            name = line.split(b'=')[0].strip().decode()
+            if name == '' or name[0] == '#':
+                continue
 
-def main():
+            line = re.sub(r'(?<=[^\\])\\x([0-9a-fA-F]{2})', lambda m: chr(int(m[1], 16)), line.decode())
+            path = base + "/" + name + '.toml'
+            with open(path, 'wb+') as fp:
+                fp.write(line.encode())
+
+def gen_spec(tmp):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--input",
@@ -20,6 +28,9 @@ def main():
         help="Spec to parse for test cases",
     )
     args = parser.parse_args()
+
+    decoder = os.path.join(tmp, 'toml-test-decoder')
+    subprocess.run(['go', 'build', '-o', decoder, 'github.com/BurntSushi/toml/cmd/toml-test-decoder'])
 
     try:
         shutil.rmtree(VALID_ROOT)
@@ -43,7 +54,6 @@ def main():
         except ParseError:
             pass
         else:
-            print(f"Parsing {header}")
             case_index = 0
             continue
 
@@ -59,16 +69,14 @@ def main():
                 if has_active_invalid(block):
                     write_invalid_case(header, case_index, block)
                 else:
-                    write_valid_case(header, case_index, block)
+                    write_valid_case(decoder, header, case_index, block)
                 case_index += 1
             continue
 
         line_index += 1
 
-
 class ParseError(RuntimeError):
     pass
-
 
 def parse_header(line_index, lines):
     try:
@@ -93,21 +101,17 @@ def parse_header(line_index, lines):
     header = header.lower().replace(" ", "-").replace("/", "-")
     return line_index, header
 
-
-FENCE = "```"
-
-
 def parse_block(line_index, lines):
     info = ""
     try:
         fence = lines[line_index]
-        if not fence.startswith(FENCE):
+        if not fence.startswith('```'):
             raise ParseError()
-        info = fence.removeprefix(FENCE)
+        info = fence.removeprefix('```')
 
         block = []
         line = ""
-        while line != FENCE:
+        while line != '```':
             block.append(line)
             line_index += 1
             line = lines[line_index]
@@ -118,17 +122,19 @@ def parse_block(line_index, lines):
 
     return line_index, info, "\n".join(block)
 
-
 def write_invalid_case(header, index, block):
     path = INVALID_ROOT / f"{header}-{index}.toml"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(block)
+    path.write_text(block.strip() + '\n')
 
-
-def write_valid_case(header, index, block):
+def write_valid_case(decoder, header, index, block):
     path = VALID_ROOT / f"{header}-{index}.toml"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(block)
+    path.write_text(block.strip() + '\n')
+
+    subprocess.run([decoder],
+        stdin=open(path),
+        stdout=open(VALID_ROOT / f"{header}-{index}.json", mode='w'))
 
     invalid_index = 0
     lines = block.splitlines()
@@ -140,7 +146,6 @@ def write_valid_case(header, index, block):
             write_invalid_case(header, f"{index}-{invalid_index}", "\n".join(new_lines))
             invalid_index += 1
 
-
 def has_active_invalid(block):
     lines = block.splitlines()
     for line in lines:
@@ -148,6 +153,7 @@ def has_active_invalid(block):
             return True
     return False
 
-
 if __name__ == "__main__":
-    main()
+    with tempfile.TemporaryDirectory() as tmp:
+        gen_spec(tmp)
+        gen_multi()

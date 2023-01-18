@@ -1,23 +1,7 @@
 {
-  "flt5": {
-    "type": "float",
-    "value": "1000000.0"
-  },
-  "flt4": {
-    "type": "float",
-    "value": "49999999999999995805696.0"
-  },
   "flt1": {
     "type": "float",
-    "value": "1.0"
-  },
-  "flt6": {
-    "type": "float",
-    "value": "-0.02"
-  },
-  "flt7": {
-    "type": "float",
-    "value": "0.0"
+    "value": "1"
   },
   "flt2": {
     "type": "float",
@@ -26,6 +10,21 @@
   "flt3": {
     "type": "float",
     "value": "-0.01"
+  },
+  "flt4": {
+    "type": "float",
+    "value": "5e+22"
+  },
+  "flt5": {
+    "type": "float",
+    "value": "1e+06"
+  },
+  "flt6": {
+    "type": "float",
+    "value": "-0.02"
+  },
+  "flt7": {
+    "type": "float",
+    "value": "6.626e-34"
   }
 }
-

@@ -3,10 +3,6 @@
     "type": "string",
     "value": "value"
   },
-  "quoted \"value\"": {
-    "type": "string",
-    "value": "value"
-  },
   "character encoding": {
     "type": "string",
     "value": "value"
@@ -15,9 +11,12 @@
     "type": "string",
     "value": "value"
   },
+  "quoted \"value\"": {
+    "type": "string",
+    "value": "value"
+  },
   "ʎǝʞ": {
     "type": "string",
     "value": "value"
   }
 }
-

@@ -6,13 +6,13 @@
         "value": "apple"
       },
       "physical": {
-        "shape": {
-          "type": "string",
-          "value": "round"
-        },
         "color": {
           "type": "string",
           "value": "red"
+        },
+        "shape": {
+          "type": "string",
+          "value": "round"
         }
       },
       "varieties": [
@@ -46,4 +46,3 @@
     }
   ]
 }
-

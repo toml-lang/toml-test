@@ -1,11 +1,11 @@
 {
-  "name": {
-    "type": "string",
-    "value": "Fido"
-  },
   "breed": {
     "type": "string",
     "value": "pug"
+  },
+  "name": {
+    "type": "string",
+    "value": "Fido"
   },
   "owner": {
     "member_since": {
@@ -18,4 +18,3 @@
     }
   }
 }
-
