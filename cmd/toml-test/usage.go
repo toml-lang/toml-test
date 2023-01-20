@@ -24,7 +24,6 @@ Tests are split in to "valid" and "invalid" groups:
 
    valid           Valid TOML files
    invalid         Invalid TOML files that should be rejected with an error.
-   invalid-encoder Invalid input for the encoder
 
 All tests are referred to relative to to the tests/ directory: valid/dir/name or
 invalid/dir/name.
@@ -85,14 +84,12 @@ Flags:
                   compiled in the binary; this is only useful if you want to add
                   or modify tests.
 
-                  A test in the invalid directory is a toml file that is known
+                  A test in the invalid directory is a TOML file that is known
                   to be invalid and should be rejected by the parser.
 
-                  A test in the valid directory is a toml and json file with the
+                  A test in the valid directory is a TOML and JSON file with the
                   same name, where the json file is the JSON representation of
                   the TOML file according to the syntax described in the README.
 
-                  For encoders, the same directory scheme above is used, except
-                  the invalid-encoder directory is used instead of the invalid
-                  directory.
+                  For encoders only valid tests are run.
 `

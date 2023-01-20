@@ -8,8 +8,7 @@ JSON, described below.
 
 Both encoders and decoders share valid tests, except an encoder accepts JSON and
 outputs TOML rather than the reverse. The TOML representations are read with a
-blessed decoder and is compared. Encoders have their own set of invalid tests in
-the invalid-encoder directory. The JSON given to a TOML encoder is in the same
+blessed decoder and is compared. The JSON given to a TOML encoder is in the same
 format as the JSON that a TOML decoder should output.
 
 Compatible with TOML version [v1.0.0][v1].
