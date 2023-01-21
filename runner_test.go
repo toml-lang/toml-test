@@ -27,12 +27,10 @@ func TestVersion(t *testing.T) {
 	}
 	notInList(t, ls, "valid/string/escape-esc")
 
-	r = Runner{Version: "0.4.0", Files: os.DirFS("./tests")}
+	r = Runner{Version: "1.0.0", Files: os.DirFS("./tests")}
 	ls, err = r.List()
 	if err != nil {
 		t.Fatal()
 	}
-	notInList(t, ls, "valid/string/escape-esc")      // 1.0
-	notInList(t, ls, "valid/array/mixed-int-string") // 0.5
-	notInList(t, ls, "valid/key/dotted")             // 0.4
+	notInList(t, ls, "valid/string/escape-esc")
 }
