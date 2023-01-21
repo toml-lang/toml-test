@@ -5,15 +5,19 @@
   },
   "tiếng-Việt": [
     {
-      "a": {
-        "type": "integer",
-        "value": "1"
+      "tiəŋ˧˦": {
+        "viət̚˧˨ʔ": {
+          "type": "string",
+          "value": "north"
+        }
       }
     },
     {
-      "a": {
-        "type": "integer",
-        "value": "1"
+      "tiəŋ˦˧˥": {
+        "viək̚˨˩ʔ": {
+          "type": "string",
+          "value": "central"
+        }
       }
     }
   ],
