@@ -253,6 +253,9 @@ These files are generated with `toml-test -list-files`:
     % toml-test -list-files -toml=1.0.0
     % toml-test -list-files -toml=1.1.0
 
+[tests/files-toml-1.0.0]: tests/files-toml-1.0.0
+[tests/files-toml-1.1.0]: tests/files-toml-1.1.0
+
 Adding tests
 ------------
 `toml-test` was designed so that tests can be easily added and removed. As
