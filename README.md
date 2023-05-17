@@ -226,10 +226,37 @@ added.) Obviously, this advantage does not apply to testing TOML encoders since
 there must exist a TOML decoder that conforms to the specification in order to
 read the output of a TOML encoder.
 
+Usage without `toml-test` binary
+--------------------------------
+While the `toml-test` tool is a convenient way to run the tests, you can also
+re-implement its behaviour in your own language's test-suite, which may be an
+easier way to run the tests.
+
+Because multiple TOML versions are supported, not all tests are valid for every
+version of TOML; for example the 1.0.0 tests contain a test that trailing commas
+in tables are invalid, but in 1.1.0 this should be considered valid.
+
+In short: you can't "just" copy all .toml and .json files from the tests/
+directory. The [test/files-toml-1.0.0] and [test/files-toml-1.1.0] files contain
+a list of files you should run for that TOML version.
+
+You can use those lists to determine which tests to run, or include only those
+tests in your library by copying them with something like:
+
+    <files-toml-1.0.0 while read l; do
+        mkdir -p ~/my-test/"$(dirname "$l")"
+        cp -r "$l" ~/my-test/"$l"
+    done
+
+These files are generated with `toml-test -list-files`:
+
+    % toml-test -list-files -toml=1.0.0
+    % toml-test -list-files -toml=1.1.0
+
 Adding tests
 ------------
 `toml-test` was designed so that tests can be easily added and removed. As
-mentioned above, tests are split into two groups: invalid and valid tests. 
+mentioned above, tests are split into two groups: invalid and valid tests.
 
 Invalid tests **only check if a decoder rejects invalid TOML data**. Or, in the
 case of testing encoders, invalid tests **only check if an encoder rejects an

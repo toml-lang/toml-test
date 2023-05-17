@@ -43,8 +43,12 @@ Flags:
                   the correctness of my TOML parser!
 
     -toml         Select TOML version to run tests for. Supported versions are
-                  "1.0.0" and "next" (which includes changes which aren't in a
-                  "tagged" TOML version yet). Defaults to 1.0.0.
+                  "1.0.0" and "1.1.0" (which isn't released yet and may change).
+                  Defaults to 1.0.0.
+
+    -list-files   List all test files, one file per line, and exit without
+                  running anything. This takes the -toml flag in to account, but
+                  none of the other flags.
 
     -v            List all tests, even passing ones. Add twice to show detailed
                   output for passing tests.

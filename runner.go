@@ -1,4 +1,4 @@
-//go:generate ./gen-multi.py
+//go:generate ./gen.py
 
 package tomltest
 

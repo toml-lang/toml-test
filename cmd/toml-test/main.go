@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	tomltest "github.com/BurntSushi/toml-test"
@@ -13,7 +14,7 @@ import (
 
 var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
 
-func parseFlags() (tomltest.Runner, []string, int, string) {
+func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 	f := zli.NewFlags(os.Args)
 	var (
 		help        = f.Bool(false, "help", "h")
@@ -25,6 +26,7 @@ func parseFlags() (tomltest.Runner, []string, int, string) {
 		color       = f.String("always", "color")
 		skip        = f.StringList(nil, "skip")
 		run         = f.StringList(nil, "run")
+		listFiles   = f.Bool(false, "list-files")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
@@ -43,7 +45,7 @@ func parseFlags() (tomltest.Runner, []string, int, string) {
 		Version:   tomlVersion.String(),
 	}
 
-	if len(f.Args) == 0 {
+	if len(f.Args) == 0 && !listFiles.Bool() {
 		zli.Fatalf("no parser command")
 	}
 	for _, r := range r.RunTests {
@@ -104,11 +106,25 @@ func parseFlags() (tomltest.Runner, []string, int, string) {
 		}
 	}
 
-	return r, f.Args, showAll.Int(), testDir.String()
+	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool()
 }
 
 func main() {
-	runner, cmd, showAll, testDir := parseFlags()
+	runner, cmd, showAll, testDir, listFiles := parseFlags()
+
+	if listFiles {
+		l, err := runner.List()
+		zli.F(err)
+
+		sort.Strings(l)
+		for _, ll := range l {
+			if strings.HasPrefix(ll, "valid/") {
+				fmt.Println(ll + ".json")
+			}
+			fmt.Println(ll + ".toml")
+		}
+		return
+	}
 
 	tests, err := runner.Run()
 	zli.F(err)

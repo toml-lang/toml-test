@@ -19,6 +19,12 @@ def gen_multi():
             with open(path, 'wb+') as fp:
                 fp.write(line.encode())
 
+def gen_list():
+    with open('tests/files-toml-1.0.0', 'w+') as fp:
+        subprocess.run(['go', 'run', './cmd/toml-test', '-list-files', '-toml=1.0.0'], stdout=fp)
+    with open('tests/files-toml-1.1.0', 'w+') as fp:
+        subprocess.run(['go', 'run', './cmd/toml-test', '-list-files', '-toml=1.1.0'], stdout=fp)
+
 def gen_spec(tmp):
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -156,4 +162,5 @@ def has_active_invalid(block):
 if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as tmp:
         gen_spec(tmp)
-        gen_multi()
+    gen_multi()
+    gen_list()
