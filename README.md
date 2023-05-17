@@ -237,8 +237,8 @@ version of TOML; for example the 1.0.0 tests contain a test that trailing commas
 in tables are invalid, but in 1.1.0 this should be considered valid.
 
 In short: you can't "just" copy all .toml and .json files from the tests/
-directory. The [test/files-toml-1.0.0] and [test/files-toml-1.1.0] files contain
-a list of files you should run for that TOML version.
+directory. The [tests/files-toml-1.0.0] and [tests/files-toml-1.1.0] files
+contain a list of files you should run for that TOML version.
 
 You can use those lists to determine which tests to run, or include only those
 tests in your library by copying them with something like:
