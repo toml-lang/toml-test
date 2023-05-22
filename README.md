@@ -199,7 +199,7 @@ Implementation-defined behaviour
 This only tests behaviour that's should be true for every encoder implementing
 TOML; a few things are left up to implementations, and are not tested here.
 
-- Millisecond precision (4 digits) is required for datetimes and times, and
+- Millisecond precision (3 digits) is required for datetimes and times, and
   further precision is implementation-specific, and any greater precision than
   is supported must be truncated (not rounded).
 
