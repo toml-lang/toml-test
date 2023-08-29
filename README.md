@@ -26,13 +26,13 @@ your tests from breaking on changes to tests in this tool.
 To compile from source you will need Go 1.16 or newer (older versions will *not*
 work):
 
-    $ git clone https://github.com/BurntSushi/toml-test.git
+    $ git clone https://github.com/toml-lang/toml-test.git
     $ cd toml-test
     $ go build ./cmd/toml-test
 
 This will build a `./toml-test` binary.
 
-[r]: https://github.com/BurntSushi/toml-test/releases
+[r]: https://github.com/toml-lang/toml-test/releases
 
 Usage
 -----

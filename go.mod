@@ -1,4 +1,4 @@
-module github.com/BurntSushi/toml-test
+module github.com/toml-lang/toml-test
 
 go 1.16
 

@@ -3,7 +3,7 @@ package main
 const usage = `Usage: %[1]s parser-cmd [ parser-cmd-flags ]
 
 toml-test is a tool to verify the correctness of TOML parsers and writers.
-https://github.com/BurntSushi/toml-test
+https://github.com/toml-lang/toml-test
 
 The parser-cmd positional argument should be a program that accepts TOML data
 on stdin until EOF, and is expected to write the corresponding JSON encoding on
