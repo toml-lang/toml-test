@@ -1,2 +1,1 @@
-# trailing underscore in float part is not allowed
-trailing-us-exp2 = 1.2_e2
+trailing-us-exp-2 = 1.2_e2

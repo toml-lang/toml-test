@@ -102,7 +102,8 @@ invalid/float/trailing-point.toml
 invalid/float/trailing-point-min.toml
 invalid/float/trailing-point-plus.toml
 invalid/float/trailing-us.toml
-invalid/float/trailing-us-exp.toml
+invalid/float/trailing-us-exp-1.toml
+invalid/float/trailing-us-exp-2.toml
 invalid/float/us-after-point.toml
 invalid/float/us-before-point.toml
 invalid/inline-table/add.toml
