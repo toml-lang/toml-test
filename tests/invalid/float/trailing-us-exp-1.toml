@@ -1,0 +1,2 @@
+# trailing underscore in integer part is not allowed
+trailing-us-exp = 1_e2
