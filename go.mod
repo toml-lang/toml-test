@@ -1,6 +1,6 @@
 module github.com/toml-lang/toml-test
 
-go 1.16
+go 1.18
 
 require (
 	github.com/BurntSushi/toml v1.2.2-0.20230116181612-fcbab7400715
