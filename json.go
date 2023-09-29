@@ -241,15 +241,15 @@ func isValue(m map[string]any) bool {
 }
 
 func (r Test) mismatch(wantType string, want, have any) Test {
-	return r.fail("Key '%[1]s' is not an %[2]s but %[5]s:\n"+
-		"  Expected:     %#[3]v\n"+
-		"  Your encoder: %#[4]v",
-		r.Key, wantType, want, have, fmtType(have))
+	return r.fail("Key %[1]q is not %[2]q but %[5]q:\n"+
+		"  Expected:     %s\n"+
+		"  Your encoder: %s",
+		r.Key, wantType, fmtHashV(want), fmtHashV(have), fmtType(have))
 }
 
 func (r Test) valMismatch(wantType, haveType string, want, have any) Test {
-	return r.fail("Key '%s' is not an %s but %s:\n"+
-		"  Expected:     %#[3]v\n"+
-		"  Your encoder: %#[4]v",
-		r.Key, wantType, want, have)
+	return r.fail("Key %q is not %q but %q:\n"+
+		"  Expected:     %s\n"+
+		"  Your encoder: %s",
+		r.Key, wantType, haveType, fmtHashV(want), fmtHashV(have))
 }

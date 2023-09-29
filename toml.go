@@ -135,6 +135,5 @@ func isTomlValue(v any) bool {
 }
 
 // fmt %T with "interface {}" replaced with "any", which is far more readable.
-func fmtType(t any) string {
-	return strings.ReplaceAll(fmt.Sprintf("%T", t), "interface {}", "any")
-}
+func fmtType(t any) string  { return strings.ReplaceAll(fmt.Sprintf("%T", t), "interface {}", "any") }
+func fmtHashV(t any) string { return strings.ReplaceAll(fmt.Sprintf("%#v", t), "interface {}", "any") }
