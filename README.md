@@ -191,10 +191,20 @@ An example implementation can be found in the BurnSushi/toml:
 - [Add tags](https://github.com/BurntSushi/toml/blob/master/internal/tag/add.go)
 - [Remove tags](https://github.com/BurntSushi/toml/blob/master/internal/tag/rm.go)
 
-Implementation-defined behaviour
---------------------------------
+Untested and implementation-defined behaviour
+---------------------------------------------
 This only tests behaviour that's should be true for every encoder implementing
 TOML; a few things are left up to implementations, and are not tested here.
+
+- Many values can be expressed in more than one way: for example `0xff` and
+  `255` are equal, as are `0.0` and `-0.0`.
+
+  Some encoders may choose to always write back in a certain format (e.g.
+  decimal), others may choose to use the same as the input format.
+
+  Testing how exactly a value is written in encoder tests is left up to the
+  implementation, as long as they're semantically identical the test is
+  considered to pass.
 
 - Millisecond precision (3 digits) is required for datetimes and times, and
   further precision is implementation-specific, and any greater precision than
