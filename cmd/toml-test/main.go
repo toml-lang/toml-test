@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
@@ -191,6 +192,16 @@ func detailed(r tomltest.Runner, t tomltest.Test) string {
 		b.WriteByte('\n')
 	}
 	showStream(b, "input sent to parser-cmd", t.Input)
+
+	var j map[string]any
+	err := json.Unmarshal([]byte(t.Output), &j)
+	if err == nil {
+		out, err := json.MarshalIndent(j, "", "  ")
+		if err == nil {
+			t.Output = string(out)
+		}
+	}
+
 	if t.OutputFromStderr {
 		showStream(b, "output from parser-cmd (stderr)", t.Output)
 	} else {

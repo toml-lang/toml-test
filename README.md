@@ -23,12 +23,9 @@ should run in most environments. It's recommended you use a binary, or a tagged
 release if you build from source especially in CI environments. This prevents
 your tests from breaking on changes to tests in this tool.
 
-To compile from source you will need Go 1.16 or newer (older versions will *not*
-work):
+To compile from source you will need Go 1.18 or newer:
 
-    $ git clone https://github.com/toml-lang/toml-test.git
-    $ cd toml-test
-    $ go build ./cmd/toml-test
+    $ go install github.com/toml-lang/toml-test/cmd/toml-test@latest
 
 This will build a `./toml-test` binary.
 
