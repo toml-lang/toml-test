@@ -1,0 +1,30 @@
+package tomltest
+
+import (
+	"testing"
+)
+
+func TestCompareDatetime(t *testing.T) {
+	tests := []struct {
+		kind, want, have string
+		wantFail         bool
+	}{
+		{"datetime", "2006-01-02T15:04:05.123Z", "2006-01-02T15:04:05.123Z", false},
+		{"datetime", "2006-01-02T15:04:05.123Z", "2006-01-02T15:04:05", true},
+		{"time-local", "15:04:05.123", "15:04:05.123", false},
+		{"time-local", "15:04:05.123", "15:04:05", true},
+	}
+
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			r := Test{}
+			r = r.cmpAsDatetimes(tt.kind, tt.want, tt.have)
+			if tt.wantFail && r.Failure == "" {
+				t.Fatal("wanted fail, but no failure")
+			}
+			if !tt.wantFail && r.Failure != "" {
+				t.Fatalf("unexpected failure:\n%s", r.Failure)
+			}
+		})
+	}
+}
