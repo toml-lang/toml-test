@@ -28,3 +28,40 @@ func TestCompareDatetime(t *testing.T) {
 		})
 	}
 }
+
+func TestCompareNaN(t *testing.T) {
+	a := map[string]any{
+		"nan": map[string]any{
+			"type":  "float",
+			"value": "nan",
+		},
+	}
+	b := map[string]any{
+		"nan": map[string]any{
+			"type":  "float",
+			"value": "+nan",
+		},
+	}
+	c := map[string]any{
+		"nan": map[string]any{
+			"type":  "float",
+			"value": "-nan",
+		},
+	}
+
+	{
+		r := Test{}
+		r = r.CompareJSON(a, b)
+		if r.Failure != "" {
+			t.Fatal(r.Failure)
+		}
+	}
+
+	{
+		r := Test{}
+		r = r.CompareJSON(b, c)
+		if r.Failure != "" {
+			t.Fatal(r.Failure)
+		}
+	}
+}

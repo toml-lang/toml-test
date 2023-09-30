@@ -146,6 +146,7 @@ func (r Test) cmpAsStrings(want, have string) Test {
 func (r Test) cmpFloats(want, have string) Test {
 	// Special case for NaN, since NaN != NaN.
 	if strings.HasSuffix(want, "nan") || strings.HasSuffix(have, "nan") {
+		want, have := strings.TrimLeft(want, "-+"), strings.TrimLeft(have, "-+")
 		if want != have {
 			return r.fail("Values for key '%s' don't match:\n"+
 				"  Expected:     %v\n"+
