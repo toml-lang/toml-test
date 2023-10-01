@@ -205,17 +205,22 @@ func main() {
 
 	fmt.Printf("toml-test %s: ", cmd)
 	if testDir == "" {
-		fmt.Print("using embedded tests: ")
+		fmt.Print("using embedded tests")
 	} else {
-		fmt.Printf("tests from %q: ", testDir)
+		fmt.Printf("tests from %q", testDir)
 	}
-	fmt.Printf("%3d passed, %2d failed", tests.Passed, tests.Failed)
 	if tests.Skipped > 0 {
 		fmt.Printf(", %2d skipped", tests.Skipped)
 	}
 	fmt.Println()
+	if runner.Encoder {
+		fmt.Printf("encoder tests: %3d passed, %2d failed\n", tests.PassedValid, tests.FailedValid)
+	} else {
+		fmt.Printf("  valid tests: %3d passed, %2d failed\n", tests.PassedValid, tests.FailedValid)
+		fmt.Printf("invalid tests: %3d passed, %2d failed\n", tests.PassedInvalid, tests.FailedInvalid)
+	}
 
-	if tests.Failed > 0 {
+	if tests.FailedValid > 0 || tests.FailedInvalid > 0 {
 		zli.Exit(1)
 	}
 	zli.Exit(0)
