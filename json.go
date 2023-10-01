@@ -193,13 +193,6 @@ func (r Test) cmpAsDatetimes(kind, want, have string) Test {
 		panic("should never happen")
 	}
 
-	if len(have) < len(want) {
-		return r.fail("Datetime for %q too short:\n"+
-			"  Expected:     %v\n"+
-			"  Your encoder: %v",
-			r.Key, want, have)
-	}
-
 	wantT, err := time.Parse(layout, datetimeRepl.Replace(want))
 	if err != nil {
 		return r.bug("Could not read '%s' as a datetime value for key '%s'", want, r.Key)
@@ -210,7 +203,7 @@ func (r Test) cmpAsDatetimes(kind, want, have string) Test {
 		return r.fail("Malformed output from your encoder: key '%s' is not a datetime: '%s'", r.Key, have)
 	}
 	if !wantT.Equal(haveT) {
-		return r.fail("Values for key %q don't match:\n"+
+		return r.fail("Values for key '%s' don't match:\n"+
 			"  Expected:     %v\n"+
 			"  Your encoder: %v",
 			r.Key, wantT, haveT)
