@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	tomltest "github.com/toml-lang/toml-test"
 	"zgo.at/zli"
 )
@@ -28,6 +31,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		skip        = f.StringList(nil, "skip")
 		run         = f.StringList(nil, "run")
 		listFiles   = f.Bool(false, "list-files")
+		cat         = f.Int(0, "cat")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
@@ -36,6 +40,67 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 	}
 	if versionFlag.Int() > 0 {
 		zli.PrintVersion(versionFlag.Int() > 1)
+		zli.Exit(0)
+	}
+	if cat.Set() {
+		fsys := tomltest.EmbeddedTests()
+		f, err := fs.ReadFile(fsys, "files-toml-"+tomlVersion.String())
+		zli.F(err)
+		gather := make(map[string]map[string]any) /// file -> decoded
+		for _, line := range strings.Split(string(f), "\n") {
+			if strings.HasPrefix(line, "valid/") && strings.HasSuffix(line, ".toml") {
+				var t map[string]any
+				_, err := toml.DecodeFS(fsys, line, &t)
+				zli.F(err)
+				gather[line] = t
+			}
+		}
+
+		var (
+			out   = new(bytes.Buffer)
+			wrote int
+			keys  []string
+			i     int
+		)
+		for k := range gather {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+	outer:
+		for {
+			for _, line := range keys {
+				t := gather[line]
+				p := line + "-" + strconv.Itoa(i)
+
+				var prefix func(tbl map[string]any) map[string]any
+				prefix = func(tbl map[string]any) map[string]any {
+					newTbl := make(map[string]any)
+					for k, v := range tbl {
+						switch vv := v.(type) {
+						case map[string]any:
+							k = p + "-" + k
+							v = prefix(vv)
+						}
+						newTbl[k] = v
+					}
+					return newTbl
+				}
+				t = prefix(t)
+
+				err = toml.NewEncoder(out).Encode(map[string]any{
+					p: t,
+				})
+				zli.F(err)
+
+				fmt.Println(out.String())
+				wrote += out.Len() + 1
+				if wrote > cat.Int()*1024 {
+					break outer
+				}
+				out.Reset()
+			}
+			i++
+		}
 		zli.Exit(0)
 	}
 

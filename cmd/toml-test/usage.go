@@ -50,6 +50,14 @@ Flags:
                   running anything. This takes the -toml flag in to account, but
                   none of the other flags.
 
+    -cat          Keep outputting (valid) TOML from testcases until the file
+                  reaches this many KB. Useful for generating performance tests.
+
+                  E.g. to create 1M and 100M files:
+
+                      $ toml-test -cat 1024              >1M.toml
+                      $ toml-test -cat $(( 1024 * 100 )) >100M.toml
+
     -v            List all tests, even passing ones. Add twice to show detailed
                   output for passing tests.
 
