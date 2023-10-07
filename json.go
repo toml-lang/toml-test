@@ -129,6 +129,9 @@ func (r Test) cmpJSONValues(want, have map[string]any) Test {
 	case "datetime", "datetime-local", "date-local", "time-local":
 		return r.cmpAsDatetimes(wantType, wantVal, haveVal)
 	default:
+		if wantType == "bool" {
+			wantVal, haveVal = strings.ToLower(wantVal), strings.ToLower(haveVal)
+		}
 		return r.cmpAsStrings(wantVal, haveVal)
 	}
 }
@@ -145,6 +148,7 @@ func (r Test) cmpAsStrings(want, have string) Test {
 
 func (r Test) cmpFloats(want, have string) Test {
 	// Special case for NaN, since NaN != NaN.
+	want, have = strings.ToLower(want), strings.ToLower(have)
 	if strings.HasSuffix(want, "nan") || strings.HasSuffix(have, "nan") {
 		want, have := strings.TrimLeft(want, "-+"), strings.TrimLeft(have, "-+")
 		if want != have {
