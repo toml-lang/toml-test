@@ -47,8 +47,15 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		f, err := fs.ReadFile(fsys, "files-toml-"+tomlVersion.String())
 		zli.F(err)
 		gather := make(map[string]map[string]any) /// file -> decoded
+	outer1:
 		for _, line := range strings.Split(string(f), "\n") {
 			if strings.HasPrefix(line, "valid/") && strings.HasSuffix(line, ".toml") {
+				// SKIP
+				for _, s := range skip.Strings() {
+					if m, _ := filepath.Match(s, line); m {
+						continue outer1
+					}
+				}
 				var t map[string]any
 				_, err := toml.DecodeFS(fsys, line, &t)
 				zli.F(err)
@@ -66,7 +73,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
-	outer:
+	outer2:
 		for {
 			for _, line := range keys {
 				t := gather[line]
@@ -95,7 +102,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 				fmt.Println(out.String())
 				wrote += out.Len() + 1
 				if wrote > cat.Int()*1024 {
-					break outer
+					break outer2
 				}
 				out.Reset()
 			}

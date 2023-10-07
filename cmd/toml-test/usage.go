@@ -58,6 +58,9 @@ Flags:
                       $ toml-test -cat 1024              >1M.toml
                       $ toml-test -cat $(( 1024 * 100 )) >100M.toml
 
+                  The -skip and -toml flags can be used in combination with
+                  -cat.
+
     -v            List all tests, even passing ones. Add twice to show detailed
                   output for passing tests.
 
