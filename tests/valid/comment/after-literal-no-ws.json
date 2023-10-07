@@ -1,4 +1,8 @@
 {
+  "false": {
+    "type": "bool",
+    "value": "false"
+  },
   "inf": {
     "type": "float",
     "value": "inf"
@@ -10,9 +14,5 @@
   "true": {
     "type": "bool",
     "value": "true"
-  },
-  "false": {
-    "type": "bool",
-    "value": "false"
   }
 }
