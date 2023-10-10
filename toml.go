@@ -5,6 +5,7 @@ import (
 	"math"
 	"reflect"
 	"strings"
+	"time"
 )
 
 // CompareTOML compares the given arguments.
@@ -127,6 +128,14 @@ func deepEqual(want, have any) bool {
 	}
 	if math.IsNaN(wantF) && math.IsNaN(haveF) {
 		return true
+	}
+
+	// Time.Equal deals with some edge-cases such as offset +0000 and Z being
+	// identical.
+	if haveT, ok := have.(time.Time); ok {
+		if wantT, ok := want.(time.Time); ok {
+			return wantT.Equal(haveT)
+		}
 	}
 
 	return reflect.DeepEqual(want, have)

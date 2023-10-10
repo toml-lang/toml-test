@@ -154,6 +154,9 @@ func (r Runner) Run() (Tests, error) {
 	if err != nil {
 		return Tests{}, fmt.Errorf("tomltest.Runner.Run: %w", err)
 	}
+	if r.Parallel == 0 {
+		r.Parallel = 1
+	}
 
 	var (
 		tests = Tests{
@@ -168,7 +171,9 @@ func (r Runner) Run() (Tests, error) {
 		invalid := strings.Contains(p, "invalid/")
 		if r.hasSkip(p) {
 			tests.Skipped++
+			mu.Lock()
 			tests.Tests = append(tests.Tests, Test{Path: p, Skipped: true, Encoder: r.Encoder})
+			mu.Unlock()
 			continue
 		}
 
