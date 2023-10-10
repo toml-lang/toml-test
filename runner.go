@@ -199,6 +199,10 @@ func (r Runner) Run() (Tests, error) {
 	}
 	wg.Wait()
 
+	sort.Slice(tests.Tests, func(i, j int) bool {
+		return tests.Tests[i].Path < tests.Tests[j].Path
+	})
+
 	return tests, nil
 }
 
