@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,6 +33,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		run         = f.StringList(nil, "run")
 		listFiles   = f.Bool(false, "list-files")
 		cat         = f.Int(0, "cat")
+		parallel    = f.Int(runtime.NumCPU(), "parallel")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
@@ -116,6 +118,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		RunTests:  run.StringsSplit(","),
 		SkipTests: skip.StringsSplit(","),
 		Version:   tomlVersion.String(),
+		Parallel:  parallel.Int(),
 	}
 
 	if len(f.Args) == 0 && !listFiles.Bool() {

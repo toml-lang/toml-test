@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/BurntSushi/toml"
 )
@@ -48,6 +49,7 @@ type Runner struct {
 	SkipTests []string // Tests to skip.
 	Parser    Parser   // Send data to a parser.
 	Version   string   // TOML version to run tests for.
+	Parallel  int      // Number of tests to run in parallel
 }
 
 // A Parser instance is used to call the TOML parser we test.
@@ -153,8 +155,15 @@ func (r Runner) Run() (Tests, error) {
 		return Tests{}, fmt.Errorf("tomltest.Runner.Run: %w", err)
 	}
 
-	tests := Tests{
-		Tests: make([]Test, 0, len(r.RunTests)), Skipped: skipped}
+	var (
+		tests = Tests{
+			Tests:   make([]Test, 0, len(r.RunTests)),
+			Skipped: skipped,
+		}
+		limit = make(chan struct{}, r.Parallel)
+		wg    sync.WaitGroup
+		mu    sync.Mutex
+	)
 	for _, p := range r.RunTests {
 		invalid := strings.Contains(p, "invalid/")
 		if r.hasSkip(p) {
@@ -163,23 +172,32 @@ func (r Runner) Run() (Tests, error) {
 			continue
 		}
 
-		t := Test{Path: p, Encoder: r.Encoder}.Run(r.Parser, r.Files)
-		tests.Tests = append(tests.Tests, t)
+		limit <- struct{}{}
+		wg.Add(1)
+		go func(p string) {
+			defer func() { <-limit; wg.Done() }()
 
-		if t.Failed() {
-			if invalid {
-				tests.FailedInvalid++
+			t := Test{Path: p, Encoder: r.Encoder}.Run(r.Parser, r.Files)
+			mu.Lock()
+			tests.Tests = append(tests.Tests, t)
+
+			if t.Failed() {
+				if invalid {
+					tests.FailedInvalid++
+				} else {
+					tests.FailedValid++
+				}
 			} else {
-				tests.FailedValid++
+				if invalid {
+					tests.PassedInvalid++
+				} else {
+					tests.PassedValid++
+				}
 			}
-		} else {
-			if invalid {
-				tests.PassedInvalid++
-			} else {
-				tests.PassedValid++
-			}
-		}
+			mu.Unlock()
+		}(p)
 	}
+	wg.Wait()
 
 	return tests, nil
 }

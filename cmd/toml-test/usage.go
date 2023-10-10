@@ -87,6 +87,9 @@ Flags:
 
     -skip         Tests to skip, this uses the same syntax as the -run flag.
 
+    -parallel     Number of tests to run in parallel; defaults to GOMAXPROCS,
+                  normally the number of cores available.
+
     -color        Output color; possible values:
 
                        always   Show test failures in bold and red.
