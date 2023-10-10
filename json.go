@@ -21,7 +21,7 @@ func (r Test) CompareJSON(want, have any) Test {
 	case []any:
 		return r.cmpJSONArrays(w, have)
 	default:
-		return r.fail("Key '%s' in expected output should be a map or a list of maps, but it's a %s", r.Key, fmtType(want))
+		return r.fail("Key %q in expected output should be a map or a list of maps, but it's a %s", r.Key, fmtType(want))
 	}
 }
 
@@ -33,10 +33,10 @@ func (r Test) cmpJSONMaps(want map[string]any, have any) Test {
 
 	// Check to make sure both or neither are values.
 	if isValue(want) && !isValue(haveMap) {
-		return r.fail("Key '%s' is supposed to be a value, but the parser reports it as a table", r.Key)
+		return r.fail("Key %q is supposed to be a value, but the parser reports it as a table", r.Key)
 	}
 	if !isValue(want) && isValue(haveMap) {
-		return r.fail("Key '%s' is supposed to be a table, but the parser reports it as a value", r.Key)
+		return r.fail("Key %q is supposed to be a table, but the parser reports it as a value", r.Key)
 	}
 	if isValue(want) && isValue(haveMap) {
 		return r.cmpJSONValues(want, haveMap)
@@ -46,13 +46,13 @@ func (r Test) cmpJSONMaps(want map[string]any, have any) Test {
 	for k := range want {
 		if _, ok := haveMap[k]; !ok {
 			bunk := r.kjoin(k)
-			return bunk.fail("Could not find key '%s' in parser output.", bunk.Key)
+			return bunk.fail("Could not find key %q in parser output.", bunk.Key)
 		}
 	}
 	for k := range haveMap {
 		if _, ok := want[k]; !ok {
 			bunk := r.kjoin(k)
-			return bunk.fail("Could not find key '%s' in expected output.", bunk.Key)
+			return bunk.fail("Could not find key %q in expected output.", bunk.Key)
 		}
 	}
 
@@ -78,7 +78,7 @@ func (r Test) cmpJSONArrays(want, have any) Test {
 	}
 
 	if len(wantSlice) != len(haveSlice) {
-		return r.fail("Array lengths differ for key '%s':\n"+
+		return r.fail("Array lengths differ for key %q:\n"+
 			"  Expected:     %d\n"+
 			"  Your encoder: %d",
 			r.Key, len(wantSlice), len(haveSlice))
@@ -138,7 +138,7 @@ func (r Test) cmpJSONValues(want, have map[string]any) Test {
 
 func (r Test) cmpAsStrings(want, have string) Test {
 	if want != have {
-		return r.fail("Values for key '%s' don't match:\n"+
+		return r.fail("Values for key %q don't match:\n"+
 			"  Expected:     %s\n"+
 			"  Your encoder: %s",
 			r.Key, want, have)
@@ -152,7 +152,7 @@ func (r Test) cmpFloats(want, have string) Test {
 	if strings.HasSuffix(want, "nan") || strings.HasSuffix(have, "nan") {
 		want, have := strings.TrimLeft(want, "-+"), strings.TrimLeft(have, "-+")
 		if want != have {
-			return r.fail("Values for key '%s' don't match:\n"+
+			return r.fail("Values for key %q don't match:\n"+
 				"  Expected:     %v\n"+
 				"  Your encoder: %v",
 				r.Key, want, have)
@@ -162,16 +162,16 @@ func (r Test) cmpFloats(want, have string) Test {
 
 	wantF, err := strconv.ParseFloat(want, 64)
 	if err != nil {
-		return r.bug("Could not read '%s' as a float value for key '%s'", want, r.Key)
+		return r.bug("Could not read %q as a float value for key %q", want, r.Key)
 	}
 
 	haveF, err := strconv.ParseFloat(have, 64)
 	if err != nil {
-		return r.fail("Malformed output from your encoder: key '%s' is not a float: '%s'", r.Key, have)
+		return r.fail("Malformed output from your encoder: key %q is not a float: %q", r.Key, have)
 	}
 
 	if wantF != haveF {
-		return r.fail("Values for key '%s' don't match:\n"+
+		return r.fail("Values for key %q don't match:\n"+
 			"  Expected:     %v\n"+
 			"  Your encoder: %v",
 			r.Key, wantF, haveF)
@@ -199,15 +199,15 @@ func (r Test) cmpAsDatetimes(kind, want, have string) Test {
 
 	wantT, err := time.Parse(layout, datetimeRepl.Replace(want))
 	if err != nil {
-		return r.bug("Could not read '%s' as a datetime value for key '%s'", want, r.Key)
+		return r.bug("Could not read %q as a datetime value for key %q", want, r.Key)
 	}
 
 	haveT, err := time.Parse(layout, datetimeRepl.Replace(want))
 	if err != nil {
-		return r.fail("Malformed output from your encoder: key '%s' is not a datetime: '%s'", r.Key, have)
+		return r.fail("Malformed output from your encoder: key %q is not a datetime: %q", r.Key, have)
 	}
 	if !wantT.Equal(haveT) {
-		return r.fail("Values for key '%s' don't match:\n"+
+		return r.fail("Values for key %q don't match:\n"+
 			"  Expected:     %v\n"+
 			"  Your encoder: %v",
 			r.Key, wantT, haveT)

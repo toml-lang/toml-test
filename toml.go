@@ -19,14 +19,14 @@ import (
 func (r Test) CompareTOML(want, have any) Test {
 	if isTomlValue(want) {
 		if !isTomlValue(have) {
-			return r.fail("Type for key '%s' differs:\n"+
+			return r.fail("Type for key %q differs:\n"+
 				"  Expected:     %v (%s)\n"+
 				"  Your encoder: %v (%s)",
 				r.Key, want, fmtType(want), have, fmtType(have))
 		}
 
 		if !deepEqual(want, have) {
-			return r.fail("Values for key '%s' differ:\n"+
+			return r.fail("Values for key %q differ:\n"+
 				"  Expected:     %v (%s)\n"+
 				"  Your encoder: %v (%s)",
 				r.Key, want, fmtType(want), have, fmtType(have))
@@ -60,13 +60,13 @@ func (r Test) cmpTOMLMap(want map[string]any, have any) Test {
 	for k := range want {
 		if _, ok := haveMap[k]; !ok {
 			bunk := r.kjoin(k)
-			return bunk.fail("Could not find key '%s' in encoder output", bunk.Key)
+			return bunk.fail("Could not find key %q in encoder output", bunk.Key)
 		}
 	}
 	for k := range haveMap {
 		if _, ok := want[k]; !ok {
 			bunk := r.kjoin(k)
-			return bunk.fail("Could not find key '%s' in expected output", bunk.Key)
+			return bunk.fail("Could not find key %q in expected output", bunk.Key)
 		}
 	}
 
@@ -98,7 +98,7 @@ func (r Test) cmpTOMLArrays(want []any, have any) Test {
 	}
 
 	if len(want) != len(haveSlice) {
-		return r.fail("Array lengths differ for key '%s'"+
+		return r.fail("Array lengths differ for key %q"+
 			"  Expected:     %[2]v (len=%[4]d)\n"+
 			"  Your encoder: %[3]v (len=%[5]d)",
 			r.Key, want, haveSlice, len(want), len(haveSlice))
