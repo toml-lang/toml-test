@@ -309,6 +309,8 @@ valid/array/table-array-string-backslash.json
 valid/array/table-array-string-backslash.toml
 valid/bool/bool.json
 valid/bool/bool.toml
+valid/comment/after-literal-no-ws.json
+valid/comment/after-literal-no-ws.toml
 valid/comment/at-eof.json
 valid/comment/at-eof.toml
 valid/comment/at-eof2.json
