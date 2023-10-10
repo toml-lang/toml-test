@@ -205,7 +205,8 @@ func (r Runner) Run() (Tests, error) {
 	wg.Wait()
 
 	sort.Slice(tests.Tests, func(i, j int) bool {
-		return tests.Tests[i].Path < tests.Tests[j].Path
+		return strings.Replace(tests.Tests[i].Path, "invalid/", "zinvalid", 1) <
+			strings.Replace(tests.Tests[j].Path, "invalid/", "zinvalid", 1)
 	})
 
 	return tests, nil
