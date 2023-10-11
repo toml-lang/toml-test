@@ -42,14 +42,16 @@ func (r Test) cmpJSONMaps(want map[string]any, have any) Test {
 		return r.cmpJSONValues(want, haveMap)
 	}
 
+	wantKeys, haveKeys := mapKeys(want), mapKeys(haveMap)
+
 	// Check that the keys of each map are equivalent.
-	for k := range want {
+	for _, k := range wantKeys {
 		if _, ok := haveMap[k]; !ok {
 			bunk := r.kjoin(k)
 			return bunk.fail("Could not find key %q in parser output.", bunk.Key)
 		}
 	}
-	for k := range haveMap {
+	for _, k := range haveKeys {
 		if _, ok := want[k]; !ok {
 			bunk := r.kjoin(k)
 			return bunk.fail("Could not find key %q in expected output.", bunk.Key)
@@ -57,7 +59,7 @@ func (r Test) cmpJSONMaps(want map[string]any, have any) Test {
 	}
 
 	// Okay, now make sure that each value is equivalent.
-	for k := range want {
+	for _, k := range wantKeys {
 		if sub := r.kjoin(k).CompareJSON(want[k], haveMap[k]); sub.Failed() {
 			return sub
 		}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 )
@@ -56,14 +57,16 @@ func (r Test) cmpTOMLMap(want map[string]any, have any) Test {
 		return r.mismatch("table", want, haveMap)
 	}
 
+	wantKeys, haveKeys := mapKeys(want), mapKeys(haveMap)
+
 	// Check that the keys of each map are equivalent.
-	for k := range want {
+	for _, k := range wantKeys {
 		if _, ok := haveMap[k]; !ok {
 			bunk := r.kjoin(k)
 			return bunk.fail("Could not find key %q in encoder output", bunk.Key)
 		}
 	}
-	for k := range haveMap {
+	for _, k := range haveKeys {
 		if _, ok := want[k]; !ok {
 			bunk := r.kjoin(k)
 			return bunk.fail("Could not find key %q in expected output", bunk.Key)
@@ -71,7 +74,7 @@ func (r Test) cmpTOMLMap(want map[string]any, have any) Test {
 	}
 
 	// Okay, now make sure that each value is equivalent.
-	for k := range want {
+	for _, k := range wantKeys {
 		if sub := r.kjoin(k).CompareTOML(want[k], haveMap[k]); sub.Failed() {
 			return sub
 		}
@@ -152,3 +155,12 @@ func isTomlValue(v any) bool {
 // fmt %T with "interface {}" replaced with "any", which is far more readable.
 func fmtType(t any) string  { return strings.ReplaceAll(fmt.Sprintf("%T", t), "interface {}", "any") }
 func fmtHashV(t any) string { return strings.ReplaceAll(fmt.Sprintf("%#v", t), "interface {}", "any") }
+
+func mapKeys[M ~map[string]V, V any](m M) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
