@@ -4,6 +4,7 @@ package tomltest
 
 import (
 	"bytes"
+	"context"
 	"embed"
 	"encoding/json"
 	"errors"
@@ -14,6 +15,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/BurntSushi/toml"
 )
@@ -43,13 +45,14 @@ func EmbeddedTests() fs.FS {
 // The validity of the parameters is not checked extensively; the caller should
 // verify this if need be. See ./cmd/toml-test for an example.
 type Runner struct {
-	Files     fs.FS    // Test files.
-	Encoder   bool     // Are we testing an encoder?
-	RunTests  []string // Tests to run; run all if blank.
-	SkipTests []string // Tests to skip.
-	Parser    Parser   // Send data to a parser.
-	Version   string   // TOML version to run tests for.
-	Parallel  int      // Number of tests to run in parallel
+	Files     fs.FS         // Test files.
+	Encoder   bool          // Are we testing an encoder?
+	RunTests  []string      // Tests to run; run all if blank.
+	SkipTests []string      // Tests to skip.
+	Parser    Parser        // Send data to a parser.
+	Version   string        // TOML version to run tests for.
+	Parallel  int           // Number of tests to run in parallel
+	Timeout   time.Duration // Maximum time for parse.
 }
 
 // A Parser instance is used to call the TOML parser we test.
@@ -64,10 +67,10 @@ type Parser interface {
 	// An error return should only be used in case an unrecoverable error
 	// occurred; failing to encode to TOML is not an error, but the encoder
 	// unexpectedly panicking is.
-	Encode(jsonInput string) (output string, outputIsError bool, err error)
+	Encode(ctx context.Context, jsonInput string) (output string, outputIsError bool, err error)
 
 	// Decode a TOML string to JSON. The same semantics as Encode apply.
-	Decode(tomlInput string) (output string, outputIsError bool, err error)
+	Decode(ctx context.Context, tomlInput string) (output string, outputIsError bool, err error)
 }
 
 // CommandParser calls an external command.
@@ -93,14 +96,21 @@ type Test struct {
 
 	// Set when a test is run.
 
-	Skipped          bool   // Skipped this test?
-	Failure          string // Failure message.
-	Key              string // TOML key the failure occured on; may be blank.
-	Encoder          bool   // Encoder test?
-	Input            string // The test case that we sent to the external program.
-	Output           string // Output from the external program.
-	Want             string // The output we want.
-	OutputFromStderr bool   // The Output came from stderr, not stdout.
+	Skipped          bool          // Skipped this test?
+	Failure          string        // Failure message.
+	Key              string        // TOML key the failure occured on; may be blank.
+	Encoder          bool          // Encoder test?
+	Input            string        // The test case that we sent to the external program.
+	Output           string        // Output from the external program.
+	Want             string        // The output we want.
+	OutputFromStderr bool          // The Output came from stderr, not stdout.
+	Timeout          time.Duration // Maximum time for parse.
+}
+
+type timeoutError struct{ d time.Duration }
+
+func (err timeoutError) Error() string {
+	return fmt.Sprintf("command timed out after %s; increase -timeout if this isn't an infinite loop or pathological behaviour", err.d)
 }
 
 // List all tests in Files for the current TOML version.
@@ -157,6 +167,9 @@ func (r Runner) Run() (Tests, error) {
 	if r.Parallel == 0 {
 		r.Parallel = 1
 	}
+	if r.Timeout == 0 {
+		r.Timeout = 1 * time.Second
+	}
 
 	var (
 		tests = Tests{
@@ -172,7 +185,7 @@ func (r Runner) Run() (Tests, error) {
 		if r.hasSkip(p) {
 			tests.Skipped++
 			mu.Lock()
-			tests.Tests = append(tests.Tests, Test{Path: p, Skipped: true, Encoder: r.Encoder})
+			tests.Tests = append(tests.Tests, Test{Path: p, Skipped: true, Encoder: r.Encoder, Timeout: r.Timeout})
 			mu.Unlock()
 			continue
 		}
@@ -182,7 +195,7 @@ func (r Runner) Run() (Tests, error) {
 		go func(p string) {
 			defer func() { <-limit; wg.Done() }()
 
-			t := Test{Path: p, Encoder: r.Encoder}.Run(r.Parser, r.Files)
+			t := Test{Path: p, Encoder: r.Encoder, Timeout: r.Timeout}.Run(r.Parser, r.Files)
 			mu.Lock()
 			tests.Tests = append(tests.Tests, t)
 
@@ -291,9 +304,9 @@ func (r Runner) hasSkip(path string) bool {
 	return false
 }
 
-func (c CommandParser) Encode(input string) (output string, outputIsError bool, err error) {
+func (c CommandParser) Encode(ctx context.Context, input string) (output string, outputIsError bool, err error) {
 	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
-	cmd := exec.Command(c.cmd[0])
+	cmd := exec.CommandContext(ctx, c.cmd[0])
 	cmd.Args = c.cmd
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = strings.NewReader(input), stdout, stderr
 
@@ -301,8 +314,13 @@ func (c CommandParser) Encode(input string) (output string, outputIsError bool, 
 	if err != nil {
 		eErr := &exec.ExitError{}
 		if errors.As(err, &eErr) {
-			fmt.Fprintf(stderr, "\nExit %d\n", eErr.ProcessState.ExitCode())
-			err = nil
+			switch eErr.ProcessState.ExitCode() {
+			case 1:
+				fmt.Fprintf(stderr, "\nExit %d\n", eErr.ProcessState.ExitCode())
+				err = nil
+			case -1:
+				err = context.DeadlineExceeded
+			}
 		}
 	}
 
@@ -311,8 +329,10 @@ func (c CommandParser) Encode(input string) (output string, outputIsError bool, 
 	}
 	return strings.TrimSpace(stdout.String()) + "\n", false, err
 }
-func NewCommandParser(fsys fs.FS, cmd []string) CommandParser     { return CommandParser{fsys, cmd} }
-func (c CommandParser) Decode(input string) (string, bool, error) { return c.Encode(input) }
+func NewCommandParser(fsys fs.FS, cmd []string) CommandParser { return CommandParser{fsys, cmd} }
+func (c CommandParser) Decode(ctx context.Context, input string) (string, bool, error) {
+	return c.Encode(ctx, input)
+}
 
 // Run this test.
 func (t Test) Run(p Parser, fsys fs.FS) Test {
@@ -329,12 +349,18 @@ func (t Test) runInvalid(p Parser, fsys fs.FS) Test {
 		return t.bug(err.Error())
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), t.Timeout)
+	defer cancel()
+
 	if t.Encoder {
-		t.Output, t.OutputFromStderr, err = p.Encode(t.Input)
+		t.Output, t.OutputFromStderr, err = p.Encode(ctx, t.Input)
 	} else {
-		t.Output, t.OutputFromStderr, err = p.Decode(t.Input)
+		t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
 	}
 	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			err = timeoutError{t.Timeout}
+		}
 		return t.fail(err.Error())
 	}
 	if !t.OutputFromStderr {
@@ -350,12 +376,18 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 		return t.bug(err.Error())
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), t.Timeout)
+	defer cancel()
+
 	if t.Encoder {
-		t.Output, t.OutputFromStderr, err = p.Encode(t.Input)
+		t.Output, t.OutputFromStderr, err = p.Encode(ctx, t.Input)
 	} else {
-		t.Output, t.OutputFromStderr, err = p.Decode(t.Input)
+		t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
 	}
 	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			err = timeoutError{t.Timeout}
+		}
 		return t.fail(err.Error())
 	}
 	if t.OutputFromStderr {

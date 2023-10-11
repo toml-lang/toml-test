@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	tomltest "github.com/toml-lang/toml-test"
@@ -37,6 +38,11 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 		copyFiles   = f.Bool(false, "copy")
 		parallel    = f.Int(runtime.NumCPU(), "parallel")
 		printSkip   = f.Bool(false, "print-skip")
+		// TODO: ideally I'd like to set this even lower, but this stupid
+		// toml-rb is ridiculously slow and sometimes hits ~800ms on my laptop.
+		// See if we can improve that, and should probably split up some of
+		// these larger valid tests too.
+		timeout = f.String("1s", "timeout")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
@@ -57,6 +63,9 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 		zli.Exit(0)
 	}
 
+	dur, err := time.ParseDuration(timeout.String())
+	zli.F(err)
+
 	r := tomltest.Runner{
 		Encoder:   encoder.Bool(),
 		RunTests:  run.StringsSplit(","),
@@ -65,6 +74,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 		Parallel:  parallel.Int(),
 		Files:     fsys,
 		Parser:    tomltest.NewCommandParser(fsys, f.Args),
+		Timeout:   dur,
 	}
 
 	if len(f.Args) == 0 && !listFiles.Bool() {
