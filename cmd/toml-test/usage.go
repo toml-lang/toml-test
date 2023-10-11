@@ -25,8 +25,8 @@ Tests are split in to "valid" and "invalid" groups:
    valid           Valid TOML files
    invalid         Invalid TOML files that should be rejected with an error.
 
-All tests are referred to relative to to the tests/ directory: valid/dir/name or
-invalid/dir/name.
+All tests are referred to relative to to the tests/ directory: valid/dir/name
+or invalid/dir/name.
 
 Flags:
 
@@ -43,15 +43,15 @@ Flags:
                   the correctness of my TOML parser!
 
     -toml         Select TOML version to run tests for. Supported versions are
-                  "1.0.0" and "1.1.0" (which isn't released yet and may change).
-                  Defaults to 1.0.0.
+                  "1.0" and "1.1" (which isn't released yet and may change).
+                  Defaults to 1.0.
 
     -list-files   List all test files, one file per line, and exit without
-                  running anything. This takes the -toml flag in to account, but
-                  none of the other flags.
+                  running anything. This takes the -toml flag in to account,
+                  but none of the other flags.
 
     -cat          Keep outputting (valid) TOML from testcases until the file
-                  reaches this many KB. Useful for generating performance tests.
+                  reaches this many KB. Useful for generating benchmarks.
 
                   E.g. to create 1M and 100M files:
 
@@ -61,14 +61,15 @@ Flags:
                   The -skip, -run, and -toml flags can be used in combination
                   with -cat.
 
-    -copy         Copy all test files to the given directory. This will take the
-                  -toml flag in to account, so it only copied files for the
-                  given version.
+    -copy         Copy all test files to the given directory. This will take
+                  the -toml flag in to account, so it only copies files for the
+                  given version. (The test files are compiled in the binary,
+                  this will only require the toml-test binary).
 
     -v            List all tests, even passing ones. Add twice to show detailed
                   output for passing tests.
 
-    -run          Specify list of tests to run; the default is to run all tests.
+    -run          List of tests to run; the default is to run all tests.
 
                   Test names include the directory, i.e. "valid/test-name" or
                   "invalid/test-name". You can use globbing patterns , for
@@ -86,7 +87,8 @@ Flags:
                   This will run three tests (string-empty, string-nl,
                   string-simple).
 
-                  Quote glob characters so they won't be picked up by the shell.
+                  Quote glob characters so they won't be picked up by the
+                  shell.
                   Supported paterns: https://godocs.io/path/filepath#Match
 
     -skip         Tests to skip, this uses the same syntax as the -run flag.
@@ -94,8 +96,9 @@ Flags:
     -parallel     Number of tests to run in parallel; defaults to GOMAXPROCS,
                   normally the number of cores available.
 
-    -print-skip   Print -skip flag for failing tests; useful to get a list of
-                  "known failures" for CI integrations and such.
+    -print-skip   Print a small bash script with -skip flag for failing tests;
+                  useful to get a list of "known failures" for CI integrations
+                  and such.
 
     -color        Output color; possible values:
 
@@ -106,15 +109,18 @@ Flags:
                   Default is "always", or "never" if NO_COLOR is set.
 
     -testdir      Location of the tests; the default is to use the tests
-                  compiled in the binary; this is only useful if you want to add
-                  or modify tests.
+                  compiled in the binary; this is only useful if you want to
+                  add or modify tests.
 
                   A test in the invalid directory is a TOML file that is known
                   to be invalid and should be rejected by the parser.
 
-                  A test in the valid directory is a TOML and JSON file with the
-                  same name, where the json file is the JSON representation of
-                  the TOML file according to the syntax described in the README.
+                  A test in the valid directory is a TOML and JSON file with
+                  the same name, where the json file is the JSON representation
+                  of the TOML file according to the syntax described in the
+                  README.
 
                   For encoders only valid tests are run.
 `
+
+// vim:et:tw=79
