@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -33,6 +34,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		run         = f.StringList(nil, "run")
 		listFiles   = f.Bool(false, "list-files")
 		cat         = f.Int(0, "cat")
+		copyFiles   = f.Bool(false, "copy")
 		parallel    = f.Int(runtime.NumCPU(), "parallel")
 	)
 	zli.F(f.Parse())
@@ -44,72 +46,13 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		zli.PrintVersion(versionFlag.Int() > 1)
 		zli.Exit(0)
 	}
+	fsys := getFS(testDir.String(), testDir.Set())
 	if cat.Set() {
-		fsys := tomltest.EmbeddedTests()
-		f, err := fs.ReadFile(fsys, "files-toml-"+tomlVersion.String())
-		zli.F(err)
-		gather := make(map[string]map[string]any) /// file -> decoded
-	outer1:
-		for _, line := range strings.Split(string(f), "\n") {
-			if strings.HasPrefix(line, "valid/") && strings.HasSuffix(line, ".toml") {
-				// SKIP
-				for _, s := range skip.Strings() {
-					if m, _ := filepath.Match(s, line); m {
-						continue outer1
-					}
-				}
-				var t map[string]any
-				_, err := toml.DecodeFS(fsys, line, &t)
-				zli.F(err)
-				gather[line] = t
-			}
-		}
-
-		var (
-			out   = new(bytes.Buffer)
-			wrote int
-			keys  []string
-			i     int
-		)
-		for k := range gather {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-	outer2:
-		for {
-			for _, line := range keys {
-				t := gather[line]
-				p := line + "-" + strconv.Itoa(i)
-
-				var prefix func(tbl map[string]any) map[string]any
-				prefix = func(tbl map[string]any) map[string]any {
-					newTbl := make(map[string]any)
-					for k, v := range tbl {
-						switch vv := v.(type) {
-						case map[string]any:
-							k = p + "-" + k
-							v = prefix(vv)
-						}
-						newTbl[k] = v
-					}
-					return newTbl
-				}
-				t = prefix(t)
-
-				err = toml.NewEncoder(out).Encode(map[string]any{
-					p: t,
-				})
-				zli.F(err)
-
-				fmt.Println(out.String())
-				wrote += out.Len() + 1
-				if wrote > cat.Int()*1024 {
-					break outer2
-				}
-				out.Reset()
-			}
-			i++
-		}
+		doCat(fsys, tomlVersion.String(), cat.Int(), run.Strings(), skip.Strings())
+		zli.Exit(0)
+	}
+	if copyFiles.Set() {
+		doCopy(fsys, tomlVersion.String(), f.Args)
 		zli.Exit(0)
 	}
 
@@ -119,6 +62,8 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		SkipTests: skip.StringsSplit(","),
 		Version:   tomlVersion.String(),
 		Parallel:  parallel.Int(),
+		Files:     fsys,
+		Parser:    tomltest.NewCommandParser(fsys, f.Args),
 	}
 
 	if len(f.Args) == 0 && !listFiles.Bool() {
@@ -137,13 +82,33 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		}
 	}
 
-	r.Files = tomltest.EmbeddedTests()
-	if testDir.Set() {
-		r.Files = os.DirFS(testDir.String())
+	_, ok := os.LookupEnv("NO_COLOR")
+	zli.WantColor = !ok
+	if color.Set() {
+		switch color.String() {
+		case "always", "yes":
+			zli.WantColor = true
+		case "never", "no", "none", "off":
+			zli.WantColor = false
+		case "bold", "monochrome":
+			zli.WantColor = true
+			hlErr = zli.Bold
+		default:
+			zli.Fatalf("invalid value for -color: %q", color)
+		}
+	}
+
+	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool()
+}
+
+func getFS(testDir string, set bool) fs.FS {
+	fsys := tomltest.EmbeddedTests()
+	if set {
+		fsys = os.DirFS(testDir)
 
 		// So I used the path to toml-dir a few times, be forgiving by looking
 		// for a "tests" directory and sub-ing to that.
-		ls, err := fs.ReadDir(r.Files, ".")
+		ls, err := fs.ReadDir(fsys, ".")
 		zli.F(err)
 
 		var f, t int
@@ -159,45 +124,35 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 			if t == 0 {
 				zli.Fatalf("%q does not seem to contain any tests (no valid and/or invalid directory)", testDir)
 			}
-			r.Files, err = fs.Sub(r.Files, "tests")
+			fsys, err = fs.Sub(fsys, "tests")
 			zli.F(err)
 		}
 	}
+	return fsys
+}
 
-	r.Parser = tomltest.NewCommandParser(r.Files, f.Args)
+func getList(r tomltest.Runner) []string {
+	l, err := r.List()
+	zli.F(err)
 
-	_, ok := os.LookupEnv("NO_COLOR")
-	zli.WantColor = !ok
-	if color.Set() {
-		switch color.String() {
-		case "always", "yes":
-			zli.WantColor = true
-		case "never", "no":
-			zli.WantColor = false
-		case "bold", "monochrome":
-			zli.WantColor = true
-			hlErr = zli.Bold
-		default:
-			zli.Fatalf("invalid value for -color: %q", color)
+	sort.Strings(l)
+	n := make([]string, 0, len(l)*2)
+	for _, ll := range l {
+		if strings.HasPrefix(ll, "valid/") {
+			n = append(n, ll+".json")
 		}
+		n = append(n, ll+".toml")
 	}
-
-	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool()
+	return n
 }
 
 func main() {
 	runner, cmd, showAll, testDir, listFiles := parseFlags()
 
 	if listFiles {
-		l, err := runner.List()
-		zli.F(err)
-
-		sort.Strings(l)
+		l := getList(runner)
 		for _, ll := range l {
-			if strings.HasPrefix(ll, "valid/") {
-				fmt.Println(ll + ".json")
-			}
-			fmt.Println(ll + ".toml")
+			fmt.Println(ll)
 		}
 		return
 	}
@@ -314,4 +269,136 @@ func indentWith(s, with string) string {
 func indent(s string, n int) string {
 	sp := strings.Repeat(" ", n)
 	return sp + strings.ReplaceAll(strings.TrimRight(s, "\n"), "\n", "\n"+sp)
+}
+
+func doCat(fsys fs.FS, tomlVersion string, size int, run, skip []string) {
+	f, err := fs.ReadFile(fsys, "files-toml-"+tomlVersion)
+	zli.F(err)
+
+	var useFiles = make([]string, 0, 8)
+outer1:
+	for _, line := range strings.Split(string(f), "\n") {
+		if strings.HasPrefix(line, "valid/") && strings.HasSuffix(line, ".toml") {
+			for _, s := range skip {
+				if m, _ := filepath.Match(s, line); m {
+					continue outer1
+				}
+			}
+			if len(run) > 0 {
+				found := false
+				for _, s := range run {
+					if m, _ := filepath.Match(s, line); m {
+						found = true
+						break
+					}
+				}
+				if !found {
+					continue
+				}
+			}
+			useFiles = append(useFiles, line)
+		}
+	}
+	if len(useFiles) == 0 {
+		zli.Fatalf("all files excluded")
+	}
+
+	gather := make(map[string]map[string]any) /// file -> decoded
+	for _, f := range useFiles {
+		var t map[string]any
+		_, err := toml.DecodeFS(fsys, f, &t)
+		zli.F(err)
+		gather[f] = t
+	}
+
+	var (
+		out   = new(bytes.Buffer)
+		wrote int
+		keys  []string
+		i     int
+	)
+	for k := range gather {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+outer2:
+	for {
+		for _, line := range keys {
+			t := gather[line]
+			p := line + "-" + strconv.Itoa(i)
+
+			var prefix func(tbl map[string]any) map[string]any
+			prefix = func(tbl map[string]any) map[string]any {
+				newTbl := make(map[string]any)
+				for k, v := range tbl {
+					switch vv := v.(type) {
+					case map[string]any:
+						k = p + "-" + k
+						v = prefix(vv)
+					}
+					newTbl[k] = v
+				}
+				return newTbl
+			}
+			t = prefix(t)
+
+			err = toml.NewEncoder(out).Encode(map[string]any{
+				p: t,
+			})
+			zli.F(err)
+
+			fmt.Println(out.String())
+			wrote += out.Len() + 1
+			if wrote > size*1024 {
+				break outer2
+			}
+			out.Reset()
+		}
+		i++
+	}
+}
+
+func doCopy(fsys fs.FS, tomlVersion string, args []string) {
+	if len(args) != 1 {
+		zli.Fatalf("need exactly one destination directory")
+	}
+
+	files := getList(tomltest.Runner{Version: tomlVersion, Files: fsys})
+
+	d := args[0]
+	err := os.MkdirAll(d, 0o777)
+	zli.F(err)
+
+	for _, f := range files {
+		srcfp, err := fsys.Open(f)
+		zli.F(err)
+
+		err = os.MkdirAll(filepath.Dir(filepath.Join(d, f)), 0o777)
+		zli.F(err)
+
+		dstfp, err := os.Create(filepath.Join(d, f))
+		zli.F(err)
+
+		_, err = io.Copy(dstfp, srcfp)
+		zli.F(err)
+
+		err = srcfp.Close()
+		zli.F(err)
+
+		err = dstfp.Close()
+		zli.F(err)
+	}
+
+	v, c, t := zli.GetVersion()
+
+	err = os.WriteFile(filepath.Join(d, "version.toml"), []byte(fmt.Sprintf(`
+# Update with:
+#     rm -r [this-dir]
+#     toml-test -copy [this-dir]
+src    = 'https://github.com/toml-lang/toml-test'
+tag    = '%s'
+commit = '%s'
+date   = %s
+`[1:], v, c, t.Format("2006-01-02"))), 0o0644)
+	zli.F(err)
 }

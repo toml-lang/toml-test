@@ -1,5 +1,5 @@
 `toml-test` is a language-agnostic test suite to verify the correctness of
-[TOML][t] parsers and writers.
+[TOML] parsers and writers.
 
 Tests are divided into two groups: "invalid" and "valid". Decoders or encoders
 that reject "invalid" tests pass the tests, and decoders that accept "valid"
@@ -11,33 +11,37 @@ outputs TOML rather than the reverse. The TOML representations are read with a
 blessed decoder and is compared. The JSON given to a TOML encoder is in the same
 format as the JSON that a TOML decoder should output.
 
-Compatible with TOML version [v1.0.0][v1].
+If you find something in your parser that's not exactly covered by toml-test
+already then it should be added here; just creating an issue is enough: don't
+*need* to create a PR.
 
-[t]: https://toml.io
-[v1]: https://toml.io/en/v1.0.0
+Compatible with TOML version [v1.0.0].
+
+[TOML]: https://toml.io
+[v1.0.0]: https://toml.io/en/v1.0.0
 
 Installation
 ------------
-There are binaries on the [release page][r]; these are statically compiled and
+There are binaries on the [release page]; these are statically compiled and
 should run in most environments. It's recommended you use a binary, or a tagged
 release if you build from source especially in CI environments. This prevents
 your tests from breaking on changes to tests in this tool.
 
 To compile from source you will need Go 1.18 or newer:
 
-    $ go install github.com/toml-lang/toml-test/cmd/toml-test@latest
+    % go install github.com/toml-lang/toml-test/cmd/toml-test@latest
 
 This will build a `./toml-test` binary.
 
-[r]: https://github.com/toml-lang/toml-test/releases
+[release page]: https://github.com/toml-lang/toml-test/releases
 
 Usage
 -----
 `toml-test` accepts an encoder or decoder as the first positional argument, for
 example:
 
-    $ toml-test my-toml-decoder
-    $ toml-test my-toml-encoder -encoder
+    % toml-test my-toml-decoder
+    % toml-test my-toml-encoder -encoder
 
 The `-encoder` flag is used to signal that this is an encoder rather than a
 decoder.
@@ -45,13 +49,13 @@ decoder.
 For example, to run the tests against the Go TOML library:
 
     # Install my parser
-    $ go install github.com/BurntSushi/toml/cmd/toml-test-decoder@master
-    $ go install github.com/BurntSushi/toml/cmd/toml-test-encoder@master
+    % go install github.com/BurntSushi/toml/cmd/toml-test-decoder@master
+    % go install github.com/BurntSushi/toml/cmd/toml-test-encoder@master
 
-    $ toml-test toml-test-decoder
+    % toml-test toml-test-decoder
     toml-test [toml-test-decoder]: using embeded tests: 278 passed
 
-    $ toml-test -encoder toml-test-encoder
+    % toml-test -encoder toml-test-encoder
     toml-test [toml-test-encoder]: using embeded tests:  94 passed,  0 failed
 
 The default is to use the tests compiled in the binary; you can use `-testdir`
@@ -244,21 +248,22 @@ version of TOML; for example the 1.0.0 tests contain a test that trailing commas
 in tables are invalid, but in 1.1.0 this should be considered valid.
 
 In short: you can't "just" copy all .toml and .json files from the tests/
-directory. The [tests/files-toml-1.0.0] and [tests/files-toml-1.1.0] files
-contain a list of files you should run for that TOML version.
+directory. The easiest way to copy the correct files is to use `-copy`:
 
-You can use those lists to determine which tests to run, or include only those
-tests in your library by copying them with something like:
+    # Default of TOML 1.0
+    % toml-test -copy ./tests
+
+    # Use TOML 1.1
+    % toml-test -copy ./tests -toml 1.1.0
+
+Alternatively, the [tests/files-toml-1.0.0] and [tests/files-toml-1.1.0] files
+contain a list of files you should run for that TOML version. You can use them
+with something like:
 
     <files-toml-1.0.0 while read l; do
         mkdir -p ~/my-test/"$(dirname "$l")"
         cp -r "$l" ~/my-test/"$l"
     done
-
-These files are generated with `toml-test -list-files`:
-
-    % toml-test -list-files -toml=1.0.0
-    % toml-test -list-files -toml=1.1.0
 
 [tests/files-toml-1.0.0]: tests/files-toml-1.0.0
 [tests/files-toml-1.1.0]: tests/files-toml-1.1.0

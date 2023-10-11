@@ -58,8 +58,12 @@ Flags:
                       $ toml-test -cat 1024              >1M.toml
                       $ toml-test -cat $(( 1024 * 100 )) >100M.toml
 
-                  The -skip and -toml flags can be used in combination with
-                  -cat.
+                  The -skip, -run, and -toml flags can be used in combination
+                  with -cat.
+
+    -copy         Copy all test files to the given directory. This will take the
+                  -toml flag in to account, so it only copied files for the
+                  given version.
 
     -v            List all tests, even passing ones. Add twice to show detailed
                   output for passing tests.
