@@ -20,7 +20,7 @@ import (
 
 var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
 
-func parseFlags() (tomltest.Runner, []string, int, string, bool) {
+func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 	f := zli.NewFlags(os.Args)
 	var (
 		help        = f.Bool(false, "help", "h")
@@ -36,6 +36,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		cat         = f.Int(0, "cat")
 		copyFiles   = f.Bool(false, "copy")
 		parallel    = f.Int(runtime.NumCPU(), "parallel")
+		printSkip   = f.Bool(false, "print-skip")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
@@ -98,7 +99,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool) {
 		}
 	}
 
-	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool()
+	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool(), printSkip.Bool()
 }
 
 func getFS(testDir string, set bool) fs.FS {
@@ -147,7 +148,7 @@ func getList(r tomltest.Runner) []string {
 }
 
 func main() {
-	runner, cmd, showAll, testDir, listFiles := parseFlags()
+	runner, cmd, showAll, testDir, listFiles, printSkip := parseFlags()
 
 	if listFiles {
 		l := getList(runner)
@@ -177,6 +178,21 @@ func main() {
 	if tests.Skipped > 0 {
 		fmt.Printf(", %2d skipped", tests.Skipped)
 	}
+	if printSkip && (tests.FailedValid > 0 || tests.FailedInvalid > 0) {
+		fmt.Print("\n\n    #!/usr/bin/env bash\n    skip=(\n")
+		for _, f := range tests.Tests {
+			if f.Failed() {
+				fmt.Printf("        -skip '%s'\n", f.Path)
+			}
+		}
+		fmt.Println("    )")
+		fmt.Print("    toml-test $skip[@] " + strings.Join(cmd, " "))
+		if runner.Encoder {
+			fmt.Print(" -encoder")
+		}
+		fmt.Println()
+	}
+
 	fmt.Println()
 	if runner.Encoder {
 		fmt.Printf("encoder tests: %3d passed, %2d failed\n", tests.PassedValid, tests.FailedValid)

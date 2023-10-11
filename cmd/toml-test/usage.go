@@ -94,6 +94,9 @@ Flags:
     -parallel     Number of tests to run in parallel; defaults to GOMAXPROCS,
                   normally the number of cores available.
 
+    -print-skip   Print -skip flag for failing tests; useful to get a list of
+                  "known failures" for CI integrations and such.
+
     -color        Output color; possible values:
 
                        always   Show test failures in bold and red.
