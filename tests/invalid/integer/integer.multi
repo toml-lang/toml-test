@@ -32,7 +32,8 @@ leading-us-hex = _0x1
 leading-us-oct = _0o1
 leading-us-bin = _0b1
 
-invalid-hex = 0xaafz
+invalid-hex-1 = 0xaafz
+invalid-hex-2 = 0xgabba00f1
 invalid-oct = 0o778
 invalid-bin = 0b0012
 

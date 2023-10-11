@@ -1,9 +1,21 @@
 {
-  "answer4": {
+  "a": {
+    "type": "string",
+    "value": "a"
+  },
+  "b": {
+    "type": "string",
+    "value": "b"
+  },
+  "c": {
+    "type": "string",
+    "value": "c"
+  },
+  "delta-1": {
     "type": "string",
     "value": "δ"
   },
-  "answer8": {
+  "delta-2": {
     "type": "string",
     "value": "δ"
   }
