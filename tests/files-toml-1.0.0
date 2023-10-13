@@ -70,6 +70,7 @@ invalid/control/string-del.toml
 invalid/control/string-lf.toml
 invalid/control/string-null.toml
 invalid/control/string-us.toml
+invalid/datetime/feb-29.toml
 invalid/datetime/feb-30.toml
 invalid/datetime/hour-over.toml
 invalid/datetime/mday-over.toml
@@ -228,6 +229,7 @@ invalid/key/without-value-4.toml
 invalid/key/without-value-5.toml
 invalid/key/without-value-6.toml
 invalid/key/without-value-7.toml
+invalid/local-date/feb-29.toml
 invalid/local-date/feb-30.toml
 invalid/local-date/mday-over.toml
 invalid/local-date/mday-under.toml
@@ -236,6 +238,7 @@ invalid/local-date/month-under.toml
 invalid/local-date/no-leads.toml
 invalid/local-date/no-leads-with-milli.toml
 invalid/local-date/trailing-t.toml
+invalid/local-datetime/feb-29.toml
 invalid/local-datetime/feb-30.toml
 invalid/local-datetime/hour-over.toml
 invalid/local-datetime/mday-over.toml
@@ -410,6 +413,10 @@ valid/comment/tricky.json
 valid/comment/tricky.toml
 valid/datetime/datetime.json
 valid/datetime/datetime.toml
+valid/datetime/edge.json
+valid/datetime/edge.toml
+valid/datetime/leap-year.json
+valid/datetime/leap-year.toml
 valid/datetime/local.json
 valid/datetime/local.toml
 valid/datetime/local-date.json
@@ -476,8 +483,12 @@ valid/key/dotted.json
 valid/key/dotted.toml
 valid/key/dotted-empty.json
 valid/key/dotted-empty.toml
-valid/key/empty.json
-valid/key/empty.toml
+valid/key/empty-1.json
+valid/key/empty-1.toml
+valid/key/empty-2.json
+valid/key/empty-2.toml
+valid/key/empty-3.json
+valid/key/empty-3.toml
 valid/key/equals-nospace.json
 valid/key/equals-nospace.toml
 valid/key/escapes.json
@@ -496,6 +507,8 @@ valid/key/special-chars.json
 valid/key/special-chars.toml
 valid/key/special-word.json
 valid/key/special-word.toml
+valid/key/zero.json
+valid/key/zero.toml
 valid/newline-crlf.json
 valid/newline-crlf.toml
 valid/newline-lf.json
