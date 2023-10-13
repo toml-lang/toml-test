@@ -179,7 +179,8 @@ func main() {
 		}
 	}
 
-	fmt.Printf("toml-test %s: ", cmd)
+	_, _, date := zli.GetVersion()
+	fmt.Printf("toml-test v%s %s: ", date.Format("2006-01-02"), cmd)
 	if testDir == "" {
 		fmt.Print("using embedded tests")
 	} else {
