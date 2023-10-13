@@ -313,14 +313,9 @@ func (c CommandParser) Encode(ctx context.Context, input string) (output string,
 	err = cmd.Run()
 	if err != nil {
 		eErr := &exec.ExitError{}
-		if errors.As(err, &eErr) {
-			switch eErr.ProcessState.ExitCode() {
-			case 1:
-				fmt.Fprintf(stderr, "\nExit %d\n", eErr.ProcessState.ExitCode())
-				err = nil
-			case -1:
-				err = context.DeadlineExceeded
-			}
+		if errors.As(err, &eErr) && eErr.ExitCode() == 1 {
+			fmt.Fprintf(stderr, "\nExit %d\n", eErr.ProcessState.ExitCode())
+			err = nil
 		}
 	}
 
@@ -357,10 +352,10 @@ func (t Test) runInvalid(p Parser, fsys fs.FS) Test {
 	} else {
 		t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
 	}
+	if ctx.Err() != nil {
+		err = timeoutError{t.Timeout}
+	}
 	if err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
-			err = timeoutError{t.Timeout}
-		}
 		return t.fail(err.Error())
 	}
 	if !t.OutputFromStderr {
@@ -384,10 +379,10 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 	} else {
 		t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
 	}
+	if ctx.Err() != nil {
+		err = timeoutError{t.Timeout}
+	}
 	if err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
-			err = timeoutError{t.Timeout}
-		}
 		return t.fail(err.Error())
 	}
 	if t.OutputFromStderr {
