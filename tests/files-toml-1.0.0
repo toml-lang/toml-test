@@ -465,6 +465,8 @@ valid/inline-table/multiline.json
 valid/inline-table/multiline.toml
 valid/inline-table/nest.json
 valid/inline-table/nest.toml
+valid/inline-table/spaces.json
+valid/inline-table/spaces.toml
 valid/integer/integer.json
 valid/integer/integer.toml
 valid/integer/literals.json
