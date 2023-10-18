@@ -104,6 +104,10 @@ func (r Test) cmpJSONValues(want, have map[string]any) Test {
 		return r.fail("Malformed output from your encoder: 'type' is not a string: %s", fmtType(have["type"]))
 	}
 
+	if wantType == "integer" && r.IntAsFloat {
+		wantType = "float"
+	}
+
 	if wantType != haveType {
 		return r.valMismatch(wantType, haveType, want, have)
 	}

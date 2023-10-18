@@ -38,6 +38,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 		copyFiles   = f.Bool(false, "copy")
 		parallel    = f.Int(runtime.NumCPU(), "parallel")
 		printSkip   = f.Bool(false, "print-skip")
+		intAsFloat  = f.Bool(false, "int-as-float")
 		// TODO: ideally I'd like to set this even lower, but this stupid
 		// toml-rb is ridiculously slow and sometimes hits ~800ms on my laptop.
 		// See if we can improve that, and should probably split up some of
@@ -67,14 +68,15 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 	zli.F(err)
 
 	r := tomltest.Runner{
-		Encoder:   encoder.Bool(),
-		RunTests:  run.StringsSplit(","),
-		SkipTests: skip.StringsSplit(","),
-		Version:   tomlVersion.String(),
-		Parallel:  parallel.Int(),
-		Files:     fsys,
-		Parser:    tomltest.NewCommandParser(fsys, f.Args),
-		Timeout:   dur,
+		Encoder:    encoder.Bool(),
+		RunTests:   run.StringsSplit(","),
+		SkipTests:  skip.StringsSplit(","),
+		Version:    tomlVersion.String(),
+		Parallel:   parallel.Int(),
+		Files:      fsys,
+		Parser:     tomltest.NewCommandParser(fsys, f.Args),
+		Timeout:    dur,
+		IntAsFloat: intAsFloat.Bool(),
 	}
 
 	if len(f.Args) == 0 && !listFiles.Bool() {

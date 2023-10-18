@@ -45,14 +45,15 @@ func EmbeddedTests() fs.FS {
 // The validity of the parameters is not checked extensively; the caller should
 // verify this if need be. See ./cmd/toml-test for an example.
 type Runner struct {
-	Files     fs.FS         // Test files.
-	Encoder   bool          // Are we testing an encoder?
-	RunTests  []string      // Tests to run; run all if blank.
-	SkipTests []string      // Tests to skip.
-	Parser    Parser        // Send data to a parser.
-	Version   string        // TOML version to run tests for.
-	Parallel  int           // Number of tests to run in parallel
-	Timeout   time.Duration // Maximum time for parse.
+	Files      fs.FS         // Test files.
+	Encoder    bool          // Are we testing an encoder?
+	RunTests   []string      // Tests to run; run all if blank.
+	SkipTests  []string      // Tests to skip.
+	Parser     Parser        // Send data to a parser.
+	Version    string        // TOML version to run tests for.
+	Parallel   int           // Number of tests to run in parallel
+	Timeout    time.Duration // Maximum time for parse.
+	IntAsFloat bool          // Int values have type=float.
 }
 
 // A Parser instance is used to call the TOML parser we test.
@@ -105,6 +106,7 @@ type Test struct {
 	Want             string        // The output we want.
 	OutputFromStderr bool          // The Output came from stderr, not stdout.
 	Timeout          time.Duration // Maximum time for parse.
+	IntAsFloat       bool          // Int values have type=float.
 }
 
 type timeoutError struct{ d time.Duration }
@@ -185,7 +187,7 @@ func (r Runner) Run() (Tests, error) {
 		if r.hasSkip(p) {
 			tests.Skipped++
 			mu.Lock()
-			tests.Tests = append(tests.Tests, Test{Path: p, Skipped: true, Encoder: r.Encoder, Timeout: r.Timeout})
+			tests.Tests = append(tests.Tests, Test{Path: p, Skipped: true, Encoder: r.Encoder, Timeout: r.Timeout, IntAsFloat: r.IntAsFloat})
 			mu.Unlock()
 			continue
 		}
@@ -195,7 +197,7 @@ func (r Runner) Run() (Tests, error) {
 		go func(p string) {
 			defer func() { <-limit; wg.Done() }()
 
-			t := Test{Path: p, Encoder: r.Encoder, Timeout: r.Timeout}.Run(r.Parser, r.Files)
+			t := Test{Path: p, Encoder: r.Encoder, Timeout: r.Timeout, IntAsFloat: r.IntAsFloat}.Run(r.Parser, r.Files)
 			mu.Lock()
 			tests.Tests = append(tests.Tests, t)
 

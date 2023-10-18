@@ -103,6 +103,8 @@ Flags:
                   useful to get a list of "known failures" for CI integrations
                   and such.
 
+    -int-as-float Treat all integers as floats, rather than integers.
+
     -color        Output color; possible values:
 
                        always   Show test failures in bold and red.
