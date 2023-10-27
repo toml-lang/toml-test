@@ -104,7 +104,10 @@ invalid/float/exp-double-us.toml
 invalid/float/exp-leading-us.toml
 invalid/float/exp-point-1.toml
 invalid/float/exp-point-2.toml
+invalid/float/exp-point-3.toml
 invalid/float/exp-trailing-us.toml
+invalid/float/exp-trailing-us-1.toml
+invalid/float/exp-trailing-us-2.toml
 invalid/float/inf-capital.toml
 invalid/float/inf-incomplete-1.toml
 invalid/float/inf-incomplete-2.toml
@@ -201,8 +204,10 @@ invalid/key/after-value.toml
 invalid/key/bare-invalid-character.toml
 invalid/key/dotted-redefine-table-1.toml
 invalid/key/dotted-redefine-table-2.toml
-invalid/key/duplicate.toml
-invalid/key/duplicate-keys.toml
+invalid/key/duplicate-keys-1.toml
+invalid/key/duplicate-keys-2.toml
+invalid/key/duplicate-keys-3.toml
+invalid/key/duplicate-keys-4.toml
 invalid/key/empty.toml
 invalid/key/end-in-escape.toml
 invalid/key/escape.toml
