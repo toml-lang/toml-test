@@ -508,6 +508,8 @@ valid/key/special-chars.json
 valid/key/special-chars.toml
 valid/key/special-word.json
 valid/key/special-word.toml
+valid/key/start.json
+valid/key/start.toml
 valid/key/unicode.json
 valid/key/unicode.toml
 valid/key/zero.json
