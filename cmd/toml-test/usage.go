@@ -105,6 +105,22 @@ Flags:
 
     -int-as-float Treat all integers as floats, rather than integers.
 
+    -errors       TOML or JSON file with expected errors for invalid test
+                  files; an invalid test is considered to be "failed" if the
+                  output doesn't contain the string in the file. This is useful
+                  to ensure/test that your errors are what you expect them to
+                  be.
+
+                  The key is the file name, with or without invalid/ or .toml,
+                  and the value is the expected error. For example:
+
+                      "table/equals-sign"              = "expected error text"
+                      "invalid/float/exp-point-1.toml" = "error"
+
+                  It's not an error if a file is missing in the file, but it is
+                  an error if the filename in the errors.toml file doesn't
+                  exist.
+
     -color        Output color; possible values:
 
                        always   Show test failures in bold and red.

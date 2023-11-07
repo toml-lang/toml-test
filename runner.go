@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -45,15 +46,16 @@ func EmbeddedTests() fs.FS {
 // The validity of the parameters is not checked extensively; the caller should
 // verify this if need be. See ./cmd/toml-test for an example.
 type Runner struct {
-	Files      fs.FS         // Test files.
-	Encoder    bool          // Are we testing an encoder?
-	RunTests   []string      // Tests to run; run all if blank.
-	SkipTests  []string      // Tests to skip.
-	Parser     Parser        // Send data to a parser.
-	Version    string        // TOML version to run tests for.
-	Parallel   int           // Number of tests to run in parallel
-	Timeout    time.Duration // Maximum time for parse.
-	IntAsFloat bool          // Int values have type=float.
+	Files      fs.FS             // Test files.
+	Encoder    bool              // Are we testing an encoder?
+	RunTests   []string          // Tests to run; run all if blank.
+	SkipTests  []string          // Tests to skip.
+	Parser     Parser            // Send data to a parser.
+	Version    string            // TOML version to run tests for.
+	Parallel   int               // Number of tests to run in parallel
+	Timeout    time.Duration     // Maximum time for parse.
+	IntAsFloat bool              // Int values have type=float.
+	Errors     map[string]string // Expected errors list.
 }
 
 // A Parser instance is used to call the TOML parser we test.
@@ -172,6 +174,17 @@ func (r Runner) Run() (Tests, error) {
 	if r.Timeout == 0 {
 		r.Timeout = 1 * time.Second
 	}
+	if r.Errors == nil {
+		r.Errors = make(map[string]string)
+	}
+	nerr := make(map[string]string)
+	for k, v := range r.Errors {
+		if !strings.HasPrefix(k, "invalid/") {
+			k = path.Join("invalid", k)
+		}
+		nerr[strings.TrimSuffix(k, ".toml")] = v
+	}
+	r.Errors = nerr
 
 	var (
 		tests = Tests{
@@ -184,10 +197,17 @@ func (r Runner) Run() (Tests, error) {
 	)
 	for _, p := range r.RunTests {
 		invalid := strings.Contains(p, "invalid/")
+		t := Test{
+			Path:       p,
+			Encoder:    r.Encoder,
+			Timeout:    r.Timeout,
+			IntAsFloat: r.IntAsFloat,
+		}
 		if r.hasSkip(p) {
 			tests.Skipped++
 			mu.Lock()
-			tests.Tests = append(tests.Tests, Test{Path: p, Skipped: true, Encoder: r.Encoder, Timeout: r.Timeout, IntAsFloat: r.IntAsFloat})
+			t.Skipped = true
+			tests.Tests = append(tests.Tests, t)
 			mu.Unlock()
 			continue
 		}
@@ -197,10 +217,15 @@ func (r Runner) Run() (Tests, error) {
 		go func(p string) {
 			defer func() { <-limit; wg.Done() }()
 
-			t := Test{Path: p, Encoder: r.Encoder, Timeout: r.Timeout, IntAsFloat: r.IntAsFloat}.Run(r.Parser, r.Files)
-			mu.Lock()
-			tests.Tests = append(tests.Tests, t)
+			t = t.Run(r.Parser, r.Files)
 
+			mu.Lock()
+			if e, ok := r.Errors[p]; invalid && ok && !t.Failed() && !strings.Contains(t.Output, e) {
+				t.Failure = fmt.Sprintf("%q does not contain %q", t.Output, e)
+			}
+			delete(r.Errors, p)
+
+			tests.Tests = append(tests.Tests, t)
 			if t.Failed() {
 				if invalid {
 					tests.FailedInvalid++
@@ -224,6 +249,13 @@ func (r Runner) Run() (Tests, error) {
 			strings.Replace(tests.Tests[j].Path, "invalid/", "zinvalid", 1)
 	})
 
+	if len(r.Errors) > 0 {
+		keys := make([]string, 0, len(r.Errors))
+		for k := range r.Errors {
+			keys = append(keys, k)
+		}
+		return tests, fmt.Errorf("errors didn't match anything: %q", keys)
+	}
 	return tests, nil
 }
 
