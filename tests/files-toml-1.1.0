@@ -345,10 +345,10 @@ invalid/table/redefine-1.toml
 invalid/table/redefine-2.toml
 invalid/table/redefine-3.toml
 invalid/table/rrbrace.toml
+invalid/table/super-twice.toml
 invalid/table/text-after-table.toml
 invalid/table/whitespace.toml
 invalid/table/with-pound.toml
-invalid/table/super-twice.toml
 valid/array/array.json
 valid/array/array.toml
 valid/array/array-subtables.json
@@ -449,6 +449,8 @@ valid/implicit-groups.json
 valid/implicit-groups.toml
 valid/inline-table/array.json
 valid/inline-table/array.toml
+valid/inline-table/array-values.json
+valid/inline-table/array-values.toml
 valid/inline-table/bool.json
 valid/inline-table/bool.toml
 valid/inline-table/empty.json
