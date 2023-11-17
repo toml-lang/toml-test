@@ -348,6 +348,7 @@ invalid/table/rrbrace.toml
 invalid/table/text-after-table.toml
 invalid/table/whitespace.toml
 invalid/table/with-pound.toml
+invalid/table/super-twice.toml
 valid/array/array.json
 valid/array/array.toml
 valid/array/array-subtables.json
