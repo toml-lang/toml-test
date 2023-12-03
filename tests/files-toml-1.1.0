@@ -207,8 +207,11 @@ invalid/key/empty.toml
 invalid/key/end-in-escape.toml
 invalid/key/escape.toml
 invalid/key/hash.toml
-invalid/key/multiline.toml
-invalid/key/newline.toml
+invalid/key/newline-1.toml
+invalid/key/newline-2.toml
+invalid/key/newline-3.toml
+invalid/key/newline-4.toml
+invalid/key/newline-5.toml
 invalid/key/no-eol.toml
 invalid/key/open-bracket.toml
 invalid/key/partial-quoted.toml
@@ -218,9 +221,9 @@ invalid/key/single-open-bracket.toml
 invalid/key/space.toml
 invalid/key/start-bracket.toml
 invalid/key/start-dot.toml
-invalid/key/two-equals.toml
-invalid/key/two-equals2.toml
-invalid/key/two-equals3.toml
+invalid/key/two-equals-1.toml
+invalid/key/two-equals-2.toml
+invalid/key/two-equals-3.toml
 invalid/key/without-value-1.toml
 invalid/key/without-value-2.toml
 invalid/key/without-value-3.toml
