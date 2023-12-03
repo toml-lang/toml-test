@@ -84,6 +84,7 @@ invalid/datetime/no-leads-with-milli.toml
 invalid/datetime/no-t.toml
 invalid/datetime/second-over.toml
 invalid/datetime/time-no-leads.toml
+invalid/datetime/y10k.toml
 invalid/encoding/bad-codepoint.toml
 invalid/encoding/bad-utf8-at-end.toml
 invalid/encoding/bad-utf8-in-comment.toml
@@ -236,6 +237,7 @@ invalid/local-date/month-under.toml
 invalid/local-date/no-leads.toml
 invalid/local-date/no-leads-with-milli.toml
 invalid/local-date/trailing-t.toml
+invalid/local-date/y10k.toml
 invalid/local-datetime/feb-29.toml
 invalid/local-datetime/feb-30.toml
 invalid/local-datetime/hour-over.toml
@@ -249,6 +251,7 @@ invalid/local-datetime/no-leads-with-milli.toml
 invalid/local-datetime/no-t.toml
 invalid/local-datetime/second-over.toml
 invalid/local-datetime/time-no-leads.toml
+invalid/local-datetime/y10k.toml
 invalid/local-time/hour-over.toml
 invalid/local-time/minute-over.toml
 invalid/local-time/second-over.toml
