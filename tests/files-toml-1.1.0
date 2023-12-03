@@ -94,8 +94,9 @@ invalid/encoding/bad-utf8-in-string.toml
 invalid/encoding/bad-utf8-in-string-literal.toml
 invalid/encoding/bom-not-at-start-1.toml
 invalid/encoding/bom-not-at-start-2.toml
-invalid/encoding/utf16.toml
 invalid/encoding/utf16-bom.toml
+invalid/encoding/utf16-comment.toml
+invalid/encoding/utf16-key.toml
 invalid/float/double-point-1.toml
 invalid/float/double-point-2.toml
 invalid/float/exp-double-e-1.toml
