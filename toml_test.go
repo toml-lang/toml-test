@@ -1,6 +1,7 @@
 package tomltest
 
 import (
+	"io/fs"
 	"os"
 	"strings"
 	"testing"
@@ -114,5 +115,35 @@ func TestCompareTOML(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestSize(t *testing.T) {
+	err := fs.WalkDir(EmbeddedTests(), "valid", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		inf, err := d.Info()
+		if err != nil {
+			return err
+		}
+		if inf.IsDir() {
+			return nil
+		}
+		if strings.Contains(path, "/spec-") || strings.Contains(path, "/spec/") {
+			return nil
+		}
+		if path == "valid/comment/tricky.json" { // Exception
+			return nil
+		}
+
+		if inf.Size() > 1024 {
+			t.Errorf("larger than 1K: %s (%fK)", path, float64(inf.Size())/1024)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
