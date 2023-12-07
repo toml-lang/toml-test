@@ -474,6 +474,12 @@ valid/inline-table/key-dotted-3.json
 valid/inline-table/key-dotted-3.toml
 valid/inline-table/key-dotted-4.json
 valid/inline-table/key-dotted-4.toml
+valid/inline-table/key-dotted-5.json
+valid/inline-table/key-dotted-5.toml
+valid/inline-table/key-dotted-6.json
+valid/inline-table/key-dotted-6.toml
+valid/inline-table/key-dotted-7.json
+valid/inline-table/key-dotted-7.toml
 valid/inline-table/multiline.json
 valid/inline-table/multiline.toml
 valid/inline-table/nest.json
