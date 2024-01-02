@@ -40,11 +40,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 		printSkip   = f.Bool(false, "print-skip")
 		intAsFloat  = f.Bool(false, "int-as-float")
 		errors      = f.String("", "errors")
-		// TODO: ideally I'd like to set this even lower, but this stupid
-		// toml-rb is ridiculously slow and sometimes hits ~800ms on my laptop.
-		// See if we can improve that, and should probably split up some of
-		// these larger valid tests too.
-		timeout = f.String("1s", "timeout")
+		timeout     = f.String("1s", "timeout")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
