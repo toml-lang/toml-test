@@ -1,0 +1,2 @@
+# Minimum valid year is 0001.
+year-zero-offset = 0000-12-31 23:59:59Z
