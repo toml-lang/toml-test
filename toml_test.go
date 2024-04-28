@@ -123,12 +123,7 @@ func TestSize(t *testing.T) {
 		if err != nil {
 			return err
 		}
-
-		inf, err := d.Info()
-		if err != nil {
-			return err
-		}
-		if inf.IsDir() {
+		if d.IsDir() {
 			return nil
 		}
 		if strings.Contains(path, "/spec-") || strings.Contains(path, "/spec/") {
@@ -138,8 +133,14 @@ func TestSize(t *testing.T) {
 			return nil
 		}
 
-		if inf.Size() > 1024 {
-			t.Errorf("larger than 1K: %s (%fK)", path, float64(inf.Size())/1024)
+		// Don't use FileInfo.Size() as that reports inconsistent results on
+		// different platforms.
+		data, err := fs.ReadFile(EmbeddedTests(), path)
+		if err != nil {
+			return err
+		}
+		if l := len(data); l > 1024 {
+			t.Errorf("larger than 1K: %s (%fK)", path, float64(l)/1024)
 		}
 		return nil
 	})
