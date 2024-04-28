@@ -140,7 +140,8 @@ func TestSize(t *testing.T) {
 			return err
 		}
 		if l := len(data); l > 1024 {
-			t.Errorf("larger than 1K: %s (%fK)", path, float64(l)/1024)
+			data, _ := fs.ReadFile(EmbeddedTests(), path)
+			t.Errorf("larger than 1K: %s (%fK)\n%v", path, float64(l)/1024, data)
 		}
 		return nil
 	})
