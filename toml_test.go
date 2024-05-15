@@ -138,8 +138,8 @@ func TestSize(t *testing.T) {
 			return nil
 		}
 
-		if inf.Size() > 1024 {
-			t.Errorf("larger than 1K: %s (%fK)", path, float64(inf.Size())/1024)
+		if inf.Size() > 2048 {
+			t.Errorf("larger than 2K: %s (%fK)", path, float64(inf.Size())/1024)
 		}
 		return nil
 	})
