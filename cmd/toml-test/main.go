@@ -310,7 +310,14 @@ func indentWith(s, with string) string {
 
 func indent(s string, n int) string {
 	sp := strings.Repeat(" ", n)
-	return sp + strings.ReplaceAll(strings.TrimRight(s, "\n"), "\n", "\n"+sp)
+	lines := strings.Split(strings.TrimRight(s, "\n"), "\n")
+	for i := range lines {
+		lines[i] = strings.TrimRight(lines[i], " \t")
+		if lines[i] != "" {
+			lines[i] = sp + lines[i]
+		}
+	}
+	return strings.Join(lines, "\n")
 }
 
 func doCat(fsys fs.FS, tomlVersion string, size int, run, skip []string) {
