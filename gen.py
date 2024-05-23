@@ -134,6 +134,10 @@ def write_invalid_case(header, index, block):
     path.write_text(block.strip() + '\n')
 
 def write_valid_case(decoder, header, index, block):
+    # Strip out datetime subseconds more than ms, since that's optional
+    # behaviour.
+    block = re.sub(r'(:\d\d)\.9999+', r'\1.999', block)
+
     path = VALID_ROOT / f"{header}-{index}.toml"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block.strip() + '\n')
