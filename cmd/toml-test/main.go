@@ -91,6 +91,9 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 		IntAsFloat: intAsFloat.Bool(),
 		Errors:     errs,
 	}
+	if intAsFloat.Bool() {
+		r.SkipTests = append(r.SkipTests, "valid/integer/long")
+	}
 
 	if len(f.Args) == 0 && !listFiles.Bool() {
 		zli.Fatalf("no parser command")

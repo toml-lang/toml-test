@@ -92,7 +92,7 @@ Flags:
 
                   Quote glob characters so they won't be picked up by the
                   shell.
-                  Supported paterns: https://godocs.io/path/filepath#Match
+                  Supported patterns: https://godocs.io/path/filepath#Match
 
     -skip         Tests to skip, this uses the same syntax as the -run flag.
 
@@ -103,7 +103,10 @@ Flags:
                   useful to get a list of "known failures" for CI integrations
                   and such.
 
-    -int-as-float Treat all integers as floats, rather than integers.
+    -int-as-float Treat all integers as floats, rather than integers. This also
+                  skips the int64 test as that's outside of the safe float
+                  range (it still tests the boundary of safe float64 natural
+                  numbers).
 
     -errors       TOML or JSON file with expected errors for invalid test
                   files; an invalid test is considered to be "failed" if the
