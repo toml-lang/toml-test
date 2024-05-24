@@ -139,12 +139,13 @@ def write_valid_case(decoder, header, index, block):
     block = re.sub(r'(:\d\d)\.9999+', r'\1.999', block)
 
     path = VALID_ROOT / f"{header}-{index}.toml"
+    path_json = VALID_ROOT / f"{header}-{index}.json"
+
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block.strip() + '\n')
 
-    subprocess.run([decoder],
-        stdin=open(path),
-        stdout=open(VALID_ROOT / f"{header}-{index}.json", mode='w'))
+    subprocess.run([decoder], stdin=open(path), stdout=open(path_json, mode='w'))
+    subprocess.run(['jfmt', '-w', path_json])
 
     invalid_index = 0
     lines = block.splitlines()

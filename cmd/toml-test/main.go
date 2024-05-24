@@ -16,6 +16,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	tomltest "github.com/toml-lang/toml-test"
+	"zgo.at/jfmt"
 	"zgo.at/zli"
 )
 
@@ -273,13 +274,9 @@ func detailed(r tomltest.Runner, t tomltest.Test) string {
 	}
 	showStream(b, "input sent to parser-cmd", t.Input)
 
-	var j map[string]any
-	err := json.Unmarshal([]byte(t.Output), &j)
+	out, err := jfmt.NewFormatter(0, "  ").FormatString(t.Output)
 	if err == nil {
-		out, err := json.MarshalIndent(j, "", "  ")
-		if err == nil {
-			t.Output = string(out)
-		}
+		t.Output = out
 	}
 
 	if t.OutputFromStderr {

@@ -1,4 +1,15 @@
 github.com/BurntSushi/toml v1.4.0 h1:kuoIxZQy2WRRk1pttg9asf+WVv6tWQuBNVmK8+nqPr0=
 github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
-zgo.at/zli v0.0.0-20231011155724-865ee344d4b3 h1:c6mOqJByLZGs0hmCK0Pr+XuDU6XoNcccUROX/8nPP6g=
-zgo.at/zli v0.0.0-20231011155724-865ee344d4b3/go.mod h1:HLAc12TjNGT+VRXr76JnsNE3pbooQtwKWhX+RlDjQ2Y=
+github.com/mattn/go-runewidth v0.0.15 h1:UNAjwbU9l54TA3KzvqLGxwWjHmMgBUVhBiTjelZgg3U=
+github.com/mattn/go-runewidth v0.0.15/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
+github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
+github.com/rivo/uniseg v0.4.7 h1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=
+github.com/rivo/uniseg v0.4.7/go.mod h1:FN3SvrM+Zdj16jyLfmOkMNblXMcoc8DfTHruCPUcx88=
+zgo.at/jfmt v0.0.0-20240428154335-af97c9b4f565 h1:R1hOXEVUmtBounxBlnSQ81ayL0PyUH2TmW5DcU5VtIQ=
+zgo.at/jfmt v0.0.0-20240428154335-af97c9b4f565/go.mod h1:Mw4wYfEKH2WXV/MOCWU8dLQHLomFfqGfuyomcXzm0pQ=
+zgo.at/termtext v1.4.0 h1:r7fzyT5jsdRw9Z0uCQh+A+TWhWk+pC5HDJd1o8EH8NI=
+zgo.at/termtext v1.4.0/go.mod h1:CBx+HpG2ijB3W0Bd4CK8UtzcsXw+EmvvlhQUyQpZO+E=
+zgo.at/zli v0.0.0-20240524153330-59815e8f337c h1:++s1u+nwbnFFe9iiiQj5WFz7Sgv7q9o05ZWhrN9yWbM=
+zgo.at/zli v0.0.0-20240524153330-59815e8f337c/go.mod h1:0jjx+AGEkWOOQ0NtzbMnpko+H2G+aTg8mfCKqoc/BuA=
+zgo.at/zstd v0.0.0-20240425000522-78bcf900e0a4 h1:/13W9C05Uwi49SX7aKN7O8uI5zZcbt2CXq+qHDD73Wo=
+zgo.at/zstd v0.0.0-20240425000522-78bcf900e0a4/go.mod h1:o/Q8+EtSahHnfkbB3t8wXE0FnoDTmJ0sBDlzezv9XeM=

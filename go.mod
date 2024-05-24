@@ -4,6 +4,13 @@ go 1.18
 
 require (
 	github.com/BurntSushi/toml v1.4.0
-	// no_term branch, which doesn't depend on x/term and x/sys
-	zgo.at/zli v0.0.0-20231011155724-865ee344d4b3
+	zgo.at/jfmt v0.0.0-20240428154335-af97c9b4f565
+	zgo.at/zli v0.0.0-20240524153330-59815e8f337c
+)
+
+require (
+	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
+	zgo.at/termtext v1.4.0 // indirect
+	zgo.at/zstd v0.0.0-20240425000522-78bcf900e0a4 // indirect
 )
