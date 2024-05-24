@@ -9,7 +9,7 @@
   },
   "infinity_plus": {
     "type": "float",
-    "value": "+inf"
+    "value": "inf"
   },
   "nan": {
     "type": "float",

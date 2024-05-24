@@ -447,6 +447,8 @@ valid/float/inf-and-nan.json
 valid/float/inf-and-nan.toml
 valid/float/long.json
 valid/float/long.toml
+valid/float/max-int.json
+valid/float/max-int.toml
 valid/float/underscore.json
 valid/float/underscore.toml
 valid/float/zero.json
@@ -491,6 +493,8 @@ valid/inline-table/newline.json
 valid/inline-table/newline.toml
 valid/inline-table/spaces.json
 valid/inline-table/spaces.toml
+valid/integer/float64-max.json
+valid/integer/float64-max.toml
 valid/integer/integer.json
 valid/integer/integer.toml
 valid/integer/literals.json
