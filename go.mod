@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/BurntSushi/toml v1.4.0
 	zgo.at/jfmt v0.0.0-20240428154335-af97c9b4f565
-	zgo.at/zli v0.0.0-20240524153330-59815e8f337c
+	zgo.at/zli v0.0.0-20240524155255-160efd1a8bf3
 )
 
 require (
