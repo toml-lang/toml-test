@@ -200,6 +200,10 @@ Untested and implementation-defined behaviour
 This only tests behaviour that's should be true for every encoder implementing
 TOML; a few things are left up to implementations, and are not tested here.
 
+- TOML does not mandate a specific integer or float size, but recommends int64
+  and float64, which is what this tests. You'll have to manually -skip these
+  tests if your implementation doesn't support it.
+
 - Many values can be expressed in more than one way: for example `0xff` and
   `255` are equal, as are `0.0` and `-0.0`.
 
