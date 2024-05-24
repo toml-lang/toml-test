@@ -5,8 +5,8 @@ github.com/mattn/go-runewidth v0.0.15/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rivo/uniseg v0.4.7 h1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=
 github.com/rivo/uniseg v0.4.7/go.mod h1:FN3SvrM+Zdj16jyLfmOkMNblXMcoc8DfTHruCPUcx88=
-zgo.at/jfmt v0.0.0-20240428154335-af97c9b4f565 h1:R1hOXEVUmtBounxBlnSQ81ayL0PyUH2TmW5DcU5VtIQ=
-zgo.at/jfmt v0.0.0-20240428154335-af97c9b4f565/go.mod h1:Mw4wYfEKH2WXV/MOCWU8dLQHLomFfqGfuyomcXzm0pQ=
+zgo.at/jfmt v0.0.0-20240524162010-1bf757bc0bff h1:oUoEBoRAVpK9KNRkSZlpV7oweoPDPlUgdyw19bDD8BU=
+zgo.at/jfmt v0.0.0-20240524162010-1bf757bc0bff/go.mod h1:Mw4wYfEKH2WXV/MOCWU8dLQHLomFfqGfuyomcXzm0pQ=
 zgo.at/termtext v1.4.0 h1:r7fzyT5jsdRw9Z0uCQh+A+TWhWk+pC5HDJd1o8EH8NI=
 zgo.at/termtext v1.4.0/go.mod h1:CBx+HpG2ijB3W0Bd4CK8UtzcsXw+EmvvlhQUyQpZO+E=
 zgo.at/zli v0.0.0-20240524155255-160efd1a8bf3 h1:1tSOb6Wc3IZcmdGi/NgjEJIUgE1dLZw3crOHr/3UdRU=
