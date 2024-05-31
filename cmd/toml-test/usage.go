@@ -99,9 +99,9 @@ Flags:
     -parallel     Number of tests to run in parallel; defaults to GOMAXPROCS,
                   normally the number of cores available.
 
-    -print-skip   Print a small bash script with -skip flag for failing tests;
-                  useful to get a list of "known failures" for CI integrations
-                  and such.
+    -print-skip   Print a small bash/zsh script with -skip flag for failing
+                  tests; useful to get a list of "known failures" for CI
+                  integrations and such.
 
     -int-as-float Treat all integers as floats, rather than integers. This also
                   skips the int64 test as that's outside of the safe float

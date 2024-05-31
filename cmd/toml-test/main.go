@@ -209,14 +209,14 @@ func main() {
 		fmt.Printf(", %2d skipped", tests.Skipped)
 	}
 	if printSkip && (tests.FailedValid > 0 || tests.FailedInvalid > 0) {
-		fmt.Print("\n\n    #!/usr/bin/env bash\n    skip=(\n")
+		fmt.Print("\n\n    #!/usr/bin/env bash\n    # Also compatible with zsh.\n    skip=(\n")
 		for _, f := range tests.Tests {
 			if f.Failed() {
 				fmt.Printf("        -skip '%s'\n", f.Path)
 			}
 		}
 		fmt.Println("    )")
-		fmt.Print("    toml-test $skip[@] " + strings.Join(cmd, " "))
+		fmt.Print("    toml-test ${skip[@]} " + strings.Join(cmd, " "))
 		if runner.Encoder {
 			fmt.Print(" -encoder")
 		}
