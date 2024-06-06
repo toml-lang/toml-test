@@ -158,7 +158,7 @@ Examples:
 <!-- -->
 
     a = ["a", 2]        {"a": [
-                            {"type": "string",  "value": "1"},
+                            {"type": "string",  "value": "a"},
                             {"type": "integer", "value": "2"}
                         ]}
 
