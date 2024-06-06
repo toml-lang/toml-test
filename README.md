@@ -147,19 +147,19 @@ Examples:
 
     TOML                JSON
 
-    a = 42              {"type": "integer": "value": "42"}
+    a = 42              {"type": "integer", "value": "42"}
 
 <!-- -->
 
     [tbl]               {"tbl": {
-    a = 42                  "a": {"type": "integer": "value": "42"}
+    a = 42                  "a": {"type": "integer", "value": "42"}
                         }}
 
 <!-- -->
 
     a = ["a", 2]        {"a": [
                             {"type": "string",  "value": "1"},
-                            {"type": "integer": "value": "2"}
+                            {"type": "integer", "value": "2"}
                         ]}
 
 Or a more complex example:
