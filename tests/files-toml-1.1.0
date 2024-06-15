@@ -44,11 +44,8 @@ invalid/control/bare-formfeed.toml
 invalid/control/bare-null.toml
 invalid/control/bare-vertical-tab.toml
 invalid/control/comment-cr.toml
-invalid/control/comment-del.toml
 invalid/control/comment-ff.toml
-invalid/control/comment-lf.toml
 invalid/control/comment-null.toml
-invalid/control/comment-us.toml
 invalid/control/multi-cr.toml
 invalid/control/multi-del.toml
 invalid/control/multi-lf.toml
