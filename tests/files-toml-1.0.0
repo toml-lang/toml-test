@@ -715,8 +715,12 @@ valid/table/empty-name.json
 valid/table/empty-name.toml
 valid/table/keyword.json
 valid/table/keyword.toml
+valid/table/keyword-with-values.json
+valid/table/keyword-with-values.toml
 valid/table/names.json
 valid/table/names.toml
+valid/table/names-with-values.json
+valid/table/names-with-values.toml
 valid/table/no-eol.json
 valid/table/no-eol.toml
 valid/table/sub.json
@@ -733,3 +737,5 @@ valid/table/with-single-quotes.json
 valid/table/with-single-quotes.toml
 valid/table/without-super.json
 valid/table/without-super.toml
+valid/table/without-super-with-values.json
+valid/table/without-super-with-values.toml
