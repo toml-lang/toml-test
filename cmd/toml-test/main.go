@@ -274,7 +274,7 @@ func detailed(r tomltest.Runner, t tomltest.Test) string {
 	}
 	showStream(b, "input sent to parser-cmd", t.Input)
 
-	out, err := jfmt.NewFormatter(0, "  ").FormatString(t.Output)
+	out, err := jfmt.NewFormatter(0, "", "  ").FormatString(t.Output)
 	if err == nil {
 		t.Output = out
 	}

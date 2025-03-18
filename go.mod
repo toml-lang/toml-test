@@ -3,9 +3,9 @@ module github.com/toml-lang/toml-test
 go 1.19
 
 require (
-	github.com/BurntSushi/toml v1.4.0
-	zgo.at/jfmt v0.0.0-20240531161922-a97493b8db3c
-	zgo.at/zli v0.0.0-20240524155255-160efd1a8bf3
+	github.com/BurntSushi/toml v1.5.0
+	zgo.at/jfmt v0.0.0-20240726113937-e6436421fade
+	zgo.at/zli v0.0.0-20241220135549-7a37675fadfd
 )
 
 require (
