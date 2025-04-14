@@ -54,7 +54,7 @@ invalid/control/multi-del.toml
 invalid/control/multi-lf.toml
 invalid/control/multi-null.toml
 invalid/control/multi-us.toml
-invalid/control/rawmulti-cd.toml
+invalid/control/rawmulti-cr.toml
 invalid/control/rawmulti-del.toml
 invalid/control/rawmulti-lf.toml
 invalid/control/rawmulti-null.toml
