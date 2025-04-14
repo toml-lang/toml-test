@@ -5,7 +5,8 @@ import (
 )
 
 func TestCompareDatetime(t *testing.T) {
-	return
+	t.Skip() // TODO
+
 	tests := []struct {
 		kind, want, have string
 		wantFail         bool

@@ -437,8 +437,8 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 		}
 		var have any
 		if _, err := toml.Decode(t.Output, &have); err != nil {
-			//return t.fail("decode TOML from encoder %q:\n  %s", cmd, err)
-			return t.fail("decode TOML from encoder:\n  %s", err)
+			//return t.failf("decode TOML from encoder %q:\n  %s", cmd, err)
+			return t.failf("decode TOML from encoder:\n  %s", err)
 		}
 		return t.CompareTOML(want, have)
 	}
@@ -451,7 +451,7 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 
 	var have any
 	if err := json.Unmarshal([]byte(t.Output), &have); err != nil {
-		return t.fail("decode JSON output from parser:\n  %s", err)
+		return t.failf("decode JSON output from parser:\n  %s", err)
 	}
 
 	return t.CompareJSON(want, have)
@@ -513,12 +513,17 @@ func (t Test) Type() testType {
 	return TypeValid
 }
 
-func (t Test) fail(format string, v ...any) Test {
+func (t Test) fail(msg string) Test {
+	t.Failure = msg
+	return t
+}
+
+func (t Test) failf(format string, v ...any) Test {
 	t.Failure = fmt.Sprintf(format, v...)
 	return t
 }
 func (t Test) bug(format string, v ...any) Test {
-	return t.fail("BUG IN TEST CASE: "+format, v...)
+	return t.failf("BUG IN TEST CASE: "+format, v...)
 }
 
 func (t Test) Failed() bool { return t.Failure != "" }
