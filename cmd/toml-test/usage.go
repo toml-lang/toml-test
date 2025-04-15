@@ -7,13 +7,13 @@ https://github.com/toml-lang/toml-test
 
 The parser-cmd positional argument should be a program that accepts TOML data
 on stdin until EOF, and is expected to write the corresponding JSON encoding on
-stdout. Please see 'README.md' for details on how to satisfy the interface
-expected by 'toml-test' with your own parser.
+stdout. See README.md for details on how to write parser-cmd.
 
-Any positional arguments are use as the parser-cmd; to pass flags stop
-toml-test's flag parsing with --:
+Any further positional arguments are passed to parser-cmd; stop toml-test's
+flag parsing with -- to use flags; for example to use -A as a flag for
+toml-test and -B as a flag for my-parser:
 
-   $ %[1]s -- my-parser -x -y
+   $ %[1]s -A -- my-parser -B
 
 There are two tests:
 
