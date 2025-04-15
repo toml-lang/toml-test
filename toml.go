@@ -160,7 +160,7 @@ func fmtHashV(t any) string { return strings.ReplaceAll(fmt.Sprintf("%#v", t), "
 func fmtVal(v any) string {
 	switch vv := v.(type) {
 	case float64:
-		return strconv.FormatFloat(vv, 'f', -1, 64)
+		return strconv.FormatFloat(vv, 'g', -1, 64)
 	default:
 		return fmt.Sprintf("%v", vv)
 	}
