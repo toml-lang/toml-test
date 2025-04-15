@@ -31,9 +31,35 @@ To compile from source you will need Go 1.19 or newer:
 
     % go install github.com/toml-lang/toml-test/cmd/toml-test@latest
 
-This will build a `./toml-test` binary.
+This will build a `toml-test` binary in the `~/go/bin` directory. You can change
+that directory by setting `GOBIN`; for example to use the current directory:
+
+    % GOBIN="$(pwd)" go install github.com/toml-lang/toml-test/cmd/toml-test@latest
 
 [release page]: https://github.com/toml-lang/toml-test/releases
+
+### Installation in CI
+There are two options:
+
+1. Build from source as per the above; this is typically more than fast enough,
+   but requires Go to be installed. For example in GitHub actions:
+
+       steps:
+         - {uses: actions/setup-go@v4, with: {go-version: '1.24'}}
+         - run: 'go install github.com/toml-lang/toml-test/cmd/toml-test@latest'
+         # ~/go/bin should already be in $PATH on GitHub actions.
+
+2. Alternatively, you can download a release binary. These are statically linked
+   and should run anywhere. For example in GitHub actions:
+
+       steps:
+         - name: 'install toml-test'
+           run: |
+             version=v1.5.0
+             platform=linux-amd64
+             curl -sL https://github.com/toml-lang/toml-test/releases/download/$version/toml-test-$version-$platform.gz |
+                 gzip -d >toml-test
+             chmod a+x toml-test
 
 Usage
 -----
