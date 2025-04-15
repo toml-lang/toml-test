@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"math"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -502,7 +503,56 @@ func (t *Test) ReadWantTOML(fsys fs.FS) (v any, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not decode TOML file %q:\n  %s", path, err)
 	}
+
+	// All numbers are floats, but assume that natural numbers are encoded
+	// without the .0.
+	if t.IntAsFloat {
+		if vv, ok := v.(map[string]any); ok {
+			v = floatToInt(vv)
+		}
+	}
+
 	return v, nil
+}
+
+func floatToInt(m map[string]any) map[string]any {
+	newm := make(map[string]any)
+	for k, v := range m {
+		switch vv := v.(type) {
+		case float64:
+			_, frac := math.Modf(vv)
+			maxSafeFloat := float64(9007199254740991)
+			if !math.IsNaN(vv) && !math.IsInf(vv, 0) && vv <= maxSafeFloat && frac == 0 {
+				v = int64(vv)
+			}
+		case map[string]any:
+			v = floatToInt(vv)
+		case []map[string]any:
+			arr := make([]map[string]any, len(vv))
+			for i, t := range vv {
+				arr[i] = floatToInt(t)
+			}
+			v = arr
+		case []any:
+			arr := make([]any, len(vv))
+			for i, t := range vv {
+				// TODO: doesn't process nested arrays. It's okay for now as no
+				// tests need it.
+				switch tt := t.(type) {
+				case float64:
+					if !math.IsNaN(tt) && !math.IsInf(tt, 0) && tt == math.Round(tt) {
+						t = int64(tt)
+					}
+				case map[string]any:
+					t = floatToInt(tt)
+				}
+				arr[i] = t
+			}
+			v = arr
+		}
+		newm[k] = v
+	}
+	return newm
 }
 
 // Test type: "valid", "invalid"
