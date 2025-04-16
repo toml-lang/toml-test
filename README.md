@@ -61,6 +61,19 @@ There are two options:
                  gzip -d >toml-test
              chmod a+x toml-test
 
+Many implementations don't pass all the tests, because they are "known bugs" or
+by choice (especially for "invalid" tests as some are a tad pedantic). You can
+use `-skip` to skip some tests; for example with a small shell script:
+
+    #!/usr/bin/env bash
+    skip=(
+        -skip 'invalid/foo'
+        -skip 'invalid/bar'
+    )
+    toml-test ${skip[@]} my-parser-cmd
+
+Use `toml-test my-parser-cmd -print-skip` to generate a script for all failures.
+
 Usage
 -----
 `toml-test` accepts an encoder or decoder as the first positional argument, for
