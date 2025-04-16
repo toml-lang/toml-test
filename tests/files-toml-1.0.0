@@ -535,6 +535,8 @@ valid/key/equals-nospace.json
 valid/key/equals-nospace.toml
 valid/key/escapes.json
 valid/key/escapes.toml
+valid/key/like-date.json
+valid/key/like-date.toml
 valid/key/numeric.json
 valid/key/numeric.toml
 valid/key/numeric-dotted.json
