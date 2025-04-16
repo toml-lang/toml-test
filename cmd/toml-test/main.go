@@ -268,7 +268,7 @@ func detailed(r tomltest.Runner, t tomltest.Test) string {
 
 	if t.Failed() {
 		b.WriteString(indentWith(
-			indent(t.Failure, 4),
+			indent(t.Failure, 4, false),
 			zli.Colorize(" ", hlErr)))
 		b.WriteByte('\n')
 	}
@@ -301,20 +301,25 @@ func showStream(b *strings.Builder, name, s string) {
 		fmt.Fprintln(b, "          <empty>")
 		return
 	}
-	fmt.Fprintln(b, indent(s, 7))
+	fmt.Fprintln(b, indent(s, 7, s != "Exit code 1"))
 }
 
 func indentWith(s, with string) string {
 	return with + strings.ReplaceAll(strings.TrimRight(s, "\n"), "\n", "\n"+with)
 }
 
-func indent(s string, n int) string {
+func indent(s string, n int, number bool) string {
 	sp := strings.Repeat(" ", n)
 	lines := strings.Split(strings.TrimRight(s, "\n"), "\n")
 	for i := range lines {
 		lines[i] = strings.TrimRight(lines[i], " \t")
-		if lines[i] != "" {
-			lines[i] = sp + lines[i]
+		if number {
+			if lines[i] != "" { // No trailing space for empty lines.
+				lines[i] = " " + lines[i]
+			}
+			lines[i] = fmt.Sprintf("%s%s%2d │\x1b[0m%s", zli.Color256(244), sp, i+1, lines[i])
+		} else {
+			lines[i] = fmt.Sprintf("%s%s", sp, lines[i])
 		}
 	}
 	return strings.Join(lines, "\n")
