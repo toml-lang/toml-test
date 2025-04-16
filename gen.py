@@ -5,19 +5,27 @@ import argparse, pathlib, shutil, re, subprocess, os, tempfile, glob, os.path
 ROOT = pathlib.Path(__file__).parent
 VALID_ROOT = ROOT / f"tests/valid/spec"
 INVALID_ROOT = ROOT / f"tests/invalid/spec"
+DECODER = ''
 
 def gen_multi():
-    for f in glob.glob(str(ROOT / 'tests/invalid/*/*.multi')):
+    for f in glob.glob(str(ROOT / 'tests/*/*/*.multi')):
         base = os.path.dirname(f[:-6])
+        i = 1
         for line in open(f, 'rb').readlines():
             name = line.split(b'=')[0].strip().decode()
             if name == '' or name[0] == '#':
                 continue
+            if '/valid/' in f:
+                name = f'{os.path.basename(f[:-6])}-{i:02}'
+                i += 1
 
             line = re.sub(r'(?<=[^\\])\\x([0-9a-fA-F]{2})', lambda m: chr(int(m[1], 16)), line.decode())
             path = base + "/" + name + '.toml'
             with open(path, 'wb+') as fp:
                 fp.write(line.encode())
+
+            if '/valid/' in f:
+                run_decoder(path, path[:-5] + '.json')
 
 def gen_list():
     with open('tests/files-toml-1.0.0', 'w+') as fp:
@@ -25,7 +33,7 @@ def gen_list():
     with open('tests/files-toml-1.1.0', 'w+') as fp:
         subprocess.run(['go', 'run', './cmd/toml-test', '-list-files', '-toml=1.1.0'], stdout=fp)
 
-def gen_spec(tmp):
+def gen_spec():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--input",
@@ -34,9 +42,6 @@ def gen_spec(tmp):
         help="Spec to parse for test cases",
     )
     args = parser.parse_args()
-
-    decoder = os.path.join(tmp, 'toml-test-decoder')
-    subprocess.run(['go', 'build', '-o', decoder, 'github.com/BurntSushi/toml/cmd/toml-test-decoder'])
 
     try:
         shutil.rmtree(VALID_ROOT)
@@ -75,7 +80,7 @@ def gen_spec(tmp):
                 if has_active_invalid(block):
                     write_invalid_case(header, case_index, block)
                 else:
-                    write_valid_case(decoder, header, case_index, block)
+                    write_valid_case(header, case_index, block)
                 case_index += 1
             continue
 
@@ -133,7 +138,11 @@ def write_invalid_case(header, index, block):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block.strip() + '\n')
 
-def write_valid_case(decoder, header, index, block):
+def run_decoder(path_toml, path_json):
+    subprocess.run([DECODER], stdin=open(path_toml), stdout=open(path_json, mode='w'))
+    subprocess.run(['jfmt', '-w', path_json])
+
+def write_valid_case(header, index, block):
     # Strip out datetime subseconds more than ms, since that's optional
     # behaviour.
     block = re.sub(r'(:\d\d)\.9999+', r'\1.999', block)
@@ -144,8 +153,7 @@ def write_valid_case(decoder, header, index, block):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block.strip() + '\n')
 
-    subprocess.run([decoder], stdin=open(path), stdout=open(path_json, mode='w'))
-    subprocess.run(['jfmt', '-w', path_json])
+    run_decoder(path, path_json)
 
     invalid_index = 0
     lines = block.splitlines()
@@ -166,6 +174,8 @@ def has_active_invalid(block):
 
 if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as tmp:
-        gen_spec(tmp)
-    gen_multi()
-    gen_list()
+        DECODER = os.path.join(tmp, 'toml-test-decoder')
+        subprocess.run(['go', 'build', '-o', DECODER, 'github.com/BurntSushi/toml/cmd/toml-test-decoder'])
+
+        gen_multi()
+        gen_list()
