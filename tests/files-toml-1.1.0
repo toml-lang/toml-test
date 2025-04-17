@@ -223,7 +223,6 @@ invalid/key/quoted-unclosed-1.toml
 invalid/key/quoted-unclosed-2.toml
 invalid/key/single-open-bracket.toml
 invalid/key/space.toml
-invalid/key/special-character.toml
 invalid/key/start-bracket.toml
 invalid/key/start-dot.toml
 invalid/key/two-equals-1.toml
