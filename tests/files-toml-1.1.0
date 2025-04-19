@@ -739,12 +739,18 @@ valid/string/hex-escape.json
 valid/string/hex-escape.toml
 valid/string/multiline.json
 valid/string/multiline.toml
+valid/string/multiline-crlf.json
+valid/string/multiline-crlf.toml
 valid/string/multiline-empty.json
 valid/string/multiline-empty.toml
+valid/string/multiline-empty-crlf.json
+valid/string/multiline-empty-crlf.toml
 valid/string/multiline-escaped-crlf.json
 valid/string/multiline-escaped-crlf.toml
 valid/string/multiline-quotes.json
 valid/string/multiline-quotes.toml
+valid/string/multiline-quotes-crlf.json
+valid/string/multiline-quotes-crlf.toml
 valid/string/nl.json
 valid/string/nl.toml
 valid/string/quoted-unicode.json
@@ -755,6 +761,8 @@ valid/string/raw-empty.json
 valid/string/raw-empty.toml
 valid/string/raw-multiline.json
 valid/string/raw-multiline.toml
+valid/string/raw-multiline-crlf.json
+valid/string/raw-multiline-crlf.toml
 valid/string/simple.json
 valid/string/simple.toml
 valid/string/start-mb.json
