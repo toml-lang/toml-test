@@ -286,6 +286,8 @@ invalid/string/bad-concat.toml
 invalid/string/bad-escape-1.toml
 invalid/string/bad-escape-2.toml
 invalid/string/bad-escape-3.toml
+invalid/string/bad-escape-4.toml
+invalid/string/bad-escape-5.toml
 invalid/string/bad-hex-esc-1.toml
 invalid/string/bad-hex-esc-2.toml
 invalid/string/bad-hex-esc-3.toml
@@ -669,8 +671,12 @@ valid/spec/table-8.json
 valid/spec/table-8.toml
 valid/spec/table-9.json
 valid/spec/table-9.toml
-valid/string/double-quote-escape.json
-valid/string/double-quote-escape.toml
+valid/string/basic-escape-01.json
+valid/string/basic-escape-01.toml
+valid/string/basic-escape-02.json
+valid/string/basic-escape-02.toml
+valid/string/basic-escape-03.json
+valid/string/basic-escape-03.toml
 valid/string/empty.json
 valid/string/empty.toml
 valid/string/ends-in-whitespace-escape.json
