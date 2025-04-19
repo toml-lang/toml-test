@@ -333,6 +333,10 @@ invalid/string/no-close-1.toml
 invalid/string/no-close-2.toml
 invalid/string/no-close-3.toml
 invalid/string/no-close-4.toml
+invalid/string/no-close-5.toml
+invalid/string/no-close-6.toml
+invalid/string/no-close-7.toml
+invalid/string/no-close-8.toml
 invalid/string/text-after-string.toml
 invalid/string/wrong-close.toml
 invalid/table/append-to-array-with-dotted-keys.toml
