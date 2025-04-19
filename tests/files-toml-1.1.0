@@ -704,6 +704,8 @@ valid/string/quoted-unicode.json
 valid/string/quoted-unicode.toml
 valid/string/raw.json
 valid/string/raw.toml
+valid/string/raw-empty.json
+valid/string/raw-empty.toml
 valid/string/raw-multiline.json
 valid/string/raw-multiline.toml
 valid/string/simple.json
