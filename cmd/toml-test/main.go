@@ -22,7 +22,7 @@ import (
 
 var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
 
-func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
+func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 	f := zli.NewFlags(os.Args)
 	var (
 		help        = f.Bool(false, "help", "h")
@@ -42,6 +42,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 		intAsFloat  = f.Bool(false, "int-as-float")
 		errors      = f.String("", "errors")
 		timeout     = f.String("1s", "timeout")
+		noNumber    = f.Bool(false, "no-number", "no_number")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
@@ -128,7 +129,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool) {
 		}
 	}
 
-	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool(), printSkip.Bool()
+	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool(), printSkip.Bool(), noNumber.Bool()
 }
 
 func getFS(testDir string, set bool) fs.FS {
@@ -177,7 +178,7 @@ func getList(r tomltest.Runner) []string {
 }
 
 func main() {
-	runner, cmd, showAll, testDir, listFiles, printSkip := parseFlags()
+	runner, cmd, showAll, testDir, listFiles, printSkip, noNumber := parseFlags()
 
 	if listFiles {
 		l := getList(runner)
@@ -192,7 +193,7 @@ func main() {
 
 	for _, t := range tests.Tests {
 		if t.Failed() || showAll > 1 {
-			fmt.Print(detailed(runner, t))
+			fmt.Print(detailed(runner, t, noNumber))
 		} else if showAll == 1 {
 			fmt.Print(short(runner, t))
 		}
@@ -262,7 +263,7 @@ func short(r tomltest.Runner, t tomltest.Test) string {
 	return b.String()
 }
 
-func detailed(r tomltest.Runner, t tomltest.Test) string {
+func detailed(r tomltest.Runner, t tomltest.Test, noNumber bool) string {
 	b := new(strings.Builder)
 	b.WriteString(short(r, t))
 
@@ -272,7 +273,7 @@ func detailed(r tomltest.Runner, t tomltest.Test) string {
 			zli.Colorize(" ", hlErr)))
 		b.WriteByte('\n')
 	}
-	showStream(b, "input sent to parser-cmd", t.Input)
+	showStream(b, "input sent to parser-cmd", t.Input, noNumber)
 
 	out, err := jfmt.NewFormatter(0, "", "  ").FormatString(t.Output)
 	if err == nil {
@@ -280,28 +281,28 @@ func detailed(r tomltest.Runner, t tomltest.Test) string {
 	}
 
 	if t.OutputFromStderr {
-		showStream(b, "output from parser-cmd (stderr)", t.Output)
+		showStream(b, "output from parser-cmd (stderr)", t.Output, noNumber)
 	} else {
-		showStream(b, "output from parser-cmd (stdout)", t.Output)
+		showStream(b, "output from parser-cmd (stdout)", t.Output, noNumber)
 	}
 	if t.Type() == tomltest.TypeValid {
-		showStream(b, "want", t.Want)
+		showStream(b, "want", t.Want, noNumber)
 	} else {
-		showStream(b, "want", "Exit code 1")
+		showStream(b, "want", "Exit code 1", noNumber)
 	}
 	b.WriteByte('\n')
 
 	return b.String()
 }
 
-func showStream(b *strings.Builder, name, s string) {
+func showStream(b *strings.Builder, name, s string, noNumber bool) {
 	b.WriteByte('\n')
 	fmt.Fprintln(b, zli.Colorize("     "+name+":", zli.Bold))
 	if s == "" {
 		fmt.Fprintln(b, "          <empty>")
 		return
 	}
-	fmt.Fprintln(b, indent(s, 7, s != "Exit code 1"))
+	fmt.Fprintln(b, indent(s, 7, !noNumber && s != "Exit code 1"))
 }
 
 func indentWith(s, with string) string {
@@ -319,7 +320,9 @@ func indent(s string, n int, number bool) string {
 			}
 			lines[i] = fmt.Sprintf("%s%s%2d │\x1b[0m%s", zli.Color256(244), sp, i+1, lines[i])
 		} else {
-			lines[i] = fmt.Sprintf("%s%s", sp, lines[i])
+			if lines[i] != "" {
+				lines[i] = fmt.Sprintf("%s%s", sp, lines[i])
+			}
 		}
 	}
 	return strings.Join(lines, "\n")

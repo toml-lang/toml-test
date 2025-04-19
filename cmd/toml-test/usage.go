@@ -124,6 +124,8 @@ Flags:
                   an error if the filename in the errors.toml file doesn't
                   exist.
 
+    -no-number    Don't add line numbers to output.
+
     -color        Output color; possible values:
 
                        always   Show test failures in bold and red.
