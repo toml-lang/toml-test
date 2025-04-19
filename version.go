@@ -26,6 +26,7 @@ var versions = map[string]versionSpec{
 			"valid/string/hex-escape", "invalid/string/bad-hex-esc", // \x..
 			"valid/datetime/no-seconds", // Times without seconds
 			"valid/inline-table/newline",
+			"valid/inline-table/newline-comment",
 		},
 	},
 }

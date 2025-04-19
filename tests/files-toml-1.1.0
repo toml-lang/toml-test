@@ -498,6 +498,8 @@ valid/inline-table/nest.json
 valid/inline-table/nest.toml
 valid/inline-table/newline.json
 valid/inline-table/newline.toml
+valid/inline-table/newline-comment.json
+valid/inline-table/newline-comment.toml
 valid/inline-table/spaces.json
 valid/inline-table/spaces.toml
 valid/integer/float64-max.json
