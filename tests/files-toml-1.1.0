@@ -466,10 +466,12 @@ valid/implicit-and-explicit-before.json
 valid/implicit-and-explicit-before.toml
 valid/implicit-groups.json
 valid/implicit-groups.toml
-valid/inline-table/array.json
-valid/inline-table/array.toml
-valid/inline-table/array-values.json
-valid/inline-table/array-values.toml
+valid/inline-table/array-01.json
+valid/inline-table/array-01.toml
+valid/inline-table/array-02.json
+valid/inline-table/array-02.toml
+valid/inline-table/array-03.json
+valid/inline-table/array-03.toml
 valid/inline-table/bool.json
 valid/inline-table/bool.toml
 valid/inline-table/empty.json
