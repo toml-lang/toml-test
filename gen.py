@@ -24,8 +24,8 @@ def gen_multi():
             with open(path, 'wb+') as fp:
                 fp.write(line.encode())
 
-            if '/valid/' in f:
-                run_decoder(path, path[:-5] + '.json')
+            if '/valid/' in f:  # TODO: version?
+                run_decoder('1.0.0', path, path[:-5] + '.json')
 
 def gen_list():
     with open('tests/files-toml-1.0.0', 'w+') as fp:
@@ -33,31 +33,19 @@ def gen_list():
     with open('tests/files-toml-1.1.0', 'w+') as fp:
         subprocess.run(['go', 'run', './cmd/toml-test', '-list-files', '-toml=1.1.0'], stdout=fp)
 
-def gen_spec():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--input",
-        metavar="MD",
-        type=pathlib.Path, default=ROOT / "assets/specs/en/v1.0.0.md",
-        help="Spec to parse for test cases",
-    )
-    args = parser.parse_args()
-
+def gen_spec(version, file):
     try:
-        shutil.rmtree(VALID_ROOT)
+        shutil.rmtree(f"{VALID_ROOT}-{version}")
     except FileNotFoundError:
         pass
     try:
-        shutil.rmtree(INVALID_ROOT)
+        shutil.rmtree(f"{INVALID_ROOT}-{version}")
     except FileNotFoundError:
         pass
 
-    markdown = args.input.read_text()
-    lines = markdown.splitlines()
-
+    lines = [l[:-1] for l in open(file, 'r').readlines()]
     header = "common"
     case_index = 0
-
     line_index = 0
     while line_index < len(lines):
         try:
@@ -74,13 +62,13 @@ def gen_spec():
             pass
         else:
             if info in ["toml", ""] and block.startswith("# INVALID"):
-                write_invalid_case(header, case_index, block)
+                write_invalid_case(version, header, case_index, block)
                 case_index += 1
             elif info == "toml":
                 if has_active_invalid(block):
-                    write_invalid_case(header, case_index, block)
+                    write_invalid_case(version, header, case_index, block)
                 else:
-                    write_valid_case(header, case_index, block)
+                    write_valid_case(version, header, case_index, block)
                 case_index += 1
             continue
 
@@ -133,27 +121,30 @@ def parse_block(line_index, lines):
 
     return line_index, info, "\n".join(block)
 
-def write_invalid_case(header, index, block):
-    path = INVALID_ROOT / f"{header}-{index}.toml"
+def write_invalid_case(version, header, index, block):
+    path = pathlib.Path(f"{INVALID_ROOT}-{version}/{header}-{index}.toml")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block.strip() + '\n')
 
-def run_decoder(path_toml, path_json):
+def run_decoder(version, path_toml, path_json):
+    env = os.environ
+    if version == '1.1.0':
+        env['BURNTSUSHI_TOML_110'] = '1'
     subprocess.run([DECODER], stdin=open(path_toml), stdout=open(path_json, mode='w'))
     subprocess.run(['jfmt', '-w', path_json])
 
-def write_valid_case(header, index, block):
+def write_valid_case(version, header, index, block):
     # Strip out datetime subseconds more than ms, since that's optional
     # behaviour.
     block = re.sub(r'(:\d\d)\.9999+', r'\1.999', block)
 
-    path = VALID_ROOT / f"{header}-{index}.toml"
-    path_json = VALID_ROOT / f"{header}-{index}.json"
+    path = pathlib.Path(f"{VALID_ROOT}-{version}/{header}-{index}.toml")
+    path_json = pathlib.Path(f"{VALID_ROOT}-{version}/{header}-{index}.json")
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block.strip() + '\n')
 
-    run_decoder(path, path_json)
+    run_decoder(version, path, path_json)
 
     invalid_index = 0
     lines = block.splitlines()
@@ -162,7 +153,7 @@ def write_valid_case(header, index, block):
             new_lines = lines[:]
             assert line.startswith("# "), f"{line}"
             new_lines[i] = line.removeprefix("# ")
-            write_invalid_case(header, f"{index}-{invalid_index}", "\n".join(new_lines))
+            write_invalid_case(version, header, f"{index}-{invalid_index}", "\n".join(new_lines))
             invalid_index += 1
 
 def has_active_invalid(block):
@@ -178,4 +169,6 @@ if __name__ == "__main__":
         subprocess.run(['go', 'build', '-o', DECODER, 'github.com/BurntSushi/toml/cmd/toml-test-decoder'])
 
         gen_multi()
+        gen_spec('1.0.0', 'specs/v1.0.0.md')
+        gen_spec('1.1.0', 'specs/v1.1.0.md')
         gen_list()
