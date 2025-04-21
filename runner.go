@@ -120,8 +120,10 @@ func (err timeoutError) Error() string {
 
 // List all tests in Files for the current TOML version.
 func (r Runner) List() ([]string, error) {
-	if r.Version == "" {
+	if r.Version == "" || r.Version == "1.0" {
 		r.Version = "1.0.0"
+	} else if r.Version == "1.1" {
+		r.Version = "1.1.0"
 	}
 	if _, ok := versions[r.Version]; !ok {
 		v := make([]string, 0, len(versions))

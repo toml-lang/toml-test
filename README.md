@@ -55,7 +55,7 @@ There are two options:
        steps:
          - name: 'install toml-test'
            run: |
-             version=v1.5.0
+             version=v1.6.0
              platform=linux-amd64
              curl -sL https://github.com/toml-lang/toml-test/releases/download/$version/toml-test-$version-$platform.gz |
                  gzip -d >toml-test
@@ -70,7 +70,7 @@ use `-skip` to skip some tests; for example with a small shell script:
         -skip 'invalid/foo'
         -skip 'invalid/bar'
     )
-    toml-test ${skip[@]} my-parser-cmd
+    toml-test -toml=1.0 ${skip[@]} my-parser-cmd
 
 Use `toml-test my-parser-cmd -print-skip` to generate a script for all failures.
 

@@ -217,7 +217,7 @@ func main() {
 			}
 		}
 		fmt.Println("    )")
-		fmt.Print("    toml-test ${skip[@]} " + strings.Join(cmd, " "))
+		fmt.Printf("    toml-test -toml=%s ${skip[@]} %s", runner.Version, strings.Join(cmd, " "))
 		if runner.Encoder {
 			fmt.Print(" -encoder")
 		}
