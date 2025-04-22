@@ -29,6 +29,8 @@ const (
 	TypeInvalid
 )
 
+const DefaultVersion = "1.0.0"
+
 //go:embed tests/*
 var embeddedTests embed.FS
 
@@ -124,6 +126,8 @@ func (r Runner) List() ([]string, error) {
 		r.Version = "1.0.0"
 	} else if r.Version == "1.1" {
 		r.Version = "1.1.0"
+	} else if r.Version == "latest" {
+		r.Version = DefaultVersion
 	}
 	if _, ok := versions[r.Version]; !ok {
 		v := make([]string, 0, len(versions))

@@ -27,7 +27,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 	var (
 		help        = f.Bool(false, "help", "h")
 		versionFlag = f.IntCounter(0, "version", "V")
-		tomlVersion = f.String("1.0.0", "toml")
+		tomlVersion = f.String(tomltest.DefaultVersion, "toml")
 		encoder     = f.Bool(false, "encoder")
 		testDir     = f.String("", "testdir")
 		showAll     = f.IntCounter(0, "v")
@@ -48,6 +48,9 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 	if help.Bool() {
 		fmt.Printf(usage, filepath.Base(os.Args[0]))
 		zli.Exit(0)
+	}
+	if tomlVersion.String() == "latest" {
+		*tomlVersion.Pointer() = tomltest.DefaultVersion
 	}
 	if versionFlag.Int() > 0 {
 		zli.PrintVersion(versionFlag.Int() > 1)
@@ -209,6 +212,7 @@ func main() {
 	if tests.Skipped > 0 {
 		fmt.Printf(", %2d skipped", tests.Skipped)
 	}
+
 	if printSkip && (tests.FailedValid > 0 || tests.FailedInvalid > 0) {
 		fmt.Print("\n\n    #!/usr/bin/env bash\n    # Also compatible with zsh.\n    skip=(\n")
 		for _, f := range tests.Tests {
@@ -332,7 +336,7 @@ func doCat(fsys fs.FS, tomlVersion string, size int, run, skip []string) {
 	f, err := fs.ReadFile(fsys, "files-toml-"+tomlVersion)
 	zli.F(err)
 
-	var useFiles = make([]string, 0, 8)
+	useFiles := make([]string, 0, 8)
 outer1:
 	for _, line := range strings.Split(string(f), "\n") {
 		if strings.HasPrefix(line, "valid/") && strings.HasSuffix(line, ".toml") {

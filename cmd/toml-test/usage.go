@@ -44,7 +44,8 @@ Flags:
 
     -toml         Select TOML version to run tests for. Supported versions are
                   "1.0" and "1.1" (which isn't released yet and may change).
-                  Defaults to 1.0.
+                  Use "latest" to use the latest published TOML version.
+                  Default is latest.
 
     -timeout      Maximum time for a single test run, to detect infinite loops
                   or pathological cases. Defaults to "1s".
