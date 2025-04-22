@@ -10,6 +10,11 @@ trailing-point = 1.
 trailing-point-min = -1.
 trailing-point-plus = +1.
 
+trailing-exp = 0.0E
+trailing-exp-point =  0.e
+trailing-exp-minus = 0.0e-
+trailing-exp-plus = 0.0e+
+
 trailing-us = 1.2_
 leading-us = _1.2
 us-before-point = 1_.2
