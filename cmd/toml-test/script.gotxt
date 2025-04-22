@@ -46,8 +46,8 @@ if ! command -v "$tt" >/dev/null; then
 fi
 
 fail=0
-"$tt" -toml="$toml" -skip-must-error ${skip[@]} -- "$decoder" "$@" || fail=1
+"$tt" -toml="$toml" -skip-must-err ${skip[@]} -- "$decoder" "$@" || fail=1
 if [[ -n "$encoder" ]]; then
-	"$tt" -toml="$toml" -skip-must-error ${skip[@]} -encoder -- "$encoder" "$@" || fail=1
+	"$tt" -toml="$toml" -skip-must-err ${skip[@]} -encoder -- "$encoder" "$@" || fail=1
 fi
 exit $fail

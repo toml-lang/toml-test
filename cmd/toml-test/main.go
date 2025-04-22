@@ -50,7 +50,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 		errors        = f.String("", "errors")
 		timeout       = f.String("1s", "timeout")
 		noNumber      = f.Bool(false, "no-number", "no_number")
-		skipMustError = f.Bool(false, "skip-must-error")
+		skipMustError = f.Bool(false, "skip-must-err", "skip-must-error")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
