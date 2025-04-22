@@ -74,10 +74,10 @@ type Parser interface {
 	// An error return should only be used in case an unrecoverable error
 	// occurred; failing to encode to TOML is not an error, but the encoder
 	// unexpectedly panicking is.
-	Encode(ctx context.Context, jsonInput string) (output string, outputIsError bool, err error)
+	Encode(ctx context.Context, jsonInput string) (pid int, output string, outputIsError bool, err error)
 
 	// Decode a TOML string to JSON. The same semantics as Encode apply.
-	Decode(ctx context.Context, tomlInput string) (output string, outputIsError bool, err error)
+	Decode(ctx context.Context, tomlInput string) (pid int, output string, outputIsError bool, err error)
 }
 
 // CommandParser calls an external command.
@@ -111,6 +111,7 @@ type Test struct {
 	Output           string        // Output from the external program.
 	Want             string        // The output we want.
 	OutputFromStderr bool          // The Output came from stderr, not stdout.
+	PID              int           // PID from test run.
 	Timeout          time.Duration // Maximum time for parse.
 	IntAsFloat       bool          // Int values have type=float.
 }
@@ -359,7 +360,7 @@ func (r Runner) hasSkip(path string) bool {
 	return false
 }
 
-func (c CommandParser) Encode(ctx context.Context, input string) (output string, outputIsError bool, err error) {
+func (c CommandParser) Encode(ctx context.Context, input string) (pid int, output string, outputIsError bool, err error) {
 	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
 	cmd := exec.CommandContext(ctx, c.cmd[0])
 	cmd.Args = c.cmd
@@ -374,13 +375,16 @@ func (c CommandParser) Encode(ctx context.Context, input string) (output string,
 		}
 	}
 
-	if stderr.Len() > 0 {
-		return strings.TrimSpace(stderr.String()) + "\n", true, err
+	if cmd.Process != nil {
+		pid = cmd.Process.Pid
 	}
-	return strings.TrimSpace(stdout.String()) + "\n", false, err
+	if stderr.Len() > 0 {
+		return pid, strings.TrimSpace(stderr.String()) + "\n", true, err
+	}
+	return pid, strings.TrimSpace(stdout.String()) + "\n", false, err
 }
 func NewCommandParser(fsys fs.FS, cmd []string) CommandParser { return CommandParser{fsys, cmd} }
-func (c CommandParser) Decode(ctx context.Context, input string) (string, bool, error) {
+func (c CommandParser) Decode(ctx context.Context, input string) (int, string, bool, error) {
 	return c.Encode(ctx, input)
 }
 
@@ -403,9 +407,9 @@ func (t Test) runInvalid(p Parser, fsys fs.FS) Test {
 	defer cancel()
 
 	if t.Encoder {
-		t.Output, t.OutputFromStderr, err = p.Encode(ctx, t.Input)
+		t.PID, t.Output, t.OutputFromStderr, err = p.Encode(ctx, t.Input)
 	} else {
-		t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
+		t.PID, t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
 	}
 	if ctx.Err() != nil {
 		err = timeoutError{t.Timeout}
@@ -430,9 +434,9 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 	defer cancel()
 
 	if t.Encoder {
-		t.Output, t.OutputFromStderr, err = p.Encode(ctx, t.Input)
+		t.PID, t.Output, t.OutputFromStderr, err = p.Encode(ctx, t.Input)
 	} else {
-		t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
+		t.PID, t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
 	}
 	if ctx.Err() != nil {
 		err = timeoutError{t.Timeout}

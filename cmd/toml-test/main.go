@@ -295,7 +295,7 @@ func detailed(r tomltest.Runner, t tomltest.Test, noNumber bool) string {
 			zli.Colorize(" ", hlErr)))
 		b.WriteByte('\n')
 	}
-	showStream(b, "input sent to parser-cmd", t.Input, noNumber)
+	showStream(b, fmt.Sprintf("input sent to parser-cmd (PID %d)", t.PID), t.Input, noNumber)
 
 	out, err := jfmt.NewFormatter(0, "", "  ").FormatString(t.Output)
 	if err == nil {
@@ -303,9 +303,9 @@ func detailed(r tomltest.Runner, t tomltest.Test, noNumber bool) string {
 	}
 
 	if t.OutputFromStderr {
-		showStream(b, "output from parser-cmd (stderr)", t.Output, noNumber)
+		showStream(b, fmt.Sprintf("output from parser-cmd (PID %d) (stderr)", t.PID), t.Output, noNumber)
 	} else {
-		showStream(b, "output from parser-cmd (stdout)", t.Output, noNumber)
+		showStream(b, fmt.Sprintf("output from parser-cmd (PID %d) (stdout)", t.PID), t.Output, noNumber)
 	}
 	if t.Type() == tomltest.TypeValid {
 		showStream(b, "want", t.Want, noNumber)
