@@ -38,41 +38,15 @@ that directory by setting `GOBIN`; for example to use the current directory:
 
 [release page]: https://github.com/toml-lang/toml-test/releases
 
-### Installation in CI
-There are two options:
+Running in CI
+-------------
+The [setup-toml-test] action can be used in GitHub. See the README for more
+details.
 
-1. Build from source as per the above; this is typically more than fast enough,
-   but requires Go to be installed. For example in GitHub actions:
+For other CI systems: the action essentially just downloads a release binary.
+See index.js. Should be easy enough to reproduce elsewhere.
 
-       steps:
-         - {uses: actions/setup-go@v4, with: {go-version: '1.24'}}
-         - run: 'go install github.com/toml-lang/toml-test/cmd/toml-test@latest'
-         # ~/go/bin should already be in $PATH on GitHub actions.
-
-2. Alternatively, you can download a release binary. These are statically linked
-   and should run anywhere. For example in GitHub actions:
-
-       steps:
-         - name: 'install toml-test'
-           run: |
-             version=v1.6.0
-             platform=linux-amd64
-             curl -sL https://github.com/toml-lang/toml-test/releases/download/$version/toml-test-$version-$platform.gz |
-                 gzip -d >toml-test
-             chmod a+x toml-test
-
-Many implementations don't pass all the tests, because they are "known bugs" or
-by choice (especially for "invalid" tests as some are a tad pedantic). You can
-use `-skip` to skip some tests; for example with a small shell script:
-
-    #!/usr/bin/env bash
-    skip=(
-        -skip 'invalid/foo'
-        -skip 'invalid/bar'
-    )
-    toml-test -toml=1.0 ${skip[@]} my-parser-cmd
-
-Use `toml-test my-parser-cmd -print-skip` to generate a script for all failures.
+[setup-toml-test]: https://github.com/toml-lang/setup-toml-test
 
 Usage
 -----

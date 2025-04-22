@@ -108,3 +108,42 @@ func TestErrors(t *testing.T) {
 		}
 	})
 }
+
+func TestSkip(t *testing.T) {
+	r := Runner{
+		Parser:    &testParser{},
+		SkipTests: []string{"valid/a"},
+		Files: fstest.MapFS{
+			"valid/a.toml": &fstest.MapFile{Data: []byte(`a=`)},
+		},
+	}
+	tests, err := r.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tests.FailedValid != 0 || tests.Skipped != 1 {
+		t.Fatalf("FailedValid=%d; Skipped=%d", tests.FailedValid, tests.Skipped)
+	}
+}
+
+func TestSkipMustError(t *testing.T) {
+	r := Runner{
+		Parser:        &testParser{},
+		SkipMustError: true,
+		SkipTests:     []string{"valid/a"},
+		Files: fstest.MapFS{
+			"valid/a.toml": &fstest.MapFile{Data: []byte(`a=1`)},
+			"valid/a.json": &fstest.MapFile{Data: []byte(`{"a": {"type":"integer","value":"1"}}`)},
+		},
+	}
+	tests, err := r.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tests.FailedValid != 1 || tests.Skipped != 0 {
+		t.Fatalf("FailedValid=%d; Skipped=%d", tests.FailedValid, tests.Skipped)
+	}
+	if tests.Tests[0].Failure != "Test skipped with -skip but didn't fail" {
+		t.Errorf("wrong failure message: %q", tests.Tests[0].Failure)
+	}
+}

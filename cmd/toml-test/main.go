@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -22,32 +24,41 @@ import (
 
 var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
 
+//go:embed script.gotxt
+var script []byte
+
+var scriptTemplate = template.Must(template.New("").Option("missingkey=error").Parse(string(script)))
+
 func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 	f := zli.NewFlags(os.Args)
 	var (
-		help        = f.Bool(false, "help", "h")
-		versionFlag = f.IntCounter(0, "version", "V")
-		tomlVersion = f.String(tomltest.DefaultVersion, "toml")
-		encoder     = f.Bool(false, "encoder")
-		testDir     = f.String("", "testdir")
-		showAll     = f.IntCounter(0, "v")
-		color       = f.String("always", "color")
-		skip        = f.StringList(nil, "skip")
-		run         = f.StringList(nil, "run")
-		listFiles   = f.Bool(false, "list-files")
-		cat         = f.Int(0, "cat")
-		copyFiles   = f.Bool(false, "copy")
-		parallel    = f.Int(runtime.NumCPU(), "parallel")
-		printSkip   = f.Bool(false, "print-skip")
-		intAsFloat  = f.Bool(false, "int-as-float")
-		errors      = f.String("", "errors")
-		timeout     = f.String("1s", "timeout")
-		noNumber    = f.Bool(false, "no-number", "no_number")
+		help          = f.Bool(false, "help", "h")
+		versionFlag   = f.IntCounter(0, "version", "V")
+		tomlVersion   = f.String(tomltest.DefaultVersion, "toml")
+		encoder       = f.Bool(false, "encoder")
+		testDir       = f.String("", "testdir")
+		showAll       = f.IntCounter(0, "v")
+		color         = f.String("always", "color")
+		skip          = f.StringList(nil, "skip")
+		run           = f.StringList(nil, "run")
+		listFiles     = f.Bool(false, "list-files")
+		cat           = f.Int(0, "cat")
+		copyFiles     = f.Bool(false, "copy")
+		parallel      = f.Int(runtime.NumCPU(), "parallel")
+		script        = f.Bool(false, "script", "print-skip") // -print-skip is the old name
+		intAsFloat    = f.Bool(false, "int-as-float")
+		errors        = f.String("", "errors")
+		timeout       = f.String("1s", "timeout")
+		noNumber      = f.Bool(false, "no-number", "no_number")
+		skipMustError = f.Bool(false, "skip-must-error")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
 		fmt.Printf(usage, filepath.Base(os.Args[0]))
 		zli.Exit(0)
+	}
+	if script.Bool() && encoder.Bool() {
+		zli.Fatalf("cannot use -script and -encoder; generate a script without -encoder and fill in the encoder binary")
 	}
 	if tomlVersion.String() == "latest" {
 		*tomlVersion.Pointer() = tomltest.DefaultVersion
@@ -85,16 +96,17 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 	}
 
 	r := tomltest.Runner{
-		Encoder:    encoder.Bool(),
-		RunTests:   run.StringsSplit(","),
-		SkipTests:  skip.StringsSplit(","),
-		Version:    tomlVersion.String(),
-		Parallel:   parallel.Int(),
-		Files:      fsys,
-		Parser:     tomltest.NewCommandParser(fsys, f.Args),
-		Timeout:    dur,
-		IntAsFloat: intAsFloat.Bool(),
-		Errors:     errs,
+		Encoder:       encoder.Bool(),
+		RunTests:      run.StringsSplit(","),
+		SkipTests:     skip.StringsSplit(","),
+		Version:       tomlVersion.String(),
+		Parallel:      parallel.Int(),
+		Files:         fsys,
+		Parser:        tomltest.NewCommandParser(fsys, f.Args),
+		Timeout:       dur,
+		IntAsFloat:    intAsFloat.Bool(),
+		SkipMustError: skipMustError.Bool(),
+		Errors:        errs,
 	}
 	if intAsFloat.Bool() {
 		r.SkipTests = append(r.SkipTests, "valid/integer/long")
@@ -132,7 +144,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 		}
 	}
 
-	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool(), printSkip.Bool(), noNumber.Bool()
+	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool(), script.Bool(), noNumber.Bool()
 }
 
 func getFS(testDir string, set bool) fs.FS {
@@ -181,7 +193,7 @@ func getList(r tomltest.Runner) []string {
 }
 
 func main() {
-	runner, cmd, showAll, testDir, listFiles, printSkip, noNumber := parseFlags()
+	runner, cmd, showAll, testDir, listFiles, script, noNumber := parseFlags()
 
 	if listFiles {
 		l := getList(runner)
@@ -193,6 +205,27 @@ func main() {
 
 	tests, err := runner.Run()
 	zli.F(err)
+
+	if script {
+		var failedValid, failedInvalid []string
+		for _, f := range tests.Tests {
+			if f.Failed() {
+				if f.Type() == tomltest.TypeValid {
+					failedValid = append(failedValid, f.Path)
+				} else {
+					failedInvalid = append(failedInvalid, f.Path)
+				}
+			}
+		}
+		err := scriptTemplate.Execute(os.Stdout, struct {
+			Decoder       string
+			TOML          string
+			FailedValid   []string
+			FailedInvalid []string
+		}{strings.Join(cmd, " "), runner.Version, failedValid, failedInvalid})
+		zli.F(err)
+		return
+	}
 
 	for _, t := range tests.Tests {
 		if t.Failed() || showAll > 1 {
@@ -211,21 +244,6 @@ func main() {
 	}
 	if tests.Skipped > 0 {
 		fmt.Printf(", %2d skipped", tests.Skipped)
-	}
-
-	if printSkip && (tests.FailedValid > 0 || tests.FailedInvalid > 0) {
-		fmt.Print("\n\n    #!/usr/bin/env bash\n    # Also compatible with zsh.\n    skip=(\n")
-		for _, f := range tests.Tests {
-			if f.Failed() {
-				fmt.Printf("        -skip '%s'\n", f.Path)
-			}
-		}
-		fmt.Println("    )")
-		fmt.Printf("    toml-test -toml=%s ${skip[@]} %s", runner.Version, strings.Join(cmd, " "))
-		if runner.Encoder {
-			fmt.Print(" -encoder")
-		}
-		fmt.Println()
 	}
 
 	fmt.Println()

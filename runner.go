@@ -49,16 +49,17 @@ func EmbeddedTests() fs.FS {
 // The validity of the parameters is not checked extensively; the caller should
 // verify this if need be. See ./cmd/toml-test for an example.
 type Runner struct {
-	Files      fs.FS             // Test files.
-	Encoder    bool              // Are we testing an encoder?
-	RunTests   []string          // Tests to run; run all if blank.
-	SkipTests  []string          // Tests to skip.
-	Parser     Parser            // Send data to a parser.
-	Version    string            // TOML version to run tests for.
-	Parallel   int               // Number of tests to run in parallel
-	Timeout    time.Duration     // Maximum time for parse.
-	IntAsFloat bool              // Int values have type=float.
-	Errors     map[string]string // Expected errors list.
+	Files         fs.FS             // Test files.
+	Encoder       bool              // Are we testing an encoder?
+	RunTests      []string          // Tests to run; run all if blank.
+	SkipTests     []string          // Tests to skip.
+	Parser        Parser            // Send data to a parser.
+	Version       string            // TOML version to run tests for.
+	Parallel      int               // Number of tests to run in parallel
+	Timeout       time.Duration     // Maximum time for parse.
+	IntAsFloat    bool              // Int values have type=float.
+	Errors        map[string]string // Expected errors list.
+	SkipMustError bool              // Tests in SkipTests must fail. Useful for CI.
 }
 
 // A Parser instance is used to call the TOML parser we test.
@@ -210,7 +211,7 @@ func (r Runner) Run() (Tests, error) {
 			Timeout:    r.Timeout,
 			IntAsFloat: r.IntAsFloat,
 		}
-		if r.hasSkip(p) {
+		if r.hasSkip(p) && !r.SkipMustError {
 			tests.Skipped++
 			mu.Lock()
 			t.Skipped = true
@@ -232,8 +233,20 @@ func (r Runner) Run() (Tests, error) {
 			}
 			delete(r.Errors, p)
 
-			tests.Tests = append(tests.Tests, t)
-			if t.Failed() {
+			if r.SkipMustError && r.hasSkip(p) {
+				if t.Failed() {
+					tests.Skipped++
+					t.Skipped = true
+					t.Failure = ""
+				} else {
+					t.Failure = "Test skipped with -skip but didn't fail"
+					if invalid {
+						tests.FailedInvalid++
+					} else {
+						tests.FailedValid++
+					}
+				}
+			} else if t.Failed() {
 				if invalid {
 					tests.FailedInvalid++
 				} else {
@@ -246,6 +259,7 @@ func (r Runner) Run() (Tests, error) {
 					tests.PassedValid++
 				}
 			}
+			tests.Tests = append(tests.Tests, t)
 			mu.Unlock()
 		}(p)
 	}
