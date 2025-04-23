@@ -207,11 +207,11 @@ func (r Test) cmpAsDatetimes(kind, want, have string) Test {
 	if err != nil {
 		return r.bug("Could not read %q as a datetime value for key %q", want, r.Key)
 	}
-
-	haveT, err := time.Parse(layout, datetimeRepl.Replace(want))
+	haveT, err := time.Parse(layout, datetimeRepl.Replace(have))
 	if err != nil {
 		return r.failf("Malformed output from your encoder: key %q is not a datetime: %q", r.Key, have)
 	}
+
 	if !wantT.Equal(haveT) {
 		return r.failf("Values for key %q don't match:\n"+
 			"  Expected:     %v\n"+

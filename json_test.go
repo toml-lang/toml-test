@@ -5,14 +5,14 @@ import (
 )
 
 func TestCompareDatetime(t *testing.T) {
-	t.Skip() // TODO
-
 	tests := []struct {
 		kind, want, have string
 		wantFail         bool
 	}{
 		{"datetime", "2006-01-02T15:04:05.123Z", "2006-01-02T15:04:05.123Z", false},
 		{"datetime", "2006-01-02T15:04:05.123Z", "2006-01-02T15:04:05", true},
+		{"datetime", "2006-01-02T15:04:05+01:00", "2006-01-02T15:04:05+01:00", false},
+		{"datetime", "2006-01-02T15:04:05+01:00", "2006-01-02T15:04:05+01:01", true},
 		{"time-local", "15:04:05.123", "15:04:05.123", false},
 		{"time-local", "15:04:05.123", "15:04:05", true},
 	}
