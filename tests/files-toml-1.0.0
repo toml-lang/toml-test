@@ -368,6 +368,8 @@ invalid/local-time/no-secs.toml
 invalid/local-time/second-over.toml
 invalid/local-time/time-no-leads-01.toml
 invalid/local-time/time-no-leads-02.toml
+invalid/local-time/trailing-dot.toml
+invalid/local-time/trailing-dotdot.toml
 invalid/spec-1.0.0/inline-table-2-0.toml
 invalid/spec-1.0.0/inline-table-3-0.toml
 invalid/spec-1.0.0/key-value-pair-1.toml
@@ -408,6 +410,13 @@ invalid/string/bad-uni-esc-4.toml
 invalid/string/bad-uni-esc-5.toml
 invalid/string/bad-uni-esc-6.toml
 invalid/string/bad-uni-esc-7.toml
+invalid/string/bad-uni-esc-ml-1.toml
+invalid/string/bad-uni-esc-ml-2.toml
+invalid/string/bad-uni-esc-ml-3.toml
+invalid/string/bad-uni-esc-ml-4.toml
+invalid/string/bad-uni-esc-ml-5.toml
+invalid/string/bad-uni-esc-ml-6.toml
+invalid/string/bad-uni-esc-ml-7.toml
 invalid/string/basic-byte-escapes.toml
 invalid/string/basic-multiline-out-of-range-unicode-escape-01.toml
 invalid/string/basic-multiline-out-of-range-unicode-escape-02.toml
@@ -850,6 +859,10 @@ valid/string/escaped-escape.json
 valid/string/escaped-escape.toml
 valid/string/escapes.json
 valid/string/escapes.toml
+valid/string/multibyte.json
+valid/string/multibyte.toml
+valid/string/multibyte-escape.json
+valid/string/multibyte-escape.toml
 valid/string/multiline.json
 valid/string/multiline.toml
 valid/string/multiline-empty.json
@@ -874,8 +887,6 @@ valid/string/start-mb.json
 valid/string/start-mb.toml
 valid/string/unicode-escape.json
 valid/string/unicode-escape.toml
-valid/string/unicode-literal.json
-valid/string/unicode-literal.toml
 valid/string/with-pound.json
 valid/string/with-pound.toml
 valid/table/array-empty.json
