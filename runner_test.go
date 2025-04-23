@@ -41,20 +41,20 @@ func TestVersion(t *testing.T) {
 
 type testParser struct{}
 
-func (t *testParser) Encode(ctx context.Context, input string) (output string, outputIsError bool, err error) {
+func (t *testParser) Encode(ctx context.Context, input string) (pid int, output string, outputIsError bool, err error) {
 	switch input {
 	case `a=1`:
-		return `{"a": {"type":"integer","value":"1"}}`, false, nil
+		return 42, `{"a": {"type":"integer","value":"1"}}`, false, nil
 	case `a=`, `c=`:
-		return `oh noes: error one`, true, nil
+		return 42, `oh noes: error one`, true, nil
 	case `b=`:
-		return `error two`, true, nil
+		return 42, `error two`, true, nil
 	default:
 		panic(fmt.Sprintf("unreachable: %q", input))
 	}
 }
 
-func (t testParser) Decode(ctx context.Context, input string) (string, bool, error) {
+func (t testParser) Decode(ctx context.Context, input string) (int, string, bool, error) {
 	return t.Encode(ctx, input)
 }
 
