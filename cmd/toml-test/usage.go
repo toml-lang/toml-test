@@ -42,6 +42,8 @@ Flags:
                    specified in the toml-test README. Note that this depends on
                    the correctness of my TOML parser!
 
+    -json          Output as JSON.
+
     -toml          Select TOML version to run tests for. Supported versions are
                    "1.0" and "1.1" (which isn't released yet and may change).
                    Use "latest" to use the latest published TOML version.
@@ -136,20 +138,6 @@ Flags:
                         never    Never output any escape codes.
 
                    Default is "always", or "never" if NO_COLOR is set.
-
-    -testdir       Location of the tests; the default is to use the tests
-                   compiled in the binary; this is only useful if you want to
-                   add or modify tests.
-
-                   A test in the invalid directory is a TOML file that is known
-                   to be invalid and should be rejected by the parser.
-
-                   A test in the valid directory is a TOML and JSON file with
-                   the same name, where the json file is the JSON
-                   representation of the TOML file according to the syntax
-                   described in the README.
-
-                   For encoders only valid tests are run.
 `
 
 // vim:et:tw=79

@@ -29,14 +29,13 @@ var script []byte
 
 var scriptTemplate = template.Must(template.New("").Option("missingkey=error").Parse(string(script)))
 
-func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
+func parseFlags() (tomltest.Runner, []string, int, bool, bool, bool, bool) {
 	f := zli.NewFlags(os.Args)
 	var (
 		help          = f.Bool(false, "help", "h")
 		versionFlag   = f.IntCounter(0, "version", "V")
 		tomlVersion   = f.String(tomltest.DefaultVersion, "toml")
 		encoder       = f.Bool(false, "encoder")
-		testDir       = f.String("", "testdir")
 		showAll       = f.IntCounter(0, "v")
 		color         = f.String("always", "color")
 		skip          = f.StringList(nil, "skip")
@@ -51,6 +50,7 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 		timeout       = f.String("1s", "timeout")
 		noNumber      = f.Bool(false, "no-number", "no_number")
 		skipMustError = f.Bool(false, "skip-must-err", "skip-must-error")
+		asJSON        = f.Bool(false, "json")
 	)
 	zli.F(f.Parse())
 	if help.Bool() {
@@ -60,6 +60,9 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 	if script.Bool() && encoder.Bool() {
 		zli.Fatalf("cannot use -script and -encoder; generate a script without -encoder and fill in the encoder binary")
 	}
+	if script.Bool() && asJSON.Bool() {
+		zli.Fatalf("-script does not support -json")
+	}
 	if tomlVersion.String() == "latest" {
 		*tomlVersion.Pointer() = tomltest.DefaultVersion
 	}
@@ -67,13 +70,12 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 		zli.PrintVersion(versionFlag.Int() > 1)
 		zli.Exit(0)
 	}
-	fsys := getFS(testDir.String(), testDir.Set())
 	if cat.Set() {
-		doCat(fsys, tomlVersion.String(), cat.Int(), run.Strings(), skip.Strings())
+		doCat(tomlVersion.String(), cat.Int(), run.Strings(), skip.Strings())
 		zli.Exit(0)
 	}
 	if copyFiles.Set() {
-		doCopy(fsys, tomlVersion.String(), f.Args)
+		doCopy(tomlVersion.String(), f.Args)
 		zli.Exit(0)
 	}
 
@@ -101,8 +103,8 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 		SkipTests:     skip.StringsSplit(","),
 		Version:       tomlVersion.String(),
 		Parallel:      parallel.Int(),
-		Files:         fsys,
-		Parser:        tomltest.NewCommandParser(fsys, f.Args),
+		Files:         tomltest.TestCases(),
+		Parser:        tomltest.NewCommandParser(f.Args),
 		Timeout:       dur,
 		IntAsFloat:    intAsFloat.Bool(),
 		SkipMustError: skipMustError.Bool(),
@@ -144,37 +146,8 @@ func parseFlags() (tomltest.Runner, []string, int, string, bool, bool, bool) {
 		}
 	}
 
-	return r, f.Args, showAll.Int(), testDir.String(), listFiles.Bool(), script.Bool(), noNumber.Bool()
-}
-
-func getFS(testDir string, set bool) fs.FS {
-	fsys := tomltest.EmbeddedTests()
-	if set {
-		fsys = os.DirFS(testDir)
-
-		// So I used the path to toml-dir a few times, be forgiving by looking
-		// for a "tests" directory and sub-ing to that.
-		ls, err := fs.ReadDir(fsys, ".")
-		zli.F(err)
-
-		var f, t int
-		for _, l := range ls {
-			if l.IsDir() && (l.Name() == "valid" || l.Name() == "invalid") {
-				f++
-			}
-			if l.IsDir() && l.Name() == "tests" {
-				t++
-			}
-		}
-		if f < 2 {
-			if t == 0 {
-				zli.Fatalf("%q does not seem to contain any tests (no valid and/or invalid directory)", testDir)
-			}
-			fsys, err = fs.Sub(fsys, "tests")
-			zli.F(err)
-		}
-	}
-	return fsys
+	return r, f.Args, showAll.Int(), listFiles.Bool(),
+		script.Bool(), noNumber.Bool(), asJSON.Bool()
 }
 
 func getList(r tomltest.Runner) []string {
@@ -192,13 +165,24 @@ func getList(r tomltest.Runner) []string {
 	return n
 }
 
+func newEnc() *json.Encoder {
+	j := json.NewEncoder(os.Stdout)
+	j.SetEscapeHTML(false)
+	j.SetIndent("", "    ")
+	return j
+}
+
 func main() {
-	runner, cmd, showAll, testDir, listFiles, script, noNumber := parseFlags()
+	runner, cmd, showAll, listFiles, script, noNumber, asJSON := parseFlags()
 
 	if listFiles {
 		l := getList(runner)
-		for _, ll := range l {
-			fmt.Println(ll)
+		if asJSON {
+			newEnc().Encode(l)
+		} else {
+			for _, ll := range l {
+				fmt.Println(ll)
+			}
 		}
 		return
 	}
@@ -227,6 +211,46 @@ func main() {
 		return
 	}
 
+	if asJSON {
+		printJSON(runner, tests, cmd, showAll)
+	} else {
+		printText(runner, tests, cmd, showAll, noNumber)
+	}
+
+	if tests.FailedValid > 0 || tests.FailedInvalid > 0 {
+		zli.Exit(1)
+	}
+	zli.Exit(0)
+}
+
+func printJSON(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showAll int) {
+	_, _, date := zli.GetVersion()
+
+	out := struct {
+		Version       string          `json:"version"`
+		Flags         []string        `json:"flags"`
+		Parser        []string        `json:"parser"`
+		PassedValid   int             `json:"passed_valid"`
+		PassedInvalid int             `json:"passed_invalid"`
+		FailedValid   int             `json:"failed_valid"`
+		FailedInvalid int             `json:"failed_invalid"`
+		Skipped       int             `json:"skipped"`
+		Tests         []tomltest.Test `json:"tests"`
+	}{
+		fmt.Sprintf("toml-test v%s", date.Format("2006-01-02")),
+		cmd, os.Args,
+		tests.PassedValid, tests.PassedInvalid, tests.FailedValid, tests.FailedInvalid, tests.Skipped,
+		nil,
+	}
+	for _, t := range tests.Tests {
+		if t.Failed() || showAll >= 1 {
+			out.Tests = append(out.Tests, t)
+		}
+	}
+	newEnc().Encode(out)
+}
+
+func printText(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showAll int, noNumber bool) {
 	for _, t := range tests.Tests {
 		if t.Failed() || showAll > 1 {
 			fmt.Print(detailed(runner, t, noNumber))
@@ -237,11 +261,6 @@ func main() {
 
 	_, _, date := zli.GetVersion()
 	fmt.Printf("toml-test v%s %s: ", date.Format("2006-01-02"), cmd)
-	if testDir == "" {
-		fmt.Print("using embedded tests")
-	} else {
-		fmt.Printf("tests from %q", testDir)
-	}
 	if tests.Skipped > 0 {
 		fmt.Printf(", %2d skipped", tests.Skipped)
 	}
@@ -253,11 +272,6 @@ func main() {
 		fmt.Printf("  valid tests: %3d passed, %2d failed\n", tests.PassedValid, tests.FailedValid)
 		fmt.Printf("invalid tests: %3d passed, %2d failed\n", tests.PassedInvalid, tests.FailedInvalid)
 	}
-
-	if tests.FailedValid > 0 || tests.FailedInvalid > 0 {
-		zli.Exit(1)
-	}
-	zli.Exit(0)
 }
 
 func short(r tomltest.Runner, t tomltest.Test) string {
@@ -350,7 +364,8 @@ func indent(s string, n int, number bool) string {
 	return strings.Join(lines, "\n")
 }
 
-func doCat(fsys fs.FS, tomlVersion string, size int, run, skip []string) {
+func doCat(tomlVersion string, size int, run, skip []string) {
+	fsys := tomltest.TestCases()
 	f, err := fs.ReadFile(fsys, "files-toml-"+tomlVersion)
 	zli.F(err)
 
@@ -437,7 +452,8 @@ outer2:
 	}
 }
 
-func doCopy(fsys fs.FS, tomlVersion string, args []string) {
+func doCopy(tomlVersion string, args []string) {
+	fsys := tomltest.TestCases()
 	if len(args) != 1 {
 		zli.Fatalf("need exactly one destination directory")
 	}

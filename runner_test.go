@@ -41,7 +41,7 @@ func TestVersion(t *testing.T) {
 
 type testParser struct{}
 
-func (t *testParser) Encode(ctx context.Context, input string) (pid int, output string, outputIsError bool, err error) {
+func (t *testParser) Run(ctx context.Context, input string) (pid int, output string, outputIsError bool, err error) {
 	switch input {
 	case `a=1`:
 		return 42, `{"a": {"type":"integer","value":"1"}}`, false, nil
@@ -52,10 +52,6 @@ func (t *testParser) Encode(ctx context.Context, input string) (pid int, output 
 	default:
 		panic(fmt.Sprintf("unreachable: %q", input))
 	}
-}
-
-func (t testParser) Decode(ctx context.Context, input string) (int, string, bool, error) {
-	return t.Encode(ctx, input)
 }
 
 func TestErrors(t *testing.T) {

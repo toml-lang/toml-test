@@ -119,7 +119,7 @@ func TestCompareTOML(t *testing.T) {
 }
 
 func TestSize(t *testing.T) {
-	err := fs.WalkDir(EmbeddedTests(), "valid", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(TestCases(), "valid", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}

@@ -71,10 +71,9 @@ For example, to run the tests against the Go TOML library:
     % toml-test -encoder toml-test-encoder
     toml-test v2023-10-23 [toml-test-encoder]: using embeded tests:  94 passed,  0 failed
 
-The default is to use the tests compiled in the binary; you can use `-testdir`
-to load tests from the filesystem. You can use `-run [name]` or `-skip [name]`
-to run or skip specific tests. Both flags can be given more than once and accept
-glob patterns: `-run 'valid/string/*'`.
+You can use `-run [name]` or `-skip [name]` to run or skip specific tests. Both
+flags can be given more than once and accept glob patterns: `-run
+'valid/string/*'`.
 
 See `toml-test -help` for detailed usage.
 

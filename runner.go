@@ -34,9 +34,8 @@ const DefaultVersion = "1.0.0"
 //go:embed tests/*
 var embeddedTests embed.FS
 
-// EmbeddedTests are the tests embedded in toml-test, rooted to the "test/"
-// directory.
-func EmbeddedTests() fs.FS {
+// TestCases embedded in toml-test, rooted to the "test/" directory.
+func TestCases() fs.FS {
 	f, err := fs.Sub(embeddedTests, "tests")
 	if err != nil {
 		panic(err)
@@ -66,24 +65,15 @@ type Runner struct {
 //
 // By default this is done through an external command.
 type Parser interface {
-	// Encode a JSON string to TOML.
+	// Run a parser command (decoder or encoder).
 	//
-	// The output is the TOML string; if outputIsError is true then it's assumed
-	// that an encoding error occurred.
+	// If outputIsError is true then it's assumed that an encoding error
+	// occurred.
 	//
 	// An error return should only be used in case an unrecoverable error
 	// occurred; failing to encode to TOML is not an error, but the encoder
 	// unexpectedly panicking is.
-	Encode(ctx context.Context, jsonInput string) (pid int, output string, outputIsError bool, err error)
-
-	// Decode a TOML string to JSON. The same semantics as Encode apply.
-	Decode(ctx context.Context, tomlInput string) (pid int, output string, outputIsError bool, err error)
-}
-
-// CommandParser calls an external command.
-type CommandParser struct {
-	fsys fs.FS
-	cmd  []string
+	Run(ctx context.Context, input string) (pid int, output string, outputIsError bool, err error)
 }
 
 // Tests are tests to run.
@@ -99,21 +89,21 @@ type Tests struct {
 
 // Result is the result of a single test.
 type Test struct {
-	Path string // Path of test, e.g. "valid/string-test"
+	Path string `json:"path"` // Path of test, e.g. "valid/string-test"
 
 	// Set when a test is run.
 
-	Skipped          bool          // Skipped this test?
-	Failure          string        // Failure message.
-	Key              string        // TOML key the failure occured on; may be blank.
-	Encoder          bool          // Encoder test?
-	Input            string        // The test case that we sent to the external program.
-	Output           string        // Output from the external program.
-	Want             string        // The output we want.
-	OutputFromStderr bool          // The Output came from stderr, not stdout.
-	PID              int           // PID from test run.
-	Timeout          time.Duration // Maximum time for parse.
-	IntAsFloat       bool          // Int values have type=float.
+	Skipped          bool          `json:"skipped"`            // Skipped this test?
+	Failure          string        `json:"failure"`            // Failure message.
+	Key              string        `json:"key"`                // TOML key the failure occured on; may be blank.
+	Encoder          bool          `json:"encoder"`            // Encoder test?
+	Input            string        `json:"input"`              // The test case that we sent to the external program.
+	Output           string        `json:"output"`             // Output from the external program.
+	Want             string        `json:"want"`               // The output we want.
+	OutputFromStderr bool          `json:"output_from_stderr"` // The Output came from stderr, not stdout.
+	PID              int           `json:"pid"`                // PID from test run.
+	Timeout          time.Duration `json:"-"`                  // Maximum time for parse.
+	IntAsFloat       bool          `json:"-"`                  // Int values have type=float.
 }
 
 type timeoutError struct{ d time.Duration }
@@ -360,7 +350,12 @@ func (r Runner) hasSkip(path string) bool {
 	return false
 }
 
-func (c CommandParser) Encode(ctx context.Context, input string) (pid int, output string, outputIsError bool, err error) {
+// CommandParser calls an external command.
+type CommandParser struct {
+	cmd []string
+}
+
+func (c CommandParser) Run(ctx context.Context, input string) (pid int, output string, outputIsError bool, err error) {
 	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
 	cmd := exec.CommandContext(ctx, c.cmd[0])
 	cmd.Args = c.cmd
@@ -383,9 +378,9 @@ func (c CommandParser) Encode(ctx context.Context, input string) (pid int, outpu
 	}
 	return pid, strings.TrimSpace(stdout.String()) + "\n", false, err
 }
-func NewCommandParser(fsys fs.FS, cmd []string) CommandParser { return CommandParser{fsys, cmd} }
-func (c CommandParser) Decode(ctx context.Context, input string) (int, string, bool, error) {
-	return c.Encode(ctx, input)
+
+func NewCommandParser(cmd []string) CommandParser {
+	return CommandParser{cmd}
 }
 
 // Run this test.
@@ -406,11 +401,7 @@ func (t Test) runInvalid(p Parser, fsys fs.FS) Test {
 	ctx, cancel := context.WithTimeout(context.Background(), t.Timeout)
 	defer cancel()
 
-	if t.Encoder {
-		t.PID, t.Output, t.OutputFromStderr, err = p.Encode(ctx, t.Input)
-	} else {
-		t.PID, t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
-	}
+	t.PID, t.Output, t.OutputFromStderr, err = p.Run(ctx, t.Input)
 	if ctx.Err() != nil {
 		err = timeoutError{t.Timeout}
 	}
@@ -433,11 +424,7 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 	ctx, cancel := context.WithTimeout(context.Background(), t.Timeout)
 	defer cancel()
 
-	if t.Encoder {
-		t.PID, t.Output, t.OutputFromStderr, err = p.Encode(ctx, t.Input)
-	} else {
-		t.PID, t.Output, t.OutputFromStderr, err = p.Decode(ctx, t.Input)
-	}
+	t.PID, t.Output, t.OutputFromStderr, err = p.Run(ctx, t.Input)
 	if ctx.Err() != nil {
 		err = timeoutError{t.Timeout}
 	}
