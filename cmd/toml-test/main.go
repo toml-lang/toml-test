@@ -228,6 +228,7 @@ func printJSON(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showA
 
 	out := struct {
 		Version       string          `json:"version"`
+		TOML          string          `json:"toml"`
 		Flags         []string        `json:"flags"`
 		Parser        []string        `json:"parser"`
 		PassedValid   int             `json:"passed_valid"`
@@ -240,10 +241,10 @@ func printJSON(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showA
 		Tests         []tomltest.Test `json:"tests"`
 	}{
 		fmt.Sprintf("toml-test v%s", date.Format("2006-01-02")),
-		os.Args, cmd,
+		runner.Version, os.Args, cmd,
 		tests.PassedValid, tests.PassedEncoder, tests.PassedInvalid,
 		tests.FailedValid, tests.FailedEncoder, tests.FailedInvalid,
-		tests.Skipped, nil,
+		tests.Skipped, []tomltest.Test{},
 	}
 	for _, t := range tests.Tests {
 		if t.Failed() || showAll >= 1 {
