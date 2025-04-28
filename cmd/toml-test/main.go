@@ -217,7 +217,7 @@ func main() {
 		printText(runner, tests, cmd, showAll, noNumber)
 	}
 
-	if tests.FailedValid > 0 || tests.FailedInvalid > 0 {
+	if tests.FailedValid > 0 || tests.FailedEncoder > 0 || tests.FailedInvalid > 0 {
 		zli.Exit(1)
 	}
 	zli.Exit(0)
@@ -231,16 +231,19 @@ func printJSON(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showA
 		Flags         []string        `json:"flags"`
 		Parser        []string        `json:"parser"`
 		PassedValid   int             `json:"passed_valid"`
+		PassedEncoder int             `json:"passed_encoder"`
 		PassedInvalid int             `json:"passed_invalid"`
 		FailedValid   int             `json:"failed_valid"`
+		FailedEncoder int             `json:"failed_encoder"`
 		FailedInvalid int             `json:"failed_invalid"`
 		Skipped       int             `json:"skipped"`
 		Tests         []tomltest.Test `json:"tests"`
 	}{
 		fmt.Sprintf("toml-test v%s", date.Format("2006-01-02")),
-		cmd, os.Args,
-		tests.PassedValid, tests.PassedInvalid, tests.FailedValid, tests.FailedInvalid, tests.Skipped,
-		nil,
+		os.Args, cmd,
+		tests.PassedValid, tests.PassedEncoder, tests.PassedInvalid,
+		tests.FailedValid, tests.FailedEncoder, tests.FailedInvalid,
+		tests.Skipped, nil,
 	}
 	for _, t := range tests.Tests {
 		if t.Failed() || showAll >= 1 {
@@ -267,7 +270,7 @@ func printText(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showA
 
 	fmt.Println()
 	if runner.Encoder {
-		fmt.Printf("encoder tests: %3d passed, %2d failed\n", tests.PassedValid, tests.FailedValid)
+		fmt.Printf("encoder tests: %3d passed, %2d failed\n", tests.PassedEncoder, tests.FailedEncoder)
 	} else {
 		fmt.Printf("  valid tests: %3d passed, %2d failed\n", tests.PassedValid, tests.FailedValid)
 		fmt.Printf("invalid tests: %3d passed, %2d failed\n", tests.PassedInvalid, tests.FailedInvalid)

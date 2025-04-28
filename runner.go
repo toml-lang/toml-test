@@ -78,13 +78,17 @@ type Parser interface {
 
 // Tests are tests to run.
 type Tests struct {
-	Tests []Test
+	Tests []Test `json:"tests"`
 
 	// Set when test are run.
 
-	Skipped                      int
-	PassedValid, FailedValid     int
-	PassedInvalid, FailedInvalid int
+	Skipped       int `json:"skipped"`
+	PassedValid   int `json:"passed_valid"`
+	FailedValid   int `json:"failed_valid"`
+	PassedInvalid int `json:"passed_invalid"`
+	FailedInvalid int `json:"failed_invalid"`
+	PassedEncoder int `json:"passed_encoder"`
+	FailedEncoder int `json:"failed_encoder"`
 }
 
 // Result is the result of a single test.
@@ -233,6 +237,8 @@ func (r Runner) Run() (Tests, error) {
 					t.Failure = "Test skipped with -skip but didn't fail"
 					if invalid {
 						tests.FailedInvalid++
+					} else if r.Encoder {
+						tests.FailedEncoder++
 					} else {
 						tests.FailedValid++
 					}
@@ -240,12 +246,16 @@ func (r Runner) Run() (Tests, error) {
 			} else if t.Failed() {
 				if invalid {
 					tests.FailedInvalid++
+				} else if r.Encoder {
+					tests.FailedEncoder++
 				} else {
 					tests.FailedValid++
 				}
 			} else {
 				if invalid {
 					tests.PassedInvalid++
+				} else if r.Encoder {
+					tests.PassedEncoder++
 				} else {
 					tests.PassedValid++
 				}
