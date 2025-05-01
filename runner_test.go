@@ -3,7 +3,6 @@ package tomltest
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -19,19 +18,19 @@ func notInList(t *testing.T, list []string, str string) {
 }
 
 func TestVersion(t *testing.T) {
-	_, err := Runner{Version: "0.9", Files: os.DirFS("./tests")}.Run()
+	_, err := Runner{Version: "0.9", Files: TestCases()}.Run()
 	if err == nil {
 		t.Fatal("expected an error for version 0.9")
 	}
 
-	r := Runner{Version: "1.0.0", Files: os.DirFS("./tests")}
+	r := Runner{Version: "1.0.0", Files: TestCases()}
 	ls, err := r.List()
 	if err != nil {
-		t.Fatal()
+		t.Fatal(err)
 	}
 	notInList(t, ls, "valid/string/escape-esc")
 
-	r = Runner{Version: "1.0.0", Files: os.DirFS("./tests")}
+	r = Runner{Version: "1.0.0", Files: TestCases()}
 	ls, err = r.List()
 	if err != nil {
 		t.Fatal()
@@ -40,6 +39,8 @@ func TestVersion(t *testing.T) {
 }
 
 type testParser struct{}
+
+func (t *testParser) Cmd() []string { return nil }
 
 func (t *testParser) Run(ctx context.Context, input string) (pid int, output string, outputIsError bool, err error) {
 	switch input {
@@ -56,7 +57,7 @@ func (t *testParser) Run(ctx context.Context, input string) (pid int, output str
 
 func TestErrors(t *testing.T) {
 	r := Runner{
-		Parser: &testParser{},
+		Decoder: &testParser{},
 		Files: fstest.MapFS{
 			"valid/a.toml":       &fstest.MapFile{Data: []byte(`a=1`)},
 			"valid/a.json":       &fstest.MapFile{Data: []byte(`{"a": {"type":"integer","value":"1"}}`)},
@@ -89,8 +90,8 @@ func TestErrors(t *testing.T) {
 
 	t.Run("non-existent", func(t *testing.T) {
 		r := Runner{
-			Parser: &testParser{},
-			Files:  fstest.MapFS{},
+			Decoder: &testParser{},
+			Files:   fstest.MapFS{},
 			Errors: map[string]string{
 				"file/doesn/exist": "oh noes",
 			},
@@ -107,7 +108,7 @@ func TestErrors(t *testing.T) {
 
 func TestSkip(t *testing.T) {
 	r := Runner{
-		Parser:    &testParser{},
+		Decoder:   &testParser{},
 		SkipTests: []string{"valid/a"},
 		Files: fstest.MapFS{
 			"valid/a.toml": &fstest.MapFile{Data: []byte(`a=`)},
@@ -124,7 +125,7 @@ func TestSkip(t *testing.T) {
 
 func TestSkipMustError(t *testing.T) {
 	r := Runner{
-		Parser:        &testParser{},
+		Decoder:       &testParser{},
 		SkipMustError: true,
 		SkipTests:     []string{"valid/a"},
 		Files: fstest.MapFS{

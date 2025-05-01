@@ -3,10 +3,10 @@
 #
 # Run the toml-test compliance tests: https://github.com/toml-lang/toml-test
 
-decoder="{{.Decoder}}"
-
-# Leave empty to not test encoder tests.
-encoder=
+# Decoder and encoder commands; leave encoder blank if writing TOML isn't supported.
+decoder="{{join .Decoder " "}}"
+{{if .Encoder}}encoder="{{join .Encoder " "}}"{{else}}
+encoder=  # No encoder tests{{end}}
 
 # Version of the TOML specification to test.
 toml={{.TOML}}
@@ -16,7 +16,13 @@ skip=(
 {{- if .FailedValid}}
 	# Failing "valid" tests
 {{range $t := .FailedValid}}{{"\t"}}-skip '{{$t}}'
-{{$t}}{{end}}{{end}}
+{{end}}{{end}}
+
+{{- if .FailedEncoder}}
+	# Failing "encoder" tests
+{{range $t := .FailedEncoder}}{{"\t"}}-skip '{{$t}}'
+{{end}}{{end}}
+
 {{- if .FailedInvalid}}
 	# Failing "invalid" tests
 {{range $t := .FailedInvalid}}{{"\t"}}-skip '{{$t}}'
@@ -45,9 +51,5 @@ if ! command -v "$tt" >/dev/null; then
 	exit 1
 fi
 
-fail=0
-"$tt" -toml="$toml" -skip-must-err ${skip[@]} -- "$decoder" "$@" || fail=1
-if [[ -n "$encoder" ]]; then
-	"$tt" -toml="$toml" -skip-must-err ${skip[@]} -encoder -- "$encoder" "$@" || fail=1
-fi
-exit $fail
+# Run toml-test
+"$tt" -toml="$toml" -skip-must-err ${skip[@]} -decoder="$decoder" -encoder="${encoder:-}" "$@"

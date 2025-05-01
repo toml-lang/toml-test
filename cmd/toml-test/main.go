@@ -27,15 +27,21 @@ var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
 //go:embed script.gotxt
 var script []byte
 
-var scriptTemplate = template.Must(template.New("").Option("missingkey=error").Parse(string(script)))
+var scriptTemplate = template.Must(template.New("").
+	Option("missingkey=error").
+	Funcs(template.FuncMap{
+		"join": strings.Join,
+	}).
+	Parse(string(script)))
 
-func parseFlags() (tomltest.Runner, []string, int, bool, bool, bool, bool) {
+func parseFlags() (tomltest.Runner, int, bool, bool, bool, bool) {
 	f := zli.NewFlags(os.Args)
 	var (
 		help          = f.Bool(false, "help", "h")
 		versionFlag   = f.IntCounter(0, "version", "V")
 		tomlVersion   = f.String(tomltest.DefaultVersion, "toml")
-		encoder       = f.Bool(false, "encoder")
+		decoder       = f.String("", "decoder")
+		encoder       = f.String("", "encoder")
 		showAll       = f.IntCounter(0, "v")
 		color         = f.String("always", "color")
 		skip          = f.StringList(nil, "skip")
@@ -44,7 +50,7 @@ func parseFlags() (tomltest.Runner, []string, int, bool, bool, bool, bool) {
 		cat           = f.Int(0, "cat")
 		copyFiles     = f.Bool(false, "copy")
 		parallel      = f.Int(runtime.NumCPU(), "parallel")
-		script        = f.Bool(false, "script", "print-skip") // -print-skip is the old name
+		script        = f.Bool(false, "script")
 		intAsFloat    = f.Bool(false, "int-as-float")
 		errors        = f.String("", "errors")
 		timeout       = f.String("1s", "timeout")
@@ -57,11 +63,11 @@ func parseFlags() (tomltest.Runner, []string, int, bool, bool, bool, bool) {
 		fmt.Printf(usage, filepath.Base(os.Args[0]))
 		zli.Exit(0)
 	}
-	if script.Bool() && encoder.Bool() {
-		zli.Fatalf("cannot use -script and -encoder; generate a script without -encoder and fill in the encoder binary")
-	}
 	if script.Bool() && asJSON.Bool() {
 		zli.Fatalf("-script does not support -json")
+	}
+	if decoder.String() == "" {
+		zli.Fatalf("must have -decoder command")
 	}
 	if tomlVersion.String() == "latest" {
 		*tomlVersion.Pointer() = tomltest.DefaultVersion
@@ -97,14 +103,23 @@ func parseFlags() (tomltest.Runner, []string, int, bool, bool, bool, bool) {
 		}()
 	}
 
+	if len(f.Args) > 0 {
+		zli.Fatalf("no positional arguments allowed")
+	}
+
+	var enc tomltest.Parser
+	if encoder.String() != "" {
+		enc = tomltest.NewCommandParser(strings.Fields(encoder.String()))
+	}
+
 	r := tomltest.Runner{
-		Encoder:       encoder.Bool(),
+		Decoder:       tomltest.NewCommandParser(strings.Fields(decoder.String())),
+		Encoder:       enc,
 		RunTests:      run.StringsSplit(","),
 		SkipTests:     skip.StringsSplit(","),
 		Version:       tomlVersion.String(),
 		Parallel:      parallel.Int(),
 		Files:         tomltest.TestCases(),
-		Parser:        tomltest.NewCommandParser(f.Args),
 		Timeout:       dur,
 		IntAsFloat:    intAsFloat.Bool(),
 		SkipMustError: skipMustError.Bool(),
@@ -114,9 +129,6 @@ func parseFlags() (tomltest.Runner, []string, int, bool, bool, bool, bool) {
 		r.SkipTests = append(r.SkipTests, "valid/integer/long")
 	}
 
-	if len(f.Args) == 0 && !listFiles.Bool() {
-		zli.Fatalf("no parser command")
-	}
 	for _, r := range r.RunTests {
 		_, err := filepath.Match(r, "")
 		if err != nil {
@@ -146,8 +158,7 @@ func parseFlags() (tomltest.Runner, []string, int, bool, bool, bool, bool) {
 		}
 	}
 
-	return r, f.Args, showAll.Int(), listFiles.Bool(),
-		script.Bool(), noNumber.Bool(), asJSON.Bool()
+	return r, showAll.Int(), listFiles.Bool(), script.Bool(), noNumber.Bool(), asJSON.Bool()
 }
 
 func getList(r tomltest.Runner) []string {
@@ -173,7 +184,7 @@ func newEnc() *json.Encoder {
 }
 
 func main() {
-	runner, cmd, showAll, listFiles, script, noNumber, asJSON := parseFlags()
+	runner, showAll, listFiles, script, noNumber, asJSON := parseFlags()
 
 	if listFiles {
 		l := getList(runner)
@@ -191,30 +202,38 @@ func main() {
 	zli.F(err)
 
 	if script {
-		var failedValid, failedInvalid []string
+		var failedValid, failedEncoder, failedInvalid []string
 		for _, f := range tests.Tests {
 			if f.Failed() {
-				if f.Type() == tomltest.TypeValid {
+				if f.Encoder() {
+					failedEncoder = append(failedEncoder, "encoder/"+f.Path[6:])
+				} else if f.Invalid() {
 					failedValid = append(failedValid, f.Path)
 				} else {
 					failedInvalid = append(failedInvalid, f.Path)
 				}
 			}
 		}
+		var enc []string
+		if runner.Encoder != nil {
+			enc = runner.Encoder.Cmd()
+		}
 		err := scriptTemplate.Execute(os.Stdout, struct {
-			Decoder       string
+			Decoder       []string
+			Encoder       []string
 			TOML          string
 			FailedValid   []string
+			FailedEncoder []string
 			FailedInvalid []string
-		}{strings.Join(cmd, " "), runner.Version, failedValid, failedInvalid})
+		}{runner.Decoder.Cmd(), enc, runner.Version, failedValid, failedEncoder, failedInvalid})
 		zli.F(err)
 		return
 	}
 
 	if asJSON {
-		printJSON(runner, tests, cmd, showAll)
+		printJSON(runner, tests, showAll)
 	} else {
-		printText(runner, tests, cmd, showAll, noNumber)
+		printText(runner, tests, showAll, noNumber)
 	}
 
 	if tests.FailedValid > 0 || tests.FailedEncoder > 0 || tests.FailedInvalid > 0 {
@@ -223,14 +242,20 @@ func main() {
 	zli.Exit(0)
 }
 
-func printJSON(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showAll int) {
+func printJSON(runner tomltest.Runner, tests tomltest.Tests, showAll int) {
 	_, _, date := zli.GetVersion()
+
+	var enc []string
+	if runner.Encoder != nil {
+		enc = runner.Encoder.Cmd()
+	}
 
 	out := struct {
 		Version       string          `json:"version"`
 		TOML          string          `json:"toml"`
 		Flags         []string        `json:"flags"`
-		Parser        []string        `json:"parser"`
+		Decoder       []string        `json:"decoder"`
+		Encoder       []string        `json:"encoder"`
 		PassedValid   int             `json:"passed_valid"`
 		PassedEncoder int             `json:"passed_encoder"`
 		PassedInvalid int             `json:"passed_invalid"`
@@ -241,7 +266,7 @@ func printJSON(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showA
 		Tests         []tomltest.Test `json:"tests"`
 	}{
 		fmt.Sprintf("toml-test v%s", date.Format("2006-01-02")),
-		runner.Version, os.Args, cmd,
+		runner.Version, os.Args, runner.Decoder.Cmd(), enc,
 		tests.PassedValid, tests.PassedEncoder, tests.PassedInvalid,
 		tests.FailedValid, tests.FailedEncoder, tests.FailedInvalid,
 		tests.Skipped, []tomltest.Test{},
@@ -254,7 +279,7 @@ func printJSON(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showA
 	newEnc().Encode(out)
 }
 
-func printText(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showAll int, noNumber bool) {
+func printText(runner tomltest.Runner, tests tomltest.Tests, showAll int, noNumber bool) {
 	for _, t := range tests.Tests {
 		if t.Failed() || showAll > 1 {
 			fmt.Print(detailed(runner, t, noNumber))
@@ -263,19 +288,22 @@ func printText(runner tomltest.Runner, tests tomltest.Tests, cmd []string, showA
 		}
 	}
 
+	enc := "[no encoder]"
+	if runner.Encoder != nil {
+		enc = fmt.Sprintf("%s", runner.Encoder.Cmd())
+	}
 	_, _, date := zli.GetVersion()
-	fmt.Printf("toml-test v%s %s: ", date.Format("2006-01-02"), cmd)
+	fmt.Printf("toml-test v%s %s %s\n", date.Format("2006-01-02"), runner.Decoder.Cmd(), enc)
 	if tests.Skipped > 0 {
-		fmt.Printf(", %2d skipped", tests.Skipped)
+		fmt.Printf("skipped tests: %d\n", tests.Skipped)
 	}
-
-	fmt.Println()
-	if runner.Encoder {
-		fmt.Printf("encoder tests: %3d passed, %2d failed\n", tests.PassedEncoder, tests.FailedEncoder)
+	fmt.Printf("  valid tests: %3d passed, %2d failed\n", tests.PassedValid, tests.FailedValid)
+	if runner.Encoder == nil {
+		fmt.Println("encoder tests: no encoder command given")
 	} else {
-		fmt.Printf("  valid tests: %3d passed, %2d failed\n", tests.PassedValid, tests.FailedValid)
-		fmt.Printf("invalid tests: %3d passed, %2d failed\n", tests.PassedInvalid, tests.FailedInvalid)
+		fmt.Printf("encoder tests: %3d passed, %2d failed\n", tests.PassedEncoder, tests.FailedEncoder)
 	}
+	fmt.Printf("invalid tests: %3d passed, %2d failed\n", tests.PassedInvalid, tests.FailedInvalid)
 }
 
 func short(r tomltest.Runner, t tomltest.Test) string {
@@ -288,6 +316,9 @@ func short(r tomltest.Runner, t tomltest.Test) string {
 		b.WriteString(zli.Bold.String())
 		b.WriteString(t.Path)
 		b.WriteString(zli.Reset.String())
+		if t.Encoder() {
+			b.WriteString(" (encoder)")
+		}
 	case t.Skipped:
 		b.WriteString(hlErr.String())
 		b.WriteString("SKIP")
@@ -325,10 +356,10 @@ func detailed(r tomltest.Runner, t tomltest.Test, noNumber bool) string {
 	} else {
 		showStream(b, fmt.Sprintf("output from parser-cmd (PID %d) (stdout)", t.PID), t.Output, noNumber)
 	}
-	if t.Type() == tomltest.TypeValid {
-		showStream(b, "want", t.Want, noNumber)
-	} else {
+	if t.Invalid() {
 		showStream(b, "want", "Exit code 1", noNumber)
+	} else {
+		showStream(b, "want", t.Want, noNumber)
 	}
 	b.WriteByte('\n')
 
