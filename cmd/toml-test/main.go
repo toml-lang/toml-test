@@ -66,9 +66,6 @@ func parseFlags() (tomltest.Runner, int, bool, bool, bool, bool) {
 	if script.Bool() && asJSON.Bool() {
 		zli.Fatalf("-script does not support -json")
 	}
-	if decoder.String() == "" {
-		zli.Fatalf("must have -decoder command")
-	}
 	if tomlVersion.String() == "latest" {
 		*tomlVersion.Pointer() = tomltest.DefaultVersion
 	}
@@ -83,6 +80,9 @@ func parseFlags() (tomltest.Runner, int, bool, bool, bool, bool) {
 	if copyFiles.Set() {
 		doCopy(tomlVersion.String(), f.Args)
 		zli.Exit(0)
+	}
+	if decoder.String() == "" {
+		zli.Fatalf("must have -decoder command")
 	}
 
 	dur, err := time.ParseDuration(timeout.String())
