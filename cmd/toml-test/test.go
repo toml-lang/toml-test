@@ -16,7 +16,7 @@ import (
 )
 
 func cmdTest(f zli.Flags) {
-	runner, verbose, script, noNumber, asJSON := parseTestFlags(f)
+	runner, verbose, script, asJSON := parseTestFlags(f)
 
 	tests, err := runner.Run()
 	zli.F(err)
@@ -53,7 +53,7 @@ func cmdTest(f zli.Flags) {
 	if asJSON {
 		printJSON(runner, tests, verbose)
 	} else {
-		printText(runner, tests, verbose, noNumber)
+		printText(runner, tests, verbose)
 	}
 
 	if tests.FailedValid > 0 || tests.FailedEncoder > 0 || tests.FailedInvalid > 0 {
@@ -62,7 +62,7 @@ func cmdTest(f zli.Flags) {
 	zli.Exit(0)
 }
 
-func parseTestFlags(f zli.Flags) (tomltest.Runner, int, bool, bool, bool) {
+func parseTestFlags(f zli.Flags) (tomltest.Runner, int, bool, bool) {
 	var (
 		decoder       = f.String("", "decoder")
 		encoder       = f.String("", "encoder")
@@ -76,7 +76,6 @@ func parseTestFlags(f zli.Flags) (tomltest.Runner, int, bool, bool, bool) {
 		intAsFloat    = f.Bool(false, "int-as-float")
 		errors        = f.String("", "errors")
 		timeout       = f.String("1s", "timeout")
-		noNumber      = f.Bool(false, "no-number", "no_number")
 		skipMustError = f.Bool(false, "skip-must-err", "skip-must-error")
 		asJSON        = f.Bool(false, "json")
 	)
@@ -162,7 +161,7 @@ func parseTestFlags(f zli.Flags) (tomltest.Runner, int, bool, bool, bool) {
 		}
 	}
 
-	return runner, verbose.Int(), script.Bool(), noNumber.Bool(), asJSON.Bool()
+	return runner, verbose.Int(), script.Bool(), asJSON.Bool()
 }
 
 func newEnc() *json.Encoder {
@@ -209,10 +208,10 @@ func printJSON(runner tomltest.Runner, tests tomltest.Tests, verbose int) {
 	newEnc().Encode(out)
 }
 
-func printText(runner tomltest.Runner, tests tomltest.Tests, verbose int, noNumber bool) {
+func printText(runner tomltest.Runner, tests tomltest.Tests, verbose int) {
 	for _, t := range tests.Tests {
 		if t.Failed() || verbose > 1 {
-			fmt.Print(detailed(runner, t, noNumber))
+			fmt.Print(detailed(runner, t))
 		} else if verbose == 1 {
 			fmt.Print(short(runner, t))
 		}
@@ -264,7 +263,7 @@ func short(r tomltest.Runner, t tomltest.Test) string {
 	return b.String()
 }
 
-func detailed(r tomltest.Runner, t tomltest.Test, noNumber bool) string {
+func detailed(r tomltest.Runner, t tomltest.Test) string {
 	b := new(strings.Builder)
 	b.WriteString(short(r, t))
 
@@ -274,7 +273,7 @@ func detailed(r tomltest.Runner, t tomltest.Test, noNumber bool) string {
 			zli.Colorize(" ", hlErr)))
 		b.WriteByte('\n')
 	}
-	showStream(b, fmt.Sprintf("input sent to parser-cmd (PID %d)", t.PID), t.Input, noNumber)
+	showStream(b, fmt.Sprintf("input sent to parser-cmd (PID %d)", t.PID), t.Input)
 
 	out, err := jfmt.NewFormatter(0, "", "  ").FormatString(t.Output)
 	if err == nil {
@@ -282,28 +281,28 @@ func detailed(r tomltest.Runner, t tomltest.Test, noNumber bool) string {
 	}
 
 	if t.OutputFromStderr {
-		showStream(b, fmt.Sprintf("output from parser-cmd (PID %d) (stderr)", t.PID), t.Output, noNumber)
+		showStream(b, fmt.Sprintf("output from parser-cmd (PID %d) (stderr)", t.PID), t.Output)
 	} else {
-		showStream(b, fmt.Sprintf("output from parser-cmd (PID %d) (stdout)", t.PID), t.Output, noNumber)
+		showStream(b, fmt.Sprintf("output from parser-cmd (PID %d) (stdout)", t.PID), t.Output)
 	}
 	if t.Invalid() {
-		showStream(b, "want", "Exit code 1", noNumber)
+		showStream(b, "want", "Exit code 1")
 	} else {
-		showStream(b, "want", t.Want, noNumber)
+		showStream(b, "want", t.Want)
 	}
 	b.WriteByte('\n')
 
 	return b.String()
 }
 
-func showStream(b *strings.Builder, name, s string, noNumber bool) {
+func showStream(b *strings.Builder, name, s string) {
 	b.WriteByte('\n')
 	fmt.Fprintln(b, zli.Colorize("     "+name+":", zli.Bold))
 	if s == "" {
 		fmt.Fprintln(b, "          <empty>")
 		return
 	}
-	fmt.Fprintln(b, indent(s, 7, !noNumber && s != "Exit code 1"))
+	fmt.Fprintln(b, indent(s, 7, s != "Exit code 1"))
 }
 
 func indentWith(s, with string) string {
