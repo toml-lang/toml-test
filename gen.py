@@ -29,9 +29,9 @@ def gen_multi():
 
 def gen_list():
     with open('tests/files-toml-1.0.0', 'w+') as fp:
-        subprocess.run(['go', 'run', './cmd/toml-test', '-list-files', '-toml=1.0.0'], stdout=fp)
+        subprocess.run(['go', 'run', './cmd/toml-test', 'list', '-toml=1.0.0'], stdout=fp)
     with open('tests/files-toml-1.1.0', 'w+') as fp:
-        subprocess.run(['go', 'run', './cmd/toml-test', '-list-files', '-toml=1.1.0'], stdout=fp)
+        subprocess.run(['go', 'run', './cmd/toml-test', 'list', '-toml=1.1.0'], stdout=fp)
 
 def gen_spec(version, file):
     try:
