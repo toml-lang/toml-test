@@ -1,92 +1,162 @@
 package main
 
-const usage = `Usage: %[1]s parser-cmd [ parser-cmd-flags ]
+import "strings"
 
+var usage = `
 toml-test is a tool to verify the correctness of TOML parsers and writers.
 https://github.com/toml-lang/toml-test
 
-The parser-cmd positional argument should be a program that accepts TOML data
-on stdin until EOF, and is expected to write the corresponding JSON encoding on
-stdout. See README.md for details on how to write parser-cmd.
+Commands:
 
-Any further positional arguments are passed to parser-cmd; stop toml-test's
-flag parsing with -- to use flags; for example to use -A as a flag for
-toml-test and -B as a flag for my-parser:
+    test      Run tests. See "help test" for details.
 
-   $ %[1]s -A -- my-parser -B
+    list      List all test files and exit. Use the -toml flag to specify which
+              TOML version to list files for (1.0, 1.1, or latest). Doesn't
+              include encoder test files, as they're the same as valid tests.
 
-There are two tests:
+    copy      Write all test files to disk. Use the -toml flag to specify which
+              TOML version to list tests for (1.0, 1.1, or latest). Doesn't
+              include encoder test files, as they're the same as valid tests.
 
-    decoder    This is the default.
-    encoder    When -encoder is given.
+    version   Show version and exit. Add -v to show detailed info.
 
-Tests are split in to "valid" and "invalid" groups:
+    help      Show this help and exit.
+`[1:]
 
-   valid           Valid TOML files
-   invalid         Invalid TOML files that should be rejected with an error.
+var usageTest = strings.ReplaceAll(`
+The "test" command runs the test cases.
 
-All tests are referred to relative to to the tests/ directory: valid/dir/name
-or invalid/dir/name.
+The way toml-test works is that for every test case it executes a "decoder"
+command, which reads TOML from stdin and then outputs JSON describing that TOML
+(or returns an error if it thinks the TOML isn't valid). Encoder tests work the
+same except in reverse: it reads JSON and transforms that to TOML.
 
-Flags:
+There are three types of tests:
 
-    -h, -help      Show this help and exit.
+    valid      Valid TOML that the decoder command should describe as JSON.
+    invalid    Invalid TOML files that should be rejected with an error.
+    encoder    JSON that the encoder command should transform to TOML.
 
-    -V, -version   Show version and exit. Add twice to show detailed info.
+\x1b[1mImplementing a decoder:\x1b[0m
 
-    -encoder       The given parser-cmd will be tested as a TOML encoder rather
-                   than a decoder.
+    A decoder reads TOML data from stdin and outputs a JSON description to
+    stdout and exits with code 0. If the TOML data is invalid, it must exit
+    with code 1. It's recommended to write an error message to stderr.
 
-                   The parser-cmd will be sent JSON on stdin and is expected to
-                   write TOML to stdout. The JSON will be in the same format as
-                   specified in the toml-test README. Note that this depends on
-                   the correctness of my TOML parser!
+    An example in pseudocode:
 
-    -json          Output as JSON.
+        toml_data = read_stdin()
 
-    -toml          Select TOML version to run tests for. Supported versions are
-                   "1.0" and "1.1" (which isn't released yet and may change).
-                   Use "latest" to use the latest published TOML version.
-                   Default is latest.
+        parsed_toml = decode_toml(toml_data)
+
+        if error_parsing_toml():
+            print_error_to_stderr()
+            exit(1)
+
+        print_as_json_description(parsed_toml)
+        exit(0)
+
+    Details of the JSON format is explained below in "JSON description".
+
+\x1b[1mImplementing an encoder:\x1b[0m
+
+    An encoder is the reverse of a decoder; it reads a JSON description from
+    stdin converts that to TOML.
+
+    An example in pseudocode:
+
+        json_data = read_stdin()
+
+        json_description = decode_json(json_data)
+
+        print_as_toml(json_description)
+        exit(0)
+
+\x1b[1mJSON description\x1b[0m
+
+    TOML is described with JSON as follows:
+
+    - TOML tables correspond to JSON objects.
+    - TOML arrays correspond to JSON arrays.
+    - TOML values correspond to a JSON object of the form:
+      {"type": "{TOML_TYPE}", "value": "{TOML_VALUE}"}
+
+    In the above, TOML_VALUE is always a JSON string (even for integers or
+    bools), and TOML_TYPE may be one of: string, integer, float, bool,
+    datetime, datetime-local, date-local, or time-local.
+
+    Empty tables correspond to empty JSON objects ({}) and empty arrays
+    correspond to empty JSON arrays ([]).
+
+    Offset datetimes should be encoded in RFC 3339; Local datetimes should be
+    encoded following RFC 3339 without the offset part. Local dates should be
+    encoded as the date part of RFC 3339 and local times as the time part.
+
+    Examples:
+
+        ┌───────────────┬────────────────────────────────────────────────────┐
+        │ TOML          │ JSON                                               │
+        ├───────────────┼────────────────────────────────────────────────────┤
+        │ a = 42        │   {"type": "integer", "value": "42"}               │
+        ├───────────────┼────────────────────────────────────────────────────┤
+        │ [tbl]         │   {"tbl": {                                        │
+        │ a = 42        │       "a": {"type": "integer", "value": "42"}      │
+        │               │   }}                                               │
+        ├───────────────┼────────────────────────────────────────────────────┤
+        │ a = ["a", 2]  │   {"a": [                                          │
+        │               │       {"type": "string",  "value": "a"},           │
+        │               │       {"type": "integer", "value": "2"}            │
+        │               │   ]}                                               │
+        ├───────────────┼────────────────────────────────────────────────────┤
+        │ [[arr]]       │   {"arr": [                                        │
+        │ a = 1         │       {                                            │
+        │ b = 2         │           "a": {"type": "integer", "value": "1"},  │
+        │ [[arr]]       │           "b": {"type": "integer", "value": "2"}   │
+        │ a = 3         │       }, {                                         │
+        │ b = 4         │           "a": {"type": "integer", "value": "3"},  │
+        │               │           "b": {"type": "integer", "value": "4"}   │
+        │               │       }                                            │
+        │               │   ]}                                               │
+        └───────────────┴────────────────────────────────────────────────────┘
+
+\x1b[1mFlags:\x1b[0m
+
+    -decoder       Decoder command to use: this should read TOML from stdin,
+                   and output the JSON description on stdout. On errors it
+                   should exit with code 1.
+
+    -encoder       Encoder command to use; this should read JSON from stdin,
+                   and output TOML on stdout. The JSON is in the same format as
+                   specified in the toml-test README. May be omitted if writing
+                   TOML isn't supported.
+
+    -json          Output report as JSON rather than text.
+
+    -script        Print a small bash/zsh script with -skip flag for failing
+                   tests; useful to get a list of "known failures" for CI
+                   integrations and such.
+
+    -toml          TOML version to run tests for,  "1.0", "1.1", or "latest"
+                   for the latest published TOML version. Default is latest.
 
     -timeout       Maximum time for a single test run, to detect infinite loops
                    or pathological cases. Defaults to "1s".
 
-    -list-files    List all test files, one file per line, and exit without
-                   running anything. This takes the -toml flag in to account,
-                   but none of the other flags.
-
-    -cat           Keep outputting (valid) TOML from testcases until the file
-                   reaches this many KB. Useful for generating benchmarks.
-
-                   E.g. to create 1M and 100M files:
-
-                       $ toml-test -cat 1024              >1M.toml
-                       $ toml-test -cat $(( 1024 * 100 )) >100M.toml
-
-                   The -skip, -run, and -toml flags can be used in combination
-                   with -cat.
-
-    -copy          Copy all test files to the given directory. This will take
-                   the -toml flag in to account, so it only copies files for
-                   the given version. (The test files are compiled in the
-                   binary, this will only require the toml-test binary).
-
     -v             List all tests, even passing ones. Add twice to show
                    detailed output for passing tests.
 
-    -run           List of tests to run; the default is to run all tests.
+    -run           Rests to run; the default is to run all tests.
 
                    Test names include the directory, i.e. "valid/test-name" or
                    "invalid/test-name". You can use globbing patterns , for
                    example to run all string tests:
 
-                       $ toml-test toml-test-decoder -run 'valid/string*'
+                       % toml-test toml-test-decoder -run 'valid/string*'
 
                    You can specify this argument more than once, and/or specify
                    multiple tests by separating them with a comma:
 
-                       $ toml-test toml-test-decoder \
+                       % toml-test toml-test-decoder \
                            -run valid/string-empty \
                            -run valid/string-nl,valid/string-simple
 
@@ -103,10 +173,6 @@ Flags:
 
     -parallel      Number of tests to run in parallel; defaults to GOMAXPROCS,
                    which is normally the number of cores available.
-
-    -script        Print a small bash/zsh script with -skip flag for failing
-                   tests; useful to get a list of "known failures" for CI
-                   integrations and such.
 
     -int-as-float  Treat all integers as floats, rather than integers. This
                    also skips the int64 test as that's outside of the safe
@@ -138,6 +204,6 @@ Flags:
                         never    Never output any escape codes.
 
                    Default is "always", or "never" if NO_COLOR is set.
-`
+`, `\x1b`, "\x1b")[1:]
 
 // vim:et:tw=79

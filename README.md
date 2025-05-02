@@ -131,8 +131,8 @@ JSON encoding
 The following JSON encoding applies equally to both encoders and decoders:
 
 - TOML tables correspond to JSON objects.
-- TOML table arrays correspond to JSON arrays.
-- TOML values correspond to a special JSON object of the form:
+- TOML arrays correspond to JSON arrays.
+- TOML values correspond to a JSON object of the form:
   `{"type": "{TOML_TYPE}", "value": "{TOML_VALUE}"}`
 
 In the above, `TOML_TYPE` may be one of:
@@ -148,12 +148,12 @@ In the above, `TOML_TYPE` may be one of:
 
 `TOML_VALUE` is always a JSON string.
 
-Empty hashes correspond to empty JSON objects (`{}`) and empty arrays correspond
+Empty tables correspond to empty JSON objects (`{}`) and empty arrays correspond
 to empty JSON arrays (`[]`).
 
 Offset datetimes should be encoded in RFC 3339; Local datetimes should be
 encoded following RFC 3339 without the offset part. Local dates should be
-encoded as the date part of RFC 3339 and Local times as the time part.
+encoded as the date part of RFC 3339 and local times as the time part.
 
 Examples:
 
@@ -174,31 +174,17 @@ Examples:
                             {"type": "integer", "value": "2"}
                         ]}
 
-Or a more complex example:
+<!-- -->
 
-```toml
-best-day-ever = 1987-07-05T17:45:00Z
-
-[numtheory]
-boring     = false
-perfection = [6, 28, 496]
-```
-
-And the JSON encoding expected by `toml-test` is:
-
-```json
-{
-  "best-day-ever": {"type": "datetime", "value": "1987-07-05T17:45:00Z"},
-  "numtheory": {
-    "boring": {"type": "bool", "value": "false"},
-    "perfection": [
-      {"type": "integer", "value": "6"},
-      {"type": "integer", "value": "28"},
-      {"type": "integer", "value": "496"}
-    ]
-  }
-}
-```
+    [[arr]]             {"arr": [
+    a = 1                   {
+    b = 2                       "a": {"type": "integer", "value": "1"},
+    [[arr]]                     "b": {"type": "integer", "value": "2"}
+    a = 3                   }, {
+    b = 4                       "a": {"type": "integer", "value": "3"},
+                                "b": {"type": "integer", "value": "4"}
+                            }
+                        ]}
 
 Note that the only JSON values ever used are objects, arrays and strings.
 
@@ -232,26 +218,6 @@ TOML; a few things are left up to implementations, and are not tested here.
 
   This tests only millisecond precision, and not any further precision or the
   truncation of it.
-
-Assumptions of Truth
---------------------
-The following are taken as ground truths by `toml-test`:
-
-- All tests classified as `invalid` **are** invalid.
-- All tests classified as `valid` **are** valid.
-- All expected outputs in `valid/test-name.json` are exactly correct.
-- The Go standard library package `encoding/json` decodes JSON correctly.
-- When testing encoders the
-  [BurntSushi/toml](https://github.com/BurntSushi/toml) TOML decoder is assumed
-  to be correct. (Note that this assumption is not made when testing decoders!)
-
-Of particular note is that **no TOML decoder** is taken as ground truth when
-testing decoders. This means that most changes to the spec will only require an
-update of the tests in `toml-test`. (Bigger changes may require an adjustment of
-how two things are considered equal. Particularly if a new type of data is
-added.) Obviously, this advantage does not apply to testing TOML encoders since
-there must exist a TOML decoder that conforms to the specification in order to
-read the output of a TOML encoder.
 
 Usage without `toml-test` binary
 --------------------------------
@@ -306,22 +272,3 @@ reverse is true when testing encoders.
 A valid test without either a `.json` or `.toml` file will automatically fail.
 
 If you have tests that you'd like to add, please submit a pull request.
-
-Why JSON?
----------
-In order for a language agnostic test suite to work, we need some kind of data
-exchange format. TOML cannot be used, as it would imply that a particular parser
-has a blessing of correctness.
-
-My decision to use JSON was not a careful one. It was based on expediency. The
-Go standard library has an excellent `encoding/json` package built in, which
-made it easy to compare JSON data.
-
-The problem with JSON is that the types in TOML are not in one-to-one
-correspondence with JSON. This is why every TOML value represented in JSON is
-tagged with a type annotation, as described above.
-
-YAML may be closer in correspondence with TOML, but I don't believe we should
-rely on that correspondence. Making things explicit with JSON means that writing
-tests is a little more cumbersome, but it also reduces the number of assumptions
-we need to make.

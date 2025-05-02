@@ -97,6 +97,20 @@ type Runner struct {
 	SkipMustError bool              // Tests in SkipTests must fail. Useful for CI.
 }
 
+func NewRunner(r Runner) Runner {
+	if r.Version == "" || r.Version == "1.0" {
+		r.Version = "1.0.0"
+	} else if r.Version == "1.1" {
+		r.Version = "1.1.0"
+	} else if r.Version == "latest" {
+		r.Version = DefaultVersion
+	}
+	if r.Files == nil {
+		r.Files = TestCases()
+	}
+	return r
+}
+
 // A Parser instance is used to call the TOML parser we test.
 //
 // By default this is done through an external command.
@@ -155,13 +169,6 @@ func (err timeoutError) Error() string {
 
 // List all tests in Files for the current TOML version.
 func (r Runner) List() ([]string, error) {
-	if r.Version == "" || r.Version == "1.0" {
-		r.Version = "1.0.0"
-	} else if r.Version == "1.1" {
-		r.Version = "1.1.0"
-	} else if r.Version == "latest" {
-		r.Version = DefaultVersion
-	}
 	if _, ok := versions[r.Version]; !ok {
 		v := make([]string, 0, len(versions))
 		for k := range versions {
@@ -496,10 +503,7 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 		return t.fail(t.Output)
 	}
 	if t.Output == "" {
-		// Special case: we expect an empty output here.
-		if t.Path != "valid/empty-file" {
-			return t.fail("stdout is empty")
-		}
+		return t.fail("stdout is empty")
 	}
 
 	// Compare for encoder test
@@ -510,7 +514,6 @@ func (t Test) runValid(p Parser, fsys fs.FS) Test {
 		}
 		var have any
 		if _, err := toml.Decode(t.Output, &have); err != nil {
-			//return t.failf("decode TOML from encoder %q:\n  %s", cmd, err)
 			return t.failf("decode TOML from encoder:\n  %s", err)
 		}
 		return t.CompareTOML(want, have)

@@ -18,19 +18,19 @@ func notInList(t *testing.T, list []string, str string) {
 }
 
 func TestVersion(t *testing.T) {
-	_, err := Runner{Version: "0.9", Files: TestCases()}.Run()
+	_, err := NewRunner(Runner{Version: "0.9"}).Run()
 	if err == nil {
 		t.Fatal("expected an error for version 0.9")
 	}
 
-	r := Runner{Version: "1.0.0", Files: TestCases()}
+	r := NewRunner(Runner{Version: "1.0.0"})
 	ls, err := r.List()
 	if err != nil {
 		t.Fatal(err)
 	}
 	notInList(t, ls, "valid/string/escape-esc")
 
-	r = Runner{Version: "1.0.0", Files: TestCases()}
+	r = NewRunner(Runner{Version: "1.0.0"})
 	ls, err = r.List()
 	if err != nil {
 		t.Fatal()
@@ -56,7 +56,7 @@ func (t *testParser) Run(ctx context.Context, input string) (pid int, output str
 }
 
 func TestErrors(t *testing.T) {
-	r := Runner{
+	r := NewRunner(Runner{
 		Decoder: &testParser{},
 		Files: fstest.MapFS{
 			"valid/a.toml":       &fstest.MapFile{Data: []byte(`a=1`)},
@@ -70,7 +70,7 @@ func TestErrors(t *testing.T) {
 			"invalid/b":  "don't match",
 			"dir/c.toml": "oh noes",
 		},
-	}
+	})
 	tt, err := r.Run()
 	if err != nil {
 		t.Error(err)
@@ -89,13 +89,13 @@ func TestErrors(t *testing.T) {
 	}
 
 	t.Run("non-existent", func(t *testing.T) {
-		r := Runner{
+		r := NewRunner(Runner{
 			Decoder: &testParser{},
 			Files:   fstest.MapFS{},
 			Errors: map[string]string{
 				"file/doesn/exist": "oh noes",
 			},
-		}
+		})
 		_, err := r.Run()
 		if err == nil {
 			t.Fatal("error is nil")
@@ -107,13 +107,13 @@ func TestErrors(t *testing.T) {
 }
 
 func TestSkip(t *testing.T) {
-	r := Runner{
+	r := NewRunner(Runner{
 		Decoder:   &testParser{},
 		SkipTests: []string{"valid/a"},
 		Files: fstest.MapFS{
 			"valid/a.toml": &fstest.MapFile{Data: []byte(`a=`)},
 		},
-	}
+	})
 	tests, err := r.Run()
 	if err != nil {
 		t.Fatal(err)
@@ -124,7 +124,7 @@ func TestSkip(t *testing.T) {
 }
 
 func TestSkipMustError(t *testing.T) {
-	r := Runner{
+	r := NewRunner(Runner{
 		Decoder:       &testParser{},
 		SkipMustError: true,
 		SkipTests:     []string{"valid/a"},
@@ -132,7 +132,7 @@ func TestSkipMustError(t *testing.T) {
 			"valid/a.toml": &fstest.MapFile{Data: []byte(`a=1`)},
 			"valid/a.json": &fstest.MapFile{Data: []byte(`{"a": {"type":"integer","value":"1"}}`)},
 		},
-	}
+	})
 	tests, err := r.Run()
 	if err != nil {
 		t.Fatal(err)
