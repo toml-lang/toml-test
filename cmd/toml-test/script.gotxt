@@ -52,4 +52,4 @@ if ! command -v "$tt" >/dev/null; then
 fi
 
 # Run toml-test
-"$tt" -toml="$toml" -skip-must-err ${skip[@]} -decoder="$decoder" -encoder="${encoder:-}" "$@"
+"$tt" test -toml="$toml" -skip-must-err ${skip[@]} -decoder="$decoder" -encoder="${encoder:-}" "$@"
