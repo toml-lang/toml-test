@@ -45,6 +45,9 @@ func TestCases() fs.FS {
 
 	fsys := make(fstest.MapFS)
 	err = fs.WalkDir(f, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 		fi, err := d.Info()
 		if err != nil {
 			return err

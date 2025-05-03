@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 	"text/template"
 
@@ -35,7 +34,7 @@ func main() {
 	}
 	if err != nil {
 		if helpFlag.Set() {
-			if slices.Contains(f.Args, "test") {
+			if contains(f.Args, "test") {
 				fmt.Print(usageTest)
 			} else {
 				fmt.Print(usage)
@@ -47,7 +46,7 @@ func main() {
 
 	switch cmd {
 	case "help":
-		if slices.Contains(f.Args, "test") {
+		if contains(f.Args, "test") {
 			fmt.Print(usageTest)
 		} else {
 			fmt.Print(usage)
@@ -61,10 +60,19 @@ func main() {
 	case "copy", "cp":
 		cmdCopy(f)
 	case "test":
-		if helpFlag.Set() || slices.Contains(f.Args, "help") {
+		if helpFlag.Set() || contains(f.Args, "help") {
 			fmt.Print(usageTest)
 			return
 		}
 		cmdTest(f)
 	}
+}
+
+func contains[S ~[]E, E comparable](s S, v E) bool {
+	for i := range s {
+		if v == s[i] {
+			return true
+		}
+	}
+	return false
 }
