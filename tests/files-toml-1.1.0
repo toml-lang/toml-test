@@ -64,7 +64,6 @@ invalid/control/comment-ff.toml
 invalid/control/comment-lf.toml
 invalid/control/comment-null.toml
 invalid/control/comment-us.toml
-invalid/control/multi-cr.toml
 invalid/control/multi-del.toml
 invalid/control/multi-lf.toml
 invalid/control/multi-null.toml
@@ -72,7 +71,6 @@ invalid/control/multi-us.toml
 invalid/control/only-ff.toml
 invalid/control/only-null.toml
 invalid/control/only-vt.toml
-invalid/control/rawmulti-cr.toml
 invalid/control/rawmulti-del.toml
 invalid/control/rawmulti-lf.toml
 invalid/control/rawmulti-null.toml
@@ -374,6 +372,8 @@ invalid/spec-1.1.0/common-46-1.toml
 invalid/spec-1.1.0/common-49-0.toml
 invalid/spec-1.1.0/common-5.toml
 invalid/spec-1.1.0/common-50-0.toml
+invalid/spec-1.1.0/control-multi-cr.toml
+invalid/spec-1.1.0/control-rawmulti-cr.toml
 invalid/string/bad-byte-escape.toml
 invalid/string/bad-concat.toml
 invalid/string/bad-escape-01.toml
