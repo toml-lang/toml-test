@@ -1,0 +1,13 @@
+toml-version = "v1.1.0-preview"
+
+[files]
+exclude = ["tests/invalid/**"]
+
+[lint.rules]
+dotted-keys-out-of-order = "off"
+key-empty = "off"
+tables-out-of-order = "off"
+
+[[overrides]]
+files.include = ["**/*.toml"]
+format.enabled = false
