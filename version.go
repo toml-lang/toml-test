@@ -15,10 +15,10 @@ var versions = map[string]versionSpec{
 			"invalid/local-datetime/no-secs",
 			"invalid/string/basic-byte-escapes", // \x is now valid.
 			"invalid/inline-table/trailing-comma",
-			"invalid/inline-table/linebreak-1",
-			"invalid/inline-table/linebreak-2",
-			"invalid/inline-table/linebreak-3",
-			"invalid/inline-table/linebreak-4",
+			"invalid/inline-table/linebreak-01",
+			"invalid/inline-table/linebreak-02",
+			"invalid/inline-table/linebreak-03",
+			"invalid/inline-table/linebreak-04",
 		},
 	},
 
