@@ -195,7 +195,7 @@ An example implementation can be found in the BurnSushi/toml:
 
 Untested and implementation-defined behaviour
 ---------------------------------------------
-This only tests behaviour that's should be true for every encoder implementing
+This only tests behaviour that should be true for every encoder implementing
 TOML; a few things are left up to implementations, and are not tested here.
 
 - TOML does not mandate a specific integer or float size, but recommends int64
