@@ -33,24 +33,23 @@ func main() {
 		return
 	}
 	if err != nil {
-		if helpFlag.Set() {
-			if contains(f.Args, "test") {
-				fmt.Print(usageTest)
-			} else {
-				fmt.Print(usage)
-			}
-			return
-		}
 		zli.F(err)
+	}
+	if helpFlag.Set() {
+		f.Args, cmd = []string{cmd}, "help"
 	}
 
 	switch cmd {
 	case "help":
-		if contains(f.Args, "test") {
-			fmt.Print(usageTest)
-		} else {
-			fmt.Print(usage)
+		topic := ""
+		if len(f.Args) > 0 {
+			topic = f.Args[0]
 		}
+		u, ok := helpTopics[topic]
+		if !ok {
+			zli.Fatalf("no help for %q", topic)
+		}
+		fmt.Print(u)
 	case "version":
 		v := f.Bool(false, "v")
 		zli.F(f.Parse())
@@ -58,19 +57,6 @@ func main() {
 	case "copy", "cp":
 		cmdCopy(f)
 	case "test":
-		if helpFlag.Set() || contains(f.Args, "help") {
-			fmt.Print(usageTest)
-			return
-		}
 		cmdTest(f)
 	}
-}
-
-func contains[S ~[]E, E comparable](s S, v E) bool {
-	for i := range s {
-		if v == s[i] {
-			return true
-		}
-	}
-	return false
 }

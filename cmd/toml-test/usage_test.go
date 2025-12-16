@@ -6,12 +6,15 @@ import (
 )
 
 func TestUsage(t *testing.T) {
-	if strings.Contains(usage, "\t") {
-		t.Error("usage contains tabs")
-	}
-	for i, line := range strings.Split(usage, "\n") {
-		if l := len(line); l > 79 {
-			t.Errorf("line %d longer than 79 cols: %d", i, l)
+	for k, v := range helpTopics {
+		if strings.Contains(v, "\t") {
+			t.Errorf("usage for %q contains tabs", k)
+		}
+		for i, line := range strings.Split(v, "\n") {
+			if l := len([]rune(line)); l > 79 {
+				t.Errorf("line %d for %q longer than 79 cols (%d): %q", i, k, l, line)
+			}
 		}
 	}
+
 }

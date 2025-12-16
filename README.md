@@ -15,67 +15,59 @@ If you find something in your parser that's not exactly covered by toml-test
 already then it should be added here; just creating an issue is enough: don't
 *need* to create a PR.
 
-Compatible with TOML version [v1.0.0].
+Compatible with TOML versions [v1.0.0] and [v1.1.0].
 
 [TOML]: https://toml.io
 [v1.0.0]: https://toml.io/en/v1.0.0
+[v1.1.0]: https://toml.io/en/v1.1.0
 
 Installation
 ------------
 There are binaries on the [release page]; these are statically compiled and
-should run in most environments. It's recommended you use a binary, or a tagged
+should run in most environments. It's recommended you use a binary or a tagged
 release if you build from source especially in CI environments. This prevents
 your tests from breaking on changes to tests in this tool.
 
 To compile from source you will need Go 1.19 or newer:
 
-    % go install github.com/toml-lang/toml-test/cmd/toml-test@latest
+    % go install github.com/toml-lang/toml-test/v2/cmd/toml-test@latest
 
 This will build a `toml-test` binary in the `~/go/bin` directory. You can change
 that directory by setting `GOBIN`; for example to use the current directory:
 
-    % GOBIN="$(pwd)" go install github.com/toml-lang/toml-test/cmd/toml-test@latest
+    % GOBIN="$(pwd)" go install github.com/toml-lang/toml-test/v2/cmd/toml-test@latest
+
+See [CHANGELOG.md] for a list of changes.
 
 [release page]: https://github.com/toml-lang/toml-test/releases
-
-Running in CI
--------------
-The [setup-toml-test] action can be used in GitHub. See the README for more
-details.
-
-For other CI systems: the action essentially just downloads a release binary.
-See index.js. Should be easy enough to reproduce elsewhere.
-
-[setup-toml-test]: https://github.com/toml-lang/setup-toml-test
+[CHANGELOG.md]: ./CHANGELOG.md
 
 Usage
 -----
-`toml-test` accepts an encoder or decoder as the first positional argument, for
-example:
-
-    % toml-test my-toml-decoder
-    % toml-test my-toml-encoder -encoder
-
-The `-encoder` flag is used to signal that this is an encoder rather than a
-decoder.
-
-For example, to run the tests against the Go TOML library:
+`toml-test test` runs the test suite, and requires an `-decoder` and/or
+`-encoder` flag; for example:
 
     # Install my parser
     % go install github.com/BurntSushi/toml/cmd/toml-test-decoder@master
     % go install github.com/BurntSushi/toml/cmd/toml-test-encoder@master
 
-    % toml-test toml-test-decoder
-    toml-test v2023-10-23 [toml-test-decoder]: using embeded tests: 278 passed
+    # Run tests
+    % toml-test test \
+       -decoder=toml-test-decoder \
+       -encoder=toml-test-encoder
 
-    % toml-test -encoder toml-test-encoder
-    toml-test v2023-10-23 [toml-test-encoder]: using embeded tests:  94 passed,  0 failed
+    [..]
+
+    toml-test v2025-12-16 [toml-test-decoder] [toml-test-encoder]
+      valid tests: 205 passed,  0 failed
+    encoder tests: 205 passed,  0 failed
+    invalid tests: 460 passed, 15 failed
 
 You can use `-run [name]` or `-skip [name]` to run or skip specific tests. Both
 flags can be given more than once and accept glob patterns: `-run
 'valid/string/*'`.
 
-See `toml-test -help` for detailed usage.
+See `toml-test test -help` for detailed usage.
 
 ### Implementing a decoder
 For your decoder to be compatible with `toml-test` it **must** satisfy the
@@ -230,13 +222,13 @@ version of TOML; for example the 1.0.0 tests contain a test that trailing commas
 in tables are invalid, but in 1.1.0 this should be considered valid.
 
 In short: you can't "just" copy all .toml and .json files from the tests/
-directory. The easiest way to copy the correct files is to use `-copy`:
+directory. The easiest way to copy the correct files is to use `copy`:
 
     # Default of TOML 1.0
-    % toml-test -copy ./tests
+    % toml-test copy ./tests
 
     # Use TOML 1.1
-    % toml-test -copy ./tests -toml 1.1.0
+    % toml-test copy -toml 1.1.0 ./tests
 
 Alternatively, the [tests/files-toml-1.0.0] and [tests/files-toml-1.1.0] files
 contain a list of files you should run for that TOML version. You can use them
@@ -257,7 +249,7 @@ mentioned above, tests are split into two groups: invalid and valid tests.
 
 Invalid tests **only check if a decoder rejects invalid TOML data**. Or, in the
 case of testing encoders, invalid tests **only check if an encoder rejects an
-invalid representation of TOML** (e.g., a hetergeneous array). Therefore, all
+invalid representation of TOML** (e.g., a heterogeneous array). Therefore, all
 invalid tests should try to **test one thing and one thing only**. Invalid tests
 should be named after the fault it is trying to expose. Invalid tests for
 decoders are in the `tests/invalid` directory while invalid tests for encoders
