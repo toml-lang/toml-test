@@ -20,6 +20,7 @@ func cmdCopy(f zli.Flags) {
 	}
 
 	files := getList(tomltest.NewRunner(tomltest.Runner{Version: tomlVersion.String()}))
+	files = append(files, ".gitattributes")
 
 	d := f.Args[0]
 	err := os.MkdirAll(d, 0o777)
