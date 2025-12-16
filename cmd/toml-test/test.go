@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	tomltest "github.com/toml-lang/toml-test"
+	tomltest "github.com/toml-lang/toml-test/v2"
 	"zgo.at/jfmt"
 	"zgo.at/zli"
 )

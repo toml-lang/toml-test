@@ -2,21 +2,27 @@ package main
 
 import "strings"
 
+var helpTopics = map[string]string{
+	"":        usage,
+	"test":    usageTest,
+	"copy":    usageCopy,
+	"cp":      usageCopy,
+	"version": usageVersion,
+}
+
 var usage = `
 toml-test is a tool to verify the correctness of TOML parsers and writers.
 https://github.com/toml-lang/toml-test
 
+Use "toml-test help «cmd»" or "toml-test «cmd» -h" for more documentation on a
+command.
+
 Commands:
 
+    help      Show help and exit.
     test      Run tests. See "help test" for details.
-
-    copy      Write all test files to disk. Use the -toml flag to specify which
-              TOML version to list tests for (1.0, 1.1, or latest). Doesn't
-              include encoder test files, as they're the same as valid tests.
-
-    version   Show version and exit. Add -v to show detailed info.
-
-    help      Show this help and exit.
+    copy      Write all test files to disk.
+    version   Show version and exit.
 `[1:]
 
 var usageTest = strings.ReplaceAll(`
@@ -199,5 +205,34 @@ There are three types of tests:
 
                    Default is "always", or "never" if NO_COLOR is set.
 `, `\x1b`, "\x1b")[1:]
+
+var usageCopy = `
+The "copy" command writes all test files to disk.
+
+Must have a path as the first positional argument.
+
+This is useful for parsers that want to use the test cases without using the
+toml-test test runner.
+
+This also creates a version.toml with some information about the toml-test
+version, and a .gitattributes file which prevents line-ending transformations
+on *.toml files.
+
+Existing files are overwritten, but deleted or renamed test files are not
+deleted. It's generally recommended to remove and re-create the directory on
+updates.
+
+\x1b[1mFlags:\x1b[0m
+
+    -toml          TOML version to copy tests for (1.0, 1.1, or latest).
+`
+
+var usageVersion = `
+Show version and exit.
+
+\x1b[1mFlags:\x1b[0m
+
+    -v             Show detailed version info.
+`
 
 // vim:et:tw=79

@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	tomltest "github.com/toml-lang/toml-test"
+	tomltest "github.com/toml-lang/toml-test/v2"
 	"zgo.at/zli"
 )
 
