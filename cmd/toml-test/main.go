@@ -27,7 +27,7 @@ func main() {
 	f := zli.NewFlags(os.Args)
 	helpFlag := f.Bool(false, "h", "help")
 	zli.F(f.Parse(zli.AllowUnknown()))
-	cmd, err := f.ShiftCommand("help", "version", "test", "list", "ls", "copy", "cp")
+	cmd, err := f.ShiftCommand("help", "version", "test", "copy", "cp")
 	if errors.Is(err, zli.ErrCommandNoneGiven{}) {
 		fmt.Print(usage)
 		return
@@ -55,8 +55,6 @@ func main() {
 		v := f.Bool(false, "v")
 		zli.F(f.Parse())
 		zli.PrintVersion(v.Bool())
-	case "list", "ls":
-		cmdList(f)
 	case "copy", "cp":
 		cmdCopy(f)
 	case "test":

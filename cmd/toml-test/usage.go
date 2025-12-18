@@ -10,10 +10,6 @@ Commands:
 
     test      Run tests. See "help test" for details.
 
-    list      List all test files and exit. Use the -toml flag to specify which
-              TOML version to list files for (1.0, 1.1, or latest). Doesn't
-              include encoder test files, as they're the same as valid tests.
-
     copy      Write all test files to disk. Use the -toml flag to specify which
               TOML version to list tests for (1.0, 1.1, or latest). Doesn't
               include encoder test files, as they're the same as valid tests.
