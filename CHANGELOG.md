@@ -3,6 +3,14 @@ v2.0.0 2025-12-18
 This release has a number of incompatible changes. It also sets TOML 1.1 as the
 default version to test.
 
+Note the correct import path changed from `github.com/toml-lang/toml-test` to
+`github.com/toml-lang/toml-test/v2`. If you're installing toml-test from source
+you now need to do:
+
+    % go install github.com/toml-lang/toml-test/v2/cmd/toml-test@latest
+
+Without the /v2, `@latest` will install the latest 1.x release.
+
 ### Incompatible changes
 - The CLI syntax has been cleaned up to make it easier to use. The main
   motivation was to enable running all tests (decoder and encoder) with just one
