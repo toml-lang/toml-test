@@ -15,26 +15,23 @@ func forVersion(t *testing.T, f func(string, *testing.T)) {
 
 	os.Setenv("BURNTSUSHI_TOML_110", "")
 	defer func() { os.Unsetenv("BURNTSUSHI_TOML_110") }()
-	t.Run("toml 1.1", func(t *testing.T) { f("1.0.0", t) })
+	t.Run("toml 1.1", func(t *testing.T) { f("1.1.0", t) })
 }
 
 func TestCompareTOML(t *testing.T) {
 	forVersion(t, func(v string, t *testing.T) {
 		t.Run("self", func(t *testing.T) {
-			files := make([]string, 0, 32)
-			f, err := os.ReadFile("./tests/files-toml-" + v)
+			files, err := Runner{Version: v, Files: TestCases()}.List()
 			if err != nil {
 				t.Fatal(err)
 			}
-			for _, line := range strings.Split(string(f), "\n") {
-				if strings.HasPrefix(line, "valid/") && strings.HasSuffix(line, ".toml") {
-					files = append(files, "./tests/"+line)
-				}
-			}
 
 			for _, f := range files {
+				if !strings.HasPrefix(f, "valid/") {
+					continue
+				}
 				t.Run(f, func(t *testing.T) {
-					d, err := os.ReadFile(f)
+					d, err := os.ReadFile("tests/" + f + ".toml")
 					if err != nil {
 						t.Fatal(err)
 					}
