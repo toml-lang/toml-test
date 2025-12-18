@@ -27,6 +27,12 @@ def gen_multi():
             if '/valid/' in f:  # TODO: version?
                 run_decoder('1.0.0', path, path[:-5] + '.json')
 
+def gen_list():
+    with open('tests/files-toml-1.0.0', 'w+') as fp:
+        subprocess.run(['go', 'run', './cmd/toml-test', 'list', '-toml=1.0.0'], stdout=fp)
+    with open('tests/files-toml-1.1.0', 'w+') as fp:
+        subprocess.run(['go', 'run', './cmd/toml-test', 'list', '-toml=1.1.0'], stdout=fp)
+
 def gen_spec(version, file):
     try:
         shutil.rmtree(f"{VALID_ROOT}-{version}")
@@ -165,3 +171,4 @@ if __name__ == "__main__":
         gen_multi()
         gen_spec('1.0.0', 'specs/v1.0.0.md')
         gen_spec('1.1.0', 'specs/v1.1.0.md')
+        gen_list()

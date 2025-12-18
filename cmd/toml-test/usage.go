@@ -5,6 +5,8 @@ import "strings"
 var helpTopics = map[string]string{
 	"":        usage,
 	"test":    usageTest,
+	"list":    usageList,
+	"ls":      usageList,
 	"copy":    usageCopy,
 	"cp":      usageCopy,
 	"version": usageVersion,
@@ -22,6 +24,7 @@ Commands:
     help      Show help and exit.
     test      Run tests. See "help test" for details.
     copy      Write all test files to disk.
+    list      List test filenames.
     version   Show version and exit.
 `[1:]
 
@@ -225,6 +228,17 @@ updates.
 \x1b[1mFlags:\x1b[0m
 
     -toml          TOML version to copy tests for (1.0, 1.1, or latest).
+`
+
+var usageList = `
+The "list" command lists all testfiles.
+
+This is mainly intended to generate the tests/files-toml-* files, which can
+make it more convenient to use the test cases without running toml-test.
+
+\x1b[1mFlags:\x1b[0m
+
+    -toml          TOML version to list tests for (1.0, 1.1, or latest).
 `
 
 var usageVersion = `

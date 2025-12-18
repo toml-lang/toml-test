@@ -5,8 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
-	"strings"
 
 	tomltest "github.com/toml-lang/toml-test/v2"
 	"zgo.at/zli"
@@ -60,23 +58,4 @@ commit = '%s'
 date   = %s
 `[1:], v, c, t.Format("2006-01-02"))), 0o0644)
 	zli.F(err)
-}
-
-func getList(r tomltest.Runner) []string {
-	l, err := r.List()
-	zli.F(err)
-
-	sort.Strings(l)
-	n := make([]string, 0, len(l)*2)
-	for _, ll := range l {
-		if strings.HasPrefix(ll, "encoder/") {
-			continue
-		}
-
-		if strings.HasPrefix(ll, "valid/") {
-			n = append(n, ll+".json")
-		}
-		n = append(n, ll+".toml")
-	}
-	return n
 }

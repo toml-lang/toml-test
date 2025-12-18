@@ -231,13 +231,8 @@ directory. The easiest way to copy the correct files is to use `copy`:
     % toml-test copy -toml 1.1.0 ./tests
 
 Alternatively, the [tests/files-toml-1.0.0] and [tests/files-toml-1.1.0] files
-contain a list of files you should run for that TOML version. You can use them
-with something like:
-
-    <files-toml-1.0.0 while read l; do
-        mkdir -p ~/my-test/"$(dirname "$l")"
-        cp -r "$l" ~/my-test/"$l"
-    done
+contain a list of files that should be run for that TOML version. This list is
+generated from the `toml-test list` output.
 
 [tests/files-toml-1.0.0]: tests/files-toml-1.0.0
 [tests/files-toml-1.1.0]: tests/files-toml-1.1.0
