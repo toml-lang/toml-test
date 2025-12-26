@@ -47,15 +47,12 @@ func cmdCopy(f zli.Flags) {
 		zli.F(err)
 	}
 
-	v, c, t := zli.GetVersion()
 	err = os.WriteFile(filepath.Join(d, "version.toml"), []byte(fmt.Sprintf(`
 # Update with:
 #     rm -r [this-dir]
-#     toml-test -copy [this-dir]
-src    = 'https://github.com/toml-lang/toml-test'
-tag    = '%s'
-commit = '%s'
-date   = %s
-`[1:], v, c, t.Format("2006-01-02"))), 0o0644)
+#     toml-test copy [this-dir]
+src     = 'https://github.com/toml-lang/toml-test'
+version = '%s'
+`[1:], zli.Version())), 0o0644)
 	zli.F(err)
 }
