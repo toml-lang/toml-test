@@ -172,8 +172,6 @@ func newEnc() *json.Encoder {
 }
 
 func printJSON(runner tomltest.Runner, tests tomltest.Tests, verbose int) {
-	_, _, date := zli.GetVersion()
-
 	var enc []string
 	if runner.Encoder != nil {
 		enc = runner.Encoder.Cmd()
@@ -194,7 +192,7 @@ func printJSON(runner tomltest.Runner, tests tomltest.Tests, verbose int) {
 		Skipped       int             `json:"skipped"`
 		Tests         []tomltest.Test `json:"tests"`
 	}{
-		fmt.Sprintf("toml-test v%s", date.Format("2006-01-02")),
+		fmt.Sprintf("toml-test %s", zli.Version()),
 		runner.Version, os.Args, runner.Decoder.Cmd(), enc,
 		tests.PassedValid, tests.PassedEncoder, tests.PassedInvalid,
 		tests.FailedValid, tests.FailedEncoder, tests.FailedInvalid,
@@ -221,8 +219,7 @@ func printText(runner tomltest.Runner, tests tomltest.Tests, verbose int) {
 	if runner.Encoder != nil {
 		enc = fmt.Sprintf("%s", runner.Encoder.Cmd())
 	}
-	_, _, date := zli.GetVersion()
-	fmt.Printf("toml-test v%s %s %s\n", date.Format("2006-01-02"), runner.Decoder.Cmd(), enc)
+	fmt.Printf("toml-test %s %s %s\n", zli.Version(), runner.Decoder.Cmd(), enc)
 	if tests.Skipped > 0 {
 		fmt.Printf("skipped tests: %d\n", tests.Skipped)
 	}
