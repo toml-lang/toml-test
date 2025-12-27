@@ -1,3 +1,13 @@
+v2.1.0 v2.0.0 2025-12-27
+------------------------
+Fix two issues in the 2.0 release:
+
+- Add back the `list` command and `tests/files-toml-*` files that were removed
+  in 2.0, as it turns out people were using them.
+
+- Fix printing of version of `test` and `version` commands when built with 
+  `go install go install github.com/toml-lang/toml-test/v2/cmd/toml-test@latest`.
+
 v2.0.0 2025-12-18
 -----------------
 This release has a number of incompatible changes. It also sets TOML 1.1 as the
