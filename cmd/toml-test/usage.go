@@ -150,7 +150,7 @@ There are three types of tests:
     -v             List all tests, even passing ones. Add twice to show
                    detailed output for passing tests.
 
-    -run           Rests to run; the default is to run all tests.
+    -run           Tests to run; the default is to run all tests.
 
                    Test names include the directory, i.e. "valid/test-name" or
                    "invalid/test-name". You can use globbing patterns , for
