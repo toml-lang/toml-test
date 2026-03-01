@@ -209,7 +209,7 @@ There are three types of tests:
                    Default is "always", or "never" if NO_COLOR is set.
 `, `\x1b`, "\x1b")[1:]
 
-var usageCopy = `
+var usageCopy = strings.ReplaceAll(`
 The "copy" command writes all test files to disk.
 
 Must have a path as the first positional argument.
@@ -228,9 +228,9 @@ updates.
 \x1b[1mFlags:\x1b[0m
 
     -toml          TOML version to copy tests for (1.0, 1.1, or latest).
-`
+`, `\x1b`, "\x1b")[1:]
 
-var usageList = `
+var usageList = strings.ReplaceAll(`
 The "list" command lists all testfiles.
 
 This is mainly intended to generate the tests/files-toml-* files, which can
@@ -239,14 +239,14 @@ make it more convenient to use the test cases without running toml-test.
 \x1b[1mFlags:\x1b[0m
 
     -toml          TOML version to list tests for (1.0, 1.1, or latest).
-`
+`, `\x1b`, "\x1b")[1:]
 
-var usageVersion = `
+var usageVersion = strings.ReplaceAll(`
 Show version and exit.
 
 \x1b[1mFlags:\x1b[0m
 
     -v             Show detailed version info.
-`
+`, `\x1b`, "\x1b")[1:]
 
 // vim:et:tw=79
