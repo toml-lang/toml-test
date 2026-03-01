@@ -47,12 +47,12 @@ func cmdCopy(f zli.Flags) {
 		zli.F(err)
 	}
 
-	err = os.WriteFile(filepath.Join(d, "version.toml"), []byte(fmt.Sprintf(`
+	err = os.WriteFile(filepath.Join(d, "version.toml"), fmt.Appendf(nil, `
 # Update with:
 #     rm -r [this-dir]
 #     toml-test copy [this-dir]
 src     = 'https://github.com/toml-lang/toml-test'
 version = '%s'
-`[1:], zli.Version())), 0o0644)
+`[1:], zli.Version()), 0o0644)
 	zli.F(err)
 }
