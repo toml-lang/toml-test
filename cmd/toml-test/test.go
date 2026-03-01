@@ -28,9 +28,9 @@ func cmdTest(f zli.Flags) {
 				if f.Encoder() {
 					failedEncoder = append(failedEncoder, "encoder/"+f.Path[6:])
 				} else if f.Invalid() {
-					failedValid = append(failedValid, f.Path)
-				} else {
 					failedInvalid = append(failedInvalid, f.Path)
+				} else {
+					failedValid = append(failedValid, f.Path)
 				}
 			}
 		}
