@@ -19,7 +19,8 @@ func cmdCopy(f zli.Flags) {
 		zli.Fatalf("need exactly one destination directory")
 	}
 
-	files := getList(tomltest.NewRunner(tomltest.Runner{Version: tomlVersion.String()}))
+	r := tomltest.NewRunner(tomltest.Runner{Version: tomlVersion.String()})
+	files := getList(r)
 	files = append(files, ".gitattributes")
 
 	d := f.Args[0]
@@ -50,9 +51,10 @@ func cmdCopy(f zli.Flags) {
 	err = os.WriteFile(filepath.Join(d, "version.toml"), fmt.Appendf(nil, `
 # Update with:
 #     rm -r [this-dir]
-#     toml-test copy [this-dir]
-src     = 'https://github.com/toml-lang/toml-test'
-version = '%s'
-`[1:], zli.Version()), 0o0644)
+#     toml-test copy -toml=%s [this-dir]
+src          = 'https://github.com/toml-lang/toml-test'
+version      = '%s'
+toml-version = '%[1]s'
+`[1:], r.Version, zli.Version()), 0o0644)
 	zli.F(err)
 }
