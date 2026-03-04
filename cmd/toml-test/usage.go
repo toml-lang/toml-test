@@ -156,21 +156,23 @@ There are three types of tests:
                    "invalid/test-name". You can use globbing patterns , for
                    example to run all string tests:
 
-                       % toml-test toml-test-decoder -run 'valid/string*'
+                       % toml-test test -decoder=[..] -run='valid/string/*'
 
                    You can specify this argument more than once, and/or specify
                    multiple tests by separating them with a comma:
 
-                       % toml-test toml-test-decoder \
-                           -run valid/string-empty \
-                           -run valid/string-nl,valid/string-simple
+                       % toml-test test -decoder=[..] \
+                           -run=valid/string-empty \
+                           -run=valid/string-nl,valid/string-simple
 
                    This will run three tests (string-empty, string-nl,
                    string-simple).
 
                    Quote glob characters so they won't be picked up by the
                    shell.
-                   Supported patterns: https://godocs.io/path/filepath#Match
+
+                   Supported patterns: https://pkg.go.dev/path/filepath#Match
+                   Note that like shell globbing, '*' does not match a '/'.
 
     -skip          Tests to skip, this uses the same syntax as the -run flag.
 
