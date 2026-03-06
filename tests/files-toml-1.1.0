@@ -410,6 +410,7 @@ invalid/table/append-with-dotted-keys-04.toml
 invalid/table/append-with-dotted-keys-05.toml
 invalid/table/append-with-dotted-keys-06.toml
 invalid/table/append-with-dotted-keys-07.toml
+invalid/table/append-with-dotted-keys-08.toml
 invalid/table/array-empty.toml
 invalid/table/array-implicit.toml
 invalid/table/array-no-close-01.toml
