@@ -211,6 +211,12 @@ TOML; a few things are left up to implementations, and are not tested here.
   This tests only millisecond precision, and not any further precision or the
   truncation of it.
 
+- Having a limit on table nesting is probably a good idea, as in many libraries
+  a relatively short TOML document with several thousand nested tables
+  (`[a.a.a.…]` or `a.a.a.… = 1`) may use an inordinate amount of memory or CPU
+  time. A limit of 128 or 256 should be more than enough to process pretty much
+  all real-world TOML documents.
+
 Usage without `toml-test` binary
 --------------------------------
 While the `toml-test` tool is a convenient way to run the tests, you can also
@@ -228,7 +234,7 @@ directory. The easiest way to copy the correct files is to use `copy`:
     % toml-test copy ./tests
 
     # Use TOML 1.1
-    % toml-test copy -toml 1.1.0 ./tests
+    % toml-test copy -toml=1.1 ./tests
 
 Alternatively, the [tests/files-toml-1.0.0] and [tests/files-toml-1.1.0] files
 contain a list of files that should be run for that TOML version. This list is
@@ -239,23 +245,17 @@ generated from the `toml-test list` output.
 
 Adding tests
 ------------
-`toml-test` was designed so that tests can be easily added and removed. As
-mentioned above, tests are split into two groups: invalid and valid tests.
+As mentioned above, tests are split into two groups: invalid and valid tests.
 
 Invalid tests **only check if a decoder rejects invalid TOML data**. Or, in the
 case of testing encoders, invalid tests **only check if an encoder rejects an
-invalid representation of TOML** (e.g., a heterogeneous array). Therefore, all
-invalid tests should try to **test one thing and one thing only**. Invalid tests
-should be named after the fault it is trying to expose. Invalid tests for
-decoders are in the `tests/invalid` directory while invalid tests for encoders
-are in the `tests/invalid-encoder` directory.
+invalid representation of TOML**. Therefore, all invalid tests should try to
+**test one thing and one thing only**. Invalid tests should be named after the
+fault it is trying to expose. Invalid tests for decoders are in the
+`tests/invalid` directory.
 
-Valid tests check that a decoder accepts valid TOML data **and** that the parser
+Valid tests check that a decoder accepts valid TOML data *and* that the parser
 has the correct representation of the TOML data. Therefore, valid tests need a
 JSON encoding in addition to the TOML data. The tests should be small enough
 that writing the JSON encoding by hand will not give you brain damage. The exact
 reverse is true when testing encoders.
-
-A valid test without either a `.json` or `.toml` file will automatically fail.
-
-If you have tests that you'd like to add, please submit a pull request.
