@@ -8,6 +8,11 @@ decoder="{{join .Decoder " "}}"
 {{if .Encoder}}encoder="{{join .Encoder " "}}"{{else}}
 encoder=  # No encoder tests{{end}}
 
+# Setup command(s), one -setup per array entry.
+setup=({{range $s := .Setup}}
+{{"\t"}}-setup {{$s | quote}}{{end}}
+)
+
 # Version of the TOML specification to test.
 toml={{.TOML}}
 
@@ -52,4 +57,4 @@ if ! command -v "$tt" >/dev/null; then
 fi
 
 # Run toml-test
-"$tt" test -toml="$toml" -skip-must-err ${skip[@]} -decoder="$decoder" -encoder="${encoder:-}" "$@"
+"$tt" test -toml="$toml" -skip-must-err ${skip[@]} "${setup[@]}" -decoder="$decoder" -encoder="${encoder:-}" "$@"

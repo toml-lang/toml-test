@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -22,13 +23,31 @@ var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
 //go:embed script.gotxt
 var script []byte
 
+func shellQuote(s string) string {
+	if strings.Contains(s, "'") {
+		s = strings.ReplaceAll(s, `'`, `'"'"'`) // cmd'foo → 'cmd'"'"'foo'
+	}
+	return "'" + s + "'"
+}
+
 var scriptTemplate = template.Must(template.New("").
 	Option("missingkey=error").
-	Funcs(template.FuncMap{"join": strings.Join}).
+	Funcs(template.FuncMap{"join": strings.Join, "quote": shellQuote}).
 	Parse(string(script)))
 
 func cmdTest(f zli.Flags) {
-	runner, verbose, script, asJSON := parseTestFlags(f)
+	runner, verbose, script, asJSON, setup := parseTestFlags(f)
+
+	for _, s := range setup {
+		f := strings.Fields(s)
+		if verbose > 0 {
+			fmt.Printf("SETUP %v\n", s)
+		}
+		out, err := exec.Command(f[0], f[1:]...).CombinedOutput()
+		if err != nil {
+			zli.Fatalf("error running -setup=%q: %s: command output:\n%s", s, err, out)
+		}
+	}
 
 	tests, err := runner.Run()
 	zli.F(err)
@@ -54,12 +73,13 @@ func cmdTest(f zli.Flags) {
 		err := scriptTemplate.Execute(os.Stdout, struct {
 			Decoder       []string
 			Encoder       []string
+			Setup         []string
 			TOML          string
 			Version       string
 			FailedValid   []string
 			FailedEncoder []string
 			FailedInvalid []string
-		}{runner.Decoder.Cmd(), enc, runner.Version, v, failedValid, failedEncoder, failedInvalid})
+		}{runner.Decoder.Cmd(), enc, setup, runner.Version, v, failedValid, failedEncoder, failedInvalid})
 		zli.F(err)
 		return
 	}
@@ -76,10 +96,11 @@ func cmdTest(f zli.Flags) {
 	zli.Exit(0)
 }
 
-func parseTestFlags(f zli.Flags) (tomltest.Runner, int, bool, bool) {
+func parseTestFlags(f zli.Flags) (tomltest.Runner, int, bool, bool, []string) {
 	var (
 		decoder       = f.String("", "decoder")
 		encoder       = f.String("", "encoder")
+		setup         = f.StringList(nil, "setup")
 		tomlVersion   = f.String(tomltest.DefaultVersion, "toml")
 		verbose       = f.IntCounter(0, "v")
 		color         = f.String("always", "color")
@@ -175,7 +196,7 @@ func parseTestFlags(f zli.Flags) (tomltest.Runner, int, bool, bool) {
 		}
 	}
 
-	return runner, verbose.Int(), script.Bool(), asJSON.Bool()
+	return runner, verbose.Int(), script.Bool(), asJSON.Bool(), setup.Strings()
 }
 
 func newEnc() *json.Encoder {

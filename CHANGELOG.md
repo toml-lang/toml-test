@@ -1,3 +1,13 @@
+Unreleased
+----------
+- Add `-setup` flag to run one or more commands before running the test suite;
+  useful for setting up or compiling the decoder program or script in one
+  command. For example:
+
+      toml-test test \
+          -setup='go build ./cmd/toml-test-decoder' -decoder=./toml-test-decoder \
+          -setup='go build ./cmd/toml-test-encoder' -encoder=./toml-test-encoder
+
 v2.2.0 2026-03-30
 -----------------
 This contains several minor bug fixes to the test runner and one additional

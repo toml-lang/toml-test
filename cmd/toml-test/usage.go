@@ -135,6 +135,22 @@ There are three types of tests:
                    specified in the toml-test README. May be omitted if writing
                    TOML isn't supported.
 
+    -setup         Run once before any tests, to setup/compile the decoder.
+                   toml-test exits with an error and won't run any tests if
+                   this exits with non-zero code. Like -decoder and -encoder,
+                   this isn't run through a shell but arguments are split on
+                   whitespace. This flag can be added more than once to run
+                   several commands (which are run in the order they are given
+                   on the commandline).
+
+                   For example:
+
+                      toml-test test \
+                        -setup='go build ./cmd/toml-test-decoder' \
+                        -setup='go build ./cmd/toml-test-encoder' \
+                        -decoder=./toml-test-decoder \
+                        -encoder=./toml-test-encoder
+
     -json          Output report as JSON rather than text.
 
     -script        Print a small bash/zsh script with -skip flag for failing
