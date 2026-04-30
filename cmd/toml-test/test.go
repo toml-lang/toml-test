@@ -1,12 +1,14 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -14,6 +16,16 @@ import (
 	"zgo.at/jfmt"
 	"zgo.at/zli"
 )
+
+var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
+
+//go:embed script.gotxt
+var script []byte
+
+var scriptTemplate = template.Must(template.New("").
+	Option("missingkey=error").
+	Funcs(template.FuncMap{"join": strings.Join}).
+	Parse(string(script)))
 
 func cmdTest(f zli.Flags) {
 	runner, verbose, script, asJSON := parseTestFlags(f)
@@ -38,14 +50,16 @@ func cmdTest(f zli.Flags) {
 		if runner.Encoder != nil {
 			enc = runner.Encoder.Cmd()
 		}
+		v, _, _ := strings.Cut(zli.Version(), "/") // "v2.2.0" or "e4e12cad/2026-04-30"
 		err := scriptTemplate.Execute(os.Stdout, struct {
 			Decoder       []string
 			Encoder       []string
 			TOML          string
+			Version       string
 			FailedValid   []string
 			FailedEncoder []string
 			FailedInvalid []string
-		}{runner.Decoder.Cmd(), enc, runner.Version, failedValid, failedEncoder, failedInvalid})
+		}{runner.Decoder.Cmd(), enc, runner.Version, v, failedValid, failedEncoder, failedInvalid})
 		zli.F(err)
 		return
 	}

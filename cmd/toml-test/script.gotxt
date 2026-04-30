@@ -44,7 +44,7 @@ elif [[ -x "$HOME/go/bin/toml-test" ]]; then
 fi
 if ! command -v "$tt" >/dev/null; then
 	echo >&2 'toml-test not in current dir, $PATH, $GOBIN, $GOPATH/bin, or $HOME/go/bin; install with:'
-	echo >&2 '    % go install github.com/toml-lang/toml-test/v2/cmd/toml-test@latest'
+	echo >&2 '    % go install github.com/toml-lang/toml-test/v2/cmd/toml-test@{{.Version}}'
 	echo >&2
 	echo >&2 'Or download a binary from:'
 	echo >&2 '    https://github.com/toml-lang/toml-test/releases'

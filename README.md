@@ -30,12 +30,19 @@ your tests from breaking on changes to tests in this tool.
 
 To compile from source you will need Go 1.19 or newer:
 
-    % go install github.com/toml-lang/toml-test/v2/cmd/toml-test@latest
+    % go run github.com/toml-lang/toml-test/v2/cmd/toml-test@v2.2.0 [..flags..]
+
+That will download the sources, compile a temporary binary in /tmp, and run
+that. Subsequent runs should be reasonably fast due to the Go build cache.
+
+To install permanent binary, use:
+
+    % go install github.com/toml-lang/toml-test/v2/cmd/toml-test@v2.2.0
 
 This will build a `toml-test` binary in the `~/go/bin` directory. You can change
 that directory by setting `GOBIN`; for example to use the current directory:
 
-    % GOBIN="$(pwd)" go install github.com/toml-lang/toml-test/v2/cmd/toml-test@latest
+    % GOBIN="$(pwd)" go install github.com/toml-lang/toml-test/v2/cmd/toml-test@v2.2.0
 
 See [CHANGELOG.md] for a list of changes.
 

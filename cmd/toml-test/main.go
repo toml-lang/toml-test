@@ -1,27 +1,12 @@
 package main
 
 import (
-	_ "embed"
 	"errors"
 	"fmt"
 	"os"
-	"strings"
-	"text/template"
 
 	"zgo.at/zli"
 )
-
-var hlErr = zli.Color256(224).Bg() | zli.Color256(0) | zli.Bold
-
-//go:embed script.gotxt
-var script []byte
-
-var scriptTemplate = template.Must(template.New("").
-	Option("missingkey=error").
-	Funcs(template.FuncMap{
-		"join": strings.Join,
-	}).
-	Parse(string(script)))
 
 func main() {
 	f := zli.NewFlags(os.Args)
