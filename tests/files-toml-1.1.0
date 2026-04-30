@@ -875,8 +875,10 @@ valid/table/names.json
 valid/table/names.toml
 valid/table/names-with-values.json
 valid/table/names-with-values.toml
-valid/table/no-eol.json
-valid/table/no-eol.toml
+valid/table/no-eol-01.json
+valid/table/no-eol-01.toml
+valid/table/no-eol-02.json
+valid/table/no-eol-02.toml
 valid/table/sub.json
 valid/table/sub.toml
 valid/table/sub-empty.json
