@@ -106,7 +106,7 @@ func NewRunner(r Runner) Runner {
 	} else if r.Version == "1.1" {
 		r.Version = "1.1.0"
 	} else if r.Version == "latest" {
-		r.Version = DefaultVersion
+		r.Version = "1.1.0"
 	}
 	if r.Files == nil {
 		r.Files = TestCases()

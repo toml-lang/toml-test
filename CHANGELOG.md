@@ -1,5 +1,10 @@
-v2.1.0 v2.0.0 2025-12-27
-------------------------
+v2.2.0 2026-03-30
+-----------------
+This contains several minor bug fixes to the test runner and one additional
+test. See: https://github.com/toml-lang/toml-test/compare/v2.1.0...v2.2.0
+
+v2.1.0 2025-12-27
+-----------------
 Fix two issues in the 2.0 release:
 
 - Add back the `list` command and `tests/files-toml-*` files that were removed
@@ -10,8 +15,7 @@ Fix two issues in the 2.0 release:
 
 v2.0.0 2025-12-18
 -----------------
-This release has a number of incompatible changes. It also sets TOML 1.1 as the
-default version to test.
+This release has a number of incompatible changes.
 
 Note the correct import path changed from `github.com/toml-lang/toml-test` to
 `github.com/toml-lang/toml-test/v2`. If you're installing toml-test from source

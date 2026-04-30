@@ -141,8 +141,7 @@ There are three types of tests:
                    tests; useful to get a list of "known failures" for CI
                    integrations and such.
 
-    -toml          TOML version to run tests for,  "1.0", "1.1", or "latest"
-                   for the latest published TOML version. Default is latest.
+    -toml          TOML version to run tests for, 1.0 or 1.1. Default is 1.0.
 
     -timeout       Maximum time for a single test run, to detect infinite loops
                    or pathological cases. Defaults to "1s".
@@ -229,7 +228,7 @@ updates.
 
 \x1b[1mFlags:\x1b[0m
 
-    -toml          TOML version to copy tests for (1.0, 1.1, or latest).
+    -toml          TOML version to copy tests for (1.0 or 1.1).
 `, `\x1b`, "\x1b")[1:]
 
 var usageList = strings.ReplaceAll(`
@@ -240,7 +239,7 @@ make it more convenient to use the test cases without running toml-test.
 
 \x1b[1mFlags:\x1b[0m
 
-    -toml          TOML version to list tests for (1.0, 1.1, or latest).
+    -toml          TOML version to list tests for (1.0 or 1.1).
 `, `\x1b`, "\x1b")[1:]
 
 var usageVersion = strings.ReplaceAll(`

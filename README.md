@@ -15,11 +15,11 @@ If you find something in your parser that's not exactly covered by toml-test
 already then it should be added here; just creating an issue is enough: don't
 *need* to create a PR.
 
-Compatible with TOML versions [v1.0.0] and [v1.1.0].
+Compatible with TOML versions [v1.0] and [v1.1].
 
 [TOML]: https://toml.io
-[v1.0.0]: https://toml.io/en/v1.0.0
-[v1.1.0]: https://toml.io/en/v1.1.0
+[v1.0]: https://toml.io/en/v1.0.0
+[v1.1]: https://toml.io/en/v1.1.0
 
 Installation
 ------------
@@ -224,8 +224,8 @@ re-implement its behaviour in your own language's test-suite, which may be an
 easier way to run the tests.
 
 Because multiple TOML versions are supported, not all tests are valid for every
-version of TOML; for example the 1.0.0 tests contain a test that trailing commas
-in tables are invalid, but in 1.1.0 this should be considered valid.
+version of TOML; for example the 1.0 tests contain a test that trailing commas
+in tables are invalid, but in 1.1 this should be considered valid.
 
 In short: you can't "just" copy all .toml and .json files from the tests/
 directory. The easiest way to copy the correct files is to use `copy`:
