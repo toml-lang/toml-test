@@ -77,6 +77,8 @@ invalid/datetime/day-zero.toml
 invalid/datetime/feb-29.toml
 invalid/datetime/feb-30.toml
 invalid/datetime/hour-over.toml
+invalid/datetime/leading-zero-date.toml
+invalid/datetime/leading-zero-datetime.toml
 invalid/datetime/mday-over.toml
 invalid/datetime/mday-under.toml
 invalid/datetime/minute-over.toml
@@ -106,7 +108,8 @@ invalid/datetime/second-trailing-dot.toml
 invalid/datetime/second-trailing-dotz.toml
 invalid/datetime/time-no-leads.toml
 invalid/datetime/trailing-x.toml
-invalid/datetime/y10k.toml
+invalid/datetime/y10k-date.toml
+invalid/datetime/y10k-datetime.toml
 invalid/encoding/bad-codepoint.toml
 invalid/encoding/bad-utf8-at-end.toml
 invalid/encoding/bad-utf8-in-array.toml
