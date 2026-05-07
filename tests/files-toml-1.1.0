@@ -49,6 +49,10 @@ invalid/control/comment-ff.toml
 invalid/control/comment-lf.toml
 invalid/control/comment-null.toml
 invalid/control/comment-us.toml
+invalid/control/linetab-number-01.toml
+invalid/control/linetab-number-02.toml
+invalid/control/linetab-number-03.toml
+invalid/control/linetab-number-04.toml
 invalid/control/multi-cr.toml
 invalid/control/multi-del.toml
 invalid/control/multi-lf.toml
