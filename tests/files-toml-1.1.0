@@ -284,9 +284,12 @@ invalid/key/quoted-unclosed-01.toml
 invalid/key/quoted-unclosed-02.toml
 invalid/key/single-open-bracket.toml
 invalid/key/space.toml
+invalid/key/space-quoted.toml
 invalid/key/special-character.toml
 invalid/key/start-bracket.toml
 invalid/key/start-dot.toml
+invalid/key/tab.toml
+invalid/key/tab-quoted.toml
 invalid/key/two-equals-01.toml
 invalid/key/two-equals-02.toml
 invalid/key/two-equals-03.toml
