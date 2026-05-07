@@ -568,6 +568,8 @@ valid/example.json
 valid/example.toml
 valid/float/exponent.json
 valid/float/exponent.toml
+valid/float/exponent-upper.json
+valid/float/exponent-upper.toml
 valid/float/float.json
 valid/float/float.toml
 valid/float/inf-and-nan.json
