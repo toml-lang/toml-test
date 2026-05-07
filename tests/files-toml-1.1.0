@@ -120,6 +120,7 @@ invalid/encoding/bad-utf8-in-string.toml
 invalid/encoding/bad-utf8-in-string-literal.toml
 invalid/encoding/bom-not-at-start-01.toml
 invalid/encoding/bom-not-at-start-02.toml
+invalid/encoding/bom-not-at-start-03.toml
 invalid/encoding/ideographic-space.toml
 invalid/encoding/utf16-bom.toml
 invalid/encoding/utf16-comment.toml
@@ -911,3 +912,7 @@ valid/table/without-super.json
 valid/table/without-super.toml
 valid/table/without-super-with-values.json
 valid/table/without-super-with-values.toml
+valid/utf8-bom-01.json
+valid/utf8-bom-01.toml
+valid/utf8-bom-02.json
+valid/utf8-bom-02.toml
