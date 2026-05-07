@@ -124,6 +124,10 @@ invalid/encoding/ideographic-space.toml
 invalid/encoding/utf16-bom.toml
 invalid/encoding/utf16-comment.toml
 invalid/encoding/utf16-key.toml
+invalid/float/arabic-zero-01.toml
+invalid/float/arabic-zero-02.toml
+invalid/float/arabic-zero-03.toml
+invalid/float/arabic-zero-04.toml
 invalid/float/double-dot-01.toml
 invalid/float/double-dot-02.toml
 invalid/float/exp-dot-01.toml
@@ -190,6 +194,10 @@ invalid/inline-table/overwrite-07.toml
 invalid/inline-table/overwrite-08.toml
 invalid/inline-table/overwrite-09.toml
 invalid/inline-table/overwrite-10.toml
+invalid/integer/arabic-zero-01.toml
+invalid/integer/arabic-zero-02.toml
+invalid/integer/arabic-zero-03.toml
+invalid/integer/arabic-zero-04.toml
 invalid/integer/capital-bin.toml
 invalid/integer/capital-hex.toml
 invalid/integer/capital-oct.toml
