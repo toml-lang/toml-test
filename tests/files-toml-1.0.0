@@ -14,6 +14,8 @@ invalid/array/no-close-07.toml
 invalid/array/no-close-08.toml
 invalid/array/no-close-table-01.toml
 invalid/array/no-close-table-02.toml
+invalid/array/no-close-table-03.toml
+invalid/array/no-close-table-04.toml
 invalid/array/no-comma-01.toml
 invalid/array/no-comma-02.toml
 invalid/array/no-comma-03.toml
