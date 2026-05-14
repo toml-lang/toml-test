@@ -459,6 +459,8 @@ invalid/table/duplicate-key-07.toml
 invalid/table/duplicate-key-08.toml
 invalid/table/duplicate-key-09.toml
 invalid/table/duplicate-key-10.toml
+invalid/table/duplicate-key-11.toml
+invalid/table/duplicate-key-12.toml
 invalid/table/empty.toml
 invalid/table/empty-implicit-table.toml
 invalid/table/equals-sign.toml
