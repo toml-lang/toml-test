@@ -454,6 +454,8 @@ invalid/table/duplicate-key-09.toml
 invalid/table/duplicate-key-10.toml
 invalid/table/duplicate-key-11.toml
 invalid/table/duplicate-key-12.toml
+invalid/table/duplicate-key-13.toml
+invalid/table/duplicate-key-14.toml
 invalid/table/empty.toml
 invalid/table/empty-implicit-table.toml
 invalid/table/equals-sign.toml
@@ -670,6 +672,10 @@ valid/key/empty-02.json
 valid/key/empty-02.toml
 valid/key/empty-03.json
 valid/key/empty-03.toml
+valid/key/empty-04.json
+valid/key/empty-04.toml
+valid/key/empty-05.json
+valid/key/empty-05.toml
 valid/key/equals-nospace.json
 valid/key/equals-nospace.toml
 valid/key/escapes.json
