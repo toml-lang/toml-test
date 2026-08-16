@@ -224,6 +224,8 @@ TOML; a few things are left up to implementations, and are not tested here.
   time. A limit of 128 or 256 should be more than enough to process pretty much
   all real-world TOML documents.
 
+  The same applies to array nesting (e.g. `a = [[[.. 1 ..]]]`).
+
 Usage without `toml-test` binary
 --------------------------------
 While the `toml-test` tool is a convenient way to run the tests, you can also
