@@ -131,7 +131,7 @@ def run_decoder(version, path_toml, path_json):
     if version == '1.1.0':
         env['BURNTSUSHI_TOML_110'] = '1'
     subprocess.run([DECODER], stdin=open(path_toml), stdout=open(path_json, mode='w'))
-    subprocess.run(['jfmt', '-w', path_json])
+    subprocess.run(['go', 'run', 'zgo.at/jfmt/cmd/jfmt', '-w', path_json])
 
 def write_valid_case(version, header, index, block):
     # Strip out datetime subseconds more than ms, since that's optional
