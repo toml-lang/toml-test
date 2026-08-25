@@ -85,7 +85,7 @@ func (r Test) cmpJSONArrays(want, have any) Test {
 			"  Your encoder: %d",
 			r.Key, len(wantSlice), len(haveSlice))
 	}
-	for i := 0; i < len(wantSlice); i++ {
+	for i := range wantSlice {
 		if sub := r.CompareJSON(wantSlice[i], haveSlice[i]); sub.Failed() {
 			return sub
 		}

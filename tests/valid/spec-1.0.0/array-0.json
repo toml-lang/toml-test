@@ -5,7 +5,7 @@
         {"type": "string", "value": "green"}
     ],
     "contributors": [
-        {"type": "string", "value": "Foo Bar \u003cfoo@example.com\u003e"},
+        {"type": "string", "value": "Foo Bar <foo@example.com>"},
         {
             "email": {"type": "string", "value": "bazqux@example.com"},
             "name":  {"type": "string", "value": "Baz Qux"},
