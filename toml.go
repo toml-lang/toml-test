@@ -107,7 +107,7 @@ func (r Test) cmpTOMLArrays(want []any, have any) Test {
 			"  Your encoder: %[3]v (len=%[5]d)",
 			r.Key, want, haveSlice, len(want), len(haveSlice))
 	}
-	for i := 0; i < len(want); i++ {
+	for i := range want {
 		if sub := r.CompareTOML(want[i], haveSlice[i]); sub.Failed() {
 			return sub
 		}

@@ -9,15 +9,11 @@ jobs:
       - uses: 'dominikh/staticcheck-action@v1'
 
   test:
-    strategy:
-      matrix:
-        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
-        go: ['1.19.x', '1.27.x']
+    strategy: {matrix: {os: ['ubuntu-latest', 'macos-latest', 'windows-latest']}}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: 'actions/checkout@v6'
       - uses: 'actions/setup-go@v6'
-        with:
-          go-version: ${{ matrix.go }}
+        with: {go-version: '1.27.x'}
       - run:  'go install ./cmd/toml-test'
       - run:  'go test -race ./...'
