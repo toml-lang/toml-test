@@ -445,6 +445,8 @@ invalid/table/array-no-close-01.toml
 invalid/table/array-no-close-02.toml
 invalid/table/array-no-close-03.toml
 invalid/table/array-no-close-04.toml
+invalid/table/array-no-close-05.toml
+invalid/table/array-no-close-06.toml
 invalid/table/bare-invalid-character-01.toml
 invalid/table/bare-invalid-character-02.toml
 invalid/table/dot.toml
