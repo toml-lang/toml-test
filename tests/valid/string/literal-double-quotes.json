@@ -1,0 +1,10 @@
+{
+    "multiline_four":  {"type": "string", "value": "\"\"\"\""},
+    "multiline_one":   {"type": "string", "value": "\""},
+    "multiline_three": {"type": "string", "value": "\"\"\""},
+    "multiline_two":   {"type": "string", "value": "\"\""},
+    "single_four":     {"type": "string", "value": "\"\"\"\""},
+    "single_one":      {"type": "string", "value": "\""},
+    "single_three":    {"type": "string", "value": "\"\"\""},
+    "single_two":      {"type": "string", "value": "\"\""}
+}

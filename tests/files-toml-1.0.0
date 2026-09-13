@@ -835,6 +835,8 @@ valid/string/escaped-escape.json
 valid/string/escaped-escape.toml
 valid/string/escapes.json
 valid/string/escapes.toml
+valid/string/literal-double-quotes.json
+valid/string/literal-double-quotes.toml
 valid/string/multibyte.json
 valid/string/multibyte.toml
 valid/string/multibyte-escape.json
