@@ -928,7 +928,3 @@ valid/table/without-super.json
 valid/table/without-super.toml
 valid/table/without-super-with-values.json
 valid/table/without-super-with-values.toml
-valid/utf8-bom-01.json
-valid/utf8-bom-01.toml
-valid/utf8-bom-02.json
-valid/utf8-bom-02.toml

@@ -226,6 +226,10 @@ TOML; a few things are left up to implementations, and are not tested here.
 
   The same applies to array nesting (e.g. `a = [[[.. 1 ..]]]`).
 
+- The TOML specification does not explicitly say if a document can start with a
+  UTF-8 BOM (\xEF\xBB\xBF). Some implementations may choose to forbid it, while
+  others may choose to allow it.
+
 Usage without `toml-test` binary
 --------------------------------
 While the `toml-test` tool is a convenient way to run the tests, you can also
