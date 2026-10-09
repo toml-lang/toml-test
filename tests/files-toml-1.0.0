@@ -92,6 +92,7 @@ invalid/datetime/no-date-time-sep.toml
 invalid/datetime/no-leads.toml
 invalid/datetime/no-leads-month.toml
 invalid/datetime/no-leads-with-milli.toml
+invalid/datetime/no-mins.toml
 invalid/datetime/no-secs.toml
 invalid/datetime/no-t.toml
 invalid/datetime/no-year-month-sep.toml
@@ -141,6 +142,7 @@ invalid/float/exp-dot-02.toml
 invalid/float/exp-dot-03.toml
 invalid/float/exp-double-e-01.toml
 invalid/float/exp-double-e-02.toml
+invalid/float/exp-double-sign.toml
 invalid/float/exp-double-us.toml
 invalid/float/exp-leading-us.toml
 invalid/float/exp-trailing-us.toml
@@ -321,6 +323,8 @@ invalid/local-date/month-under.toml
 invalid/local-date/no-leads.toml
 invalid/local-date/no-leads-with-milli.toml
 invalid/local-date/trailing-t.toml
+invalid/local-date/with-timezone-offset-01.toml
+invalid/local-date/with-timezone-offset-02.toml
 invalid/local-date/y10k.toml
 invalid/local-date/year-3digits.toml
 invalid/local-datetime/feb-29.toml
@@ -333,6 +337,7 @@ invalid/local-datetime/month-over.toml
 invalid/local-datetime/month-under.toml
 invalid/local-datetime/no-leads.toml
 invalid/local-datetime/no-leads-with-milli.toml
+invalid/local-datetime/no-mins.toml
 invalid/local-datetime/no-secs.toml
 invalid/local-datetime/no-t.toml
 invalid/local-datetime/second-over.toml
@@ -346,6 +351,8 @@ invalid/local-time/time-no-leads-01.toml
 invalid/local-time/time-no-leads-02.toml
 invalid/local-time/trailing-dot.toml
 invalid/local-time/trailing-dotdot.toml
+invalid/local-time/with-timezone-offset-01.toml
+invalid/local-time/with-timezone-offset-02.toml
 invalid/spec-1.0.0/inline-table-2-0.toml
 invalid/spec-1.0.0/inline-table-3-0.toml
 invalid/spec-1.0.0/key-value-pair-1.toml
