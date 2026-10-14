@@ -37,6 +37,9 @@ exp-double-us = 1e__23
 exp-trailing-us-01 = 1_e2
 exp-trailing-us-02 = 1.2_e2
 
+exp-double-sign-01 = 1e++23
+exp-double-sign-02 = 1e--23
+
 inf-incomplete-01 = in
 inf-incomplete-02 = +in
 inf-incomplete-03 = -in
