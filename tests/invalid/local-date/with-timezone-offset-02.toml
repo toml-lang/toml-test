@@ -1,0 +1,2 @@
+# local-date can't have timezone
+foo = 1987-07-05Z

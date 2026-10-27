@@ -1,0 +1,2 @@
+# local-time can't have timezone
+foo = 17:45:00+02:00
